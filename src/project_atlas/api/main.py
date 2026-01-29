@@ -7,8 +7,6 @@ and retrieve results.
 
 import os
 import json
-
-# import asyncio  # Unused import
 from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
@@ -67,7 +65,11 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Vite dev server
+        "http://localhost:5173",  # Vite dev server (default)
+        "http://localhost:5174",  # Vite fallback port
+        "http://localhost:5175",  # Vite fallback port
+        "http://localhost:5176",  # Vite fallback port
+        "http://localhost:5177",  # Vite fallback port
         "http://localhost:3000",  # Alternative dev port
         "http://localhost:8007",  # Same-origin in container
     ],
@@ -128,6 +130,12 @@ async def run_analysis_workflow(url: str, extension_id: str):
             "analysis_results": None,
             "executive_summary": None,
             "extracted_files": None,
+            # Governance fields
+            "governance_bundle": None,
+            "governance_verdict": None,
+            "governance_report": None,
+            "governance_error": None,
+            # Status fields
             "status": WorkflowStatus.PENDING,
             "start_time": datetime.now().isoformat(),
             "end_time": None,
@@ -190,6 +198,11 @@ async def run_analysis_workflow(url: str, extension_id: str):
                 "total_risk_score": calculate_total_risk_score(
                     final_state
                 ),  # This helper also needs update or a wrapper
+                # Governance data (Pipeline B: Stages 2-8)
+                "governance_verdict": final_state.get("governance_verdict"),
+                "governance_bundle": final_state.get("governance_bundle"),
+                "governance_report": final_state.get("governance_report"),
+                "governance_error": final_state.get("governance_error"),
             }
             scan_status[extension_id] = "completed"
 
@@ -237,16 +250,16 @@ def get_extracted_files(extracted_path: Optional[str]) -> list[str]:
 
 def calculate_security_score(state: WorkflowState) -> int:
     """
-    Calculate overall security RISK score using weighted multi-factor analysis.
+    Calculate overall security score using weighted multi-factor analysis.
 
-    Scoring Components (0-100 scale, where 100 = HIGHEST RISK):
-    - SAST Findings (40%): Critical code vulnerabilities
-    - Permissions Risk (30%): Unreasonable/excessive permissions
-    - Webstore Trust (20%): User ratings, install count, developer reputation
-    - Manifest Quality (10%): Proper metadata, CSP, update URL
+    Scoring Components (risk points deducted from 100):
+    - SAST Findings (40 pts max): Critical code vulnerabilities
+    - Permissions Risk (30 pts max): Unreasonable/excessive permissions
+    - Webstore Trust (20 pts max): User ratings, install count, developer reputation
+    - Manifest Quality (10 pts max): Proper metadata, CSP, update URL
 
     Returns:
-        int: Risk score from 0 (safest) to 100 (highest risk)
+        int: Security score from 0 (dangerous) to 100 (secure)
     """
     analysis_results = state.get("analysis_results", {}) or {}
     manifest = state.get("manifest_data", {}) or {}
@@ -358,10 +371,11 @@ def calculate_security_score(state: WorkflowState) -> int:
 
     manifest_score = min(10, manifest_score)  # Cap at 10
 
-    # Calculate final weighted score
+    # Calculate final weighted score (risk points)
     final_score = sast_score + permissions_score + webstore_score + manifest_score
 
-    return max(0, min(100, final_score))
+    # Invert to security score: 100 = secure, 0 = risky
+    return max(0, min(100, 100 - final_score))
 
 
 def count_total_findings(state: WorkflowState) -> int:
@@ -677,6 +691,72 @@ async def get_scan_results(extension_id: str):
     raise HTTPException(status_code=404, detail="Scan results not found")
 
 
+@app.get("/api/scan/enforcement_bundle/{extension_id}")
+async def get_enforcement_bundle(extension_id: str):
+    """
+    Get the governance enforcement bundle for an analyzed extension.
+    
+    This endpoint returns the complete governance decisioning data including:
+    - facts: Normalized security analysis data
+    - evidence_index: Chain-of-custody evidence items
+    - signals: Extracted governance signals
+    - store_listing: Chrome Web Store listing data
+    - context: Policy evaluation context
+    - rule_results: Individual rule evaluation outcomes
+    - report: Final governance decision and report
+    
+    Args:
+        extension_id: Chrome extension ID
+        
+    Returns:
+        Complete governance enforcement bundle
+    """
+    # Try memory first
+    results = scan_results.get(extension_id)
+    
+    # Try loading from database if not in memory
+    if not results:
+        results = db.get_scan_result(extension_id)
+        if results:
+            scan_results[extension_id] = results
+    
+    # Try loading from file (fallback)
+    if not results:
+        result_file = RESULTS_DIR / f"{extension_id}_results.json"
+        if result_file.exists():
+            with open(result_file, "r", encoding="utf-8") as f:
+                results = json.load(f)
+                scan_results[extension_id] = results
+    
+    if not results:
+        raise HTTPException(status_code=404, detail="Scan results not found")
+    
+    # Check if governance analysis was run
+    governance_bundle = results.get("governance_bundle")
+    
+    if governance_bundle is None:
+        # Governance analysis was not run or failed
+        governance_error = results.get("governance_error")
+        if governance_error:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Governance analysis failed: {governance_error}"
+            )
+        raise HTTPException(
+            status_code=404,
+            detail="Governance enforcement bundle not available. Analysis may be in progress."
+        )
+    
+    # Return the enforcement bundle with additional metadata
+    return {
+        "extension_id": extension_id,
+        "extension_name": results.get("extension_name"),
+        "verdict": results.get("governance_verdict"),
+        "timestamp": results.get("timestamp"),
+        "bundle": governance_bundle,
+    }
+
+
 @app.get("/api/scan/report/{extension_id}")
 async def generate_pdf_report(extension_id: str) -> Response:
     """
@@ -900,6 +980,8 @@ async def health_check():
 # Mount static files for React frontend assets (if static directory exists)
 if STATIC_DIR.exists() and (STATIC_DIR / "assets").exists():
     app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+    # Mount root static files (vite.svg, etc.)
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 # Catch-all route for SPA - must be defined last

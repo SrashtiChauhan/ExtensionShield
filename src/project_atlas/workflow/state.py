@@ -55,6 +55,12 @@ class WorkflowState(TypedDict):
     analysis_results: Optional[Dict]
     executive_summary: Optional[Dict]
     extracted_files: Optional[list]
+    # Governance fields (Pipeline B: Stages 2-8)
+    governance_bundle: Optional[Dict]
+    governance_verdict: Optional[str]
+    governance_report: Optional[Dict]
+    governance_error: Optional[str]
+    # Status fields
     status: WorkflowStatus
     start_time: Optional[str]
     end_time: Optional[str]

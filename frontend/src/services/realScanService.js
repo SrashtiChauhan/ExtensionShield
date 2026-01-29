@@ -393,11 +393,56 @@ class RealScanService {
     }
   }
 
-  // Format compliance results from report.json
+  // Map backend verdicts to frontend verdicts
+  mapVerdict(backendVerdict) {
+    const verdictMap = {
+      "ALLOW": "PASS",
+      "BLOCK": "FAIL",
+      "NEEDS_REVIEW": "NEEDS_REVIEW",
+      "ERROR": "FAIL",
+    };
+    return verdictMap[backendVerdict] || backendVerdict;
+  }
+
+  // Format compliance results from report.json or governance_bundle
   formatComplianceResults(reportData) {
     try {
+      // Check if governance_bundle is available (new structure)
+      const bundle = reportData.governance_bundle;
+      if (bundle) {
+        // Map rule verdicts from backend format (ALLOW/BLOCK) to frontend format (PASS/FAIL)
+        const mappedRuleResults = (bundle.rule_results?.rule_results || []).map(rule => ({
+          ...rule,
+          verdict: this.mapVerdict(rule.verdict),
+        }));
+
+        return {
+          scan_id: reportData.extension_id,
+          timestamp: reportData.timestamp,
+          extension: {
+            id: reportData.extension_id,
+            name: reportData.extension_name || reportData.metadata?.title,
+          },
+          // Extract from governance bundle with mapped verdicts
+          rule_results: mappedRuleResults,
+          evidence_index: bundle.evidence_index?.items || [],
+          signals: bundle.signals?.signals || [],
+          disclosure_claims: bundle.store_listing?.declared_data_categories || null,
+          context: bundle.context || {},
+          summary: bundle.report?.decision || {},
+          facts: bundle.facts || null,
+          // New governance-specific fields (mapped verdict)
+          verdict: this.mapVerdict(bundle.decision?.verdict || reportData.governance_verdict),
+          rationale: bundle.decision?.rationale,
+          action_required: bundle.decision?.action_required,
+          store_listing: bundle.store_listing,
+          citations: bundle.report?.citations || {},
+        };
+      }
+      
+      // Fallback to old structure (backwards compatibility)
       return {
-        scan_id: reportData.scan_id,
+        scan_id: reportData.scan_id || reportData.extension_id,
         timestamp: reportData.timestamp,
         extension: reportData.extension || {},
         rule_results: reportData.rule_results?.rule_results || [],
@@ -422,18 +467,21 @@ class RealScanService {
     }
   }
 
-  // Download enforcement bundle
+  // Download enforcement bundle as JSON
   async downloadEnforcementBundle(scanId) {
     try {
       const response = await fetch(
         `${this.baseURL}/api/scan/enforcement_bundle/${scanId}`
       );
       if (response.ok) {
-        const blob = await response.blob();
+        const data = await response.json();
+        // Create a downloadable JSON file
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `enforcement_bundle_${scanId}.zip`;
+        a.download = `enforcement_bundle_${scanId}.json`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -445,6 +493,24 @@ class RealScanService {
       }
     } catch (error) {
       console.error("Failed to download enforcement bundle:", error);
+      throw error;
+    }
+  }
+
+  // Get enforcement bundle data
+  async getEnforcementBundle(scanId) {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/scan/enforcement_bundle/${scanId}`
+      );
+      if (response.ok) {
+        return await response.json();
+      } else {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Failed to get enforcement bundle");
+      }
+    } catch (error) {
+      console.error("Failed to get enforcement bundle:", error);
       throw error;
     }
   }

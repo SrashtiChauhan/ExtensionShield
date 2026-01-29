@@ -178,3 +178,8 @@ extensions_storage/
 .playwright-mcp/
 *.db
 .DS_Store
+
+# Frontend build artifacts
+static/
+frontend/dist/
+frontend/.vite/

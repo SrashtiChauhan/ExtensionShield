@@ -1,0 +1,115 @@
+{
+  "extension_id": "test_extension_abc123",
+  "manifest": {
+    "name": "Test Extension",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "permissions": ["storage", "tabs"],
+    "host_permissions": ["https://example.com/*"]
+  },
+  "extracted_files": [
+    "manifest.json",
+    "background.js",
+    "content.js",
+    "popup.html",
+    "styles.css"
+  ],
+  "permissions_analysis": {
+    "permissions_details": {
+      "storage": {
+        "is_reasonable": true,
+        "justification_reasoning": "Used for storing user preferences and settings"
+      },
+      "tabs": {
+        "is_reasonable": true,
+        "justification_reasoning": "Required to read active tab URL for core functionality"
+      }
+    }
+  },
+  "sast_results": {
+    "sast_analysis": "[RISK: MEDIUM] Found 2 potential issues",
+    "risk_level": "medium",
+    "sast_findings": {
+      "background.js": [
+        {
+          "type": "fetch-external",
+          "severity": "medium",
+          "description": "Fetch call to external API endpoint detected",
+          "line_number": 42,
+          "snippet": "fetch('https://api.example.com/data')"
+        }
+      ],
+      "content.js": [
+        {
+          "type": "dom-manipulation",
+          "severity": "low",
+          "description": "DOM manipulation detected",
+          "line_number": 15,
+          "snippet": "document.body.appendChild(element)"
+        }
+      ]
+    }
+  },
+  "virustotal_analysis": {
+    "total_malicious": 0,
+    "summary": {
+      "threat_level": "clean"
+    },
+    "file_results": [
+      {
+        "file_name": "background.js",
+        "file_path": "background.js",
+        "virustotal": {
+          "found": true,
+          "sha256": "abc123def456...",
+          "detection_stats": {
+            "malicious": 0,
+            "suspicious": 0,
+            "harmless": 60,
+            "total": 70
+          }
+        }
+      }
+    ]
+  },
+  "entropy_analysis": {
+    "summary": {
+      "overall_risk": "normal",
+      "obfuscation_detected": false
+    },
+    "file_results": [
+      {
+        "file_name": "background.js",
+        "file_path": "background.js",
+        "entropy": {
+          "byte_entropy": 4.5,
+          "char_entropy": 4.2,
+          "risk_level": "normal"
+        },
+        "is_likely_obfuscated": false,
+        "obfuscation_patterns": []
+      }
+    ]
+  },
+  "webstore_analysis": {
+    "webstore_analysis": "Extension appears to follow best practices. Risk: Low."
+  },
+  "summary": {
+    "overall_risk_level": "low",
+    "overall_security_score": 85
+  },
+  "metadata": {
+    "title": "Test Extension",
+    "user_count": 10000,
+    "rating": 4.5,
+    "ratings_count": 250,
+    "last_updated": "2026-01-15",
+    "developer_name": "Test Developer",
+    "developer_email": "dev@example.com",
+    "category": "productivity"
+  }
+}
+
+
+
+

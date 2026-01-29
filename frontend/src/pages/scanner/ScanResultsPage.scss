@@ -1,0 +1,238 @@
+/* ============================================================================
+   Scan Results Page - Full Analysis Results Display
+   ============================================================================ */
+
+.scan-results-page {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 96px 64px !important;
+  animation: pageEnter 0.4s ease-out;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Results Header */
+.results-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid hsl(var(--color-border));
+}
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: hsl(var(--color-foreground-muted));
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: hsl(var(--color-primary));
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.header-info {
+  text-align: center;
+}
+
+.results-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: hsl(var(--color-foreground));
+  margin-bottom: 0.5rem;
+}
+
+.results-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: hsl(var(--color-foreground-muted));
+  font-size: 0.875rem;
+}
+
+.extension-id code {
+  background: rgba(59, 130, 246, 0.1);
+  color: rgba(59, 130, 246, 0.9);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+}
+
+.extension-version {
+  padding: 0.25rem 0.75rem;
+  background: hsl(var(--color-surface));
+  border: 1px solid hsl(var(--color-border));
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Results Content */
+.results-content {
+  margin-bottom: 3rem;
+}
+
+/* Loading State */
+.results-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid hsl(var(--color-border));
+  border-top-color: hsl(var(--color-primary));
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state h2 {
+  font-size: 1.5rem;
+  color: hsl(var(--color-foreground));
+  margin-bottom: 0.5rem;
+}
+
+.loading-state p {
+  color: hsl(var(--color-foreground-muted));
+  margin-bottom: 0.75rem;
+}
+
+.loading-state code {
+  background: rgba(59, 130, 246, 0.1);
+  color: rgba(59, 130, 246, 0.9);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+}
+
+/* No Results State */
+.no-results-state {
+  text-align: center;
+  padding: 3rem;
+  background: hsl(var(--color-surface));
+  border: 1px solid hsl(var(--color-border));
+  border-radius: var(--radius-xl);
+  max-width: 500px;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-results-state h2 {
+  font-size: 1.5rem;
+  color: hsl(var(--color-foreground));
+  margin-bottom: 0.5rem;
+}
+
+.no-results-state p {
+  color: hsl(var(--color-foreground-muted));
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.no-results-state code {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.1);
+  color: rgba(59, 130, 246, 0.9);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+  margin-bottom: 1.5rem;
+}
+
+.no-results-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Footer */
+.results-footer {
+  padding: 2rem 1rem;
+  border-top: 1px solid hsl(var(--color-border));
+  text-align: center;
+}
+
+.footer-disclaimer {
+  font-size: 0.75rem;
+  color: hsl(var(--color-foreground-subtle));
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scan-results-page {
+    padding: 64px 24px !important;
+  }
+
+  .results-title {
+    font-size: 1.5rem;
+  }
+
+  .results-subtitle {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-nav {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .no-results-actions {
+    flex-direction: column;
+  }
+}
+

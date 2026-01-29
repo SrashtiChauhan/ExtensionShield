@@ -38,68 +38,48 @@ const EnhancedUrlInput = ({
   return (
     <div className={`enhanced-url-input ${className}`}>
       <div className="input-container">
+        {/* URL Input Section */}
         <div className="url-field-container">
-          <div className="space-y-2">
-            <label htmlFor="extension-url" className="text-sm font-medium url-label">
-              Chrome Web Store URL
-            </label>
-            <div className="url-input-wrapper">
-              <style>
-                {`
-                  #extension-url::placeholder {
-                    color: #6b7280 !important;
-                    opacity: 1 !important;
-                    font-weight: 300 !important;
-                  }
-                  #extension-url::-webkit-input-placeholder {
-                    color: #6b7280 !important;
-                    opacity: 1 !important;
-                    font-weight: 300 !important;
-                  }
-                  #extension-url::-moz-placeholder {
-                    color: #6b7280 !important;
-                    opacity: 1 !important;
-                    font-weight: 300 !important;
-                  }
-                  #extension-url:-ms-input-placeholder {
-                    color: #6b7280 !important;
-                    opacity: 1 !important;
-                    font-weight: 300 !important;
-                  }
-                `}
-              </style>
-              <Input
-                id="extension-url"
-                placeholder="https://chromewebstore.google.com/detail/extension-name/extension-id"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="url-input-field"
-                style={{
-                  height: '56px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
-                  borderRadius: '0.75rem',
-                  color: '#ffffff',
-                  fontSize: '0.9375rem',
-                  fontWeight: '500',
-                  padding: '0 3.5rem 0 1.25rem',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                }}
-              />
-            </div>
-          </div>
-
-
+          <label htmlFor="extension-url" className="input-label">
+            Chrome Web Store URL
+          </label>
+          <Input
+            id="extension-url"
+            placeholder="https://chromewebstore.google.com/detail/extension-name/extension-id"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="url-input-field"
+          />
         </div>
+
+        {/* Scan Button */}
+        <Button
+          onClick={onScan}
+          disabled={isScanning || !value.trim()}
+          className="scan-button"
+          size="lg"
+        >
+          {isScanning ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Scanning...
+            </>
+          ) : (
+            <>
+              <Search className="mr-2 h-4 w-4" />
+              Scan Extension
+            </>
+          )}
+        </Button>
 
         {/* File Upload Section */}
         {onFileUpload && (
-          <div className="file-upload-section mt-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 h-px bg-gray-600"></div>
-              <span className="text-sm text-gray-400">OR</span>
-              <div className="flex-1 h-px bg-gray-600"></div>
+          <div className="file-upload-section">
+            <div className="divider-with-text">
+              <div className="divider-line"></div>
+              <span className="divider-text">OR</span>
+              <div className="divider-line"></div>
             </div>
             
             <input
@@ -115,53 +95,20 @@ const EnhancedUrlInput = ({
               onClick={handleUploadClick}
               disabled={isScanning}
               variant="outline"
-              className="w-full"
+              className="upload-button"
               size="lg"
-              style={{
-                height: '56px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '2px solid rgba(139, 92, 246, 0.4)',
-                borderRadius: '0.75rem',
-                color: '#ffffff',
-                fontSize: '0.9375rem',
-                fontWeight: '500',
-              }}
             >
               <Upload className="mr-2 h-4 w-4" />
               Upload CRX/ZIP File
             </Button>
           </div>
         )}
-
-        <div className="action-buttons flex gap-2 mt-4">
-          <Button
-            onClick={onScan}
-            disabled={isScanning || !value.trim()}
-            className="scan-button"
-            size="lg"
-          >
-            {isScanning ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Scanning...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                Scan & Analyze
-              </>
-            )}
-          </Button>
-
-        </div>
       </div>
 
-
-
-      <p className="input-help-text text-sm text-muted-foreground mt-2">
+      <p className="input-help-text">
         {onFileUpload
-          ? "Enter a Chrome Web Store URL or upload a .crx/.zip file to analyze the extension's security posture"
-          : "Enter a Chrome Web Store URL to automatically scan and analyze the extension's security posture"
+          ? "Paste a Chrome Web Store URL or upload a local extension file"
+          : "Paste a Chrome Web Store URL to analyze the extension"
         }
       </p>
     </div>

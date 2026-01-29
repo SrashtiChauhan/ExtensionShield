@@ -557,6 +557,94 @@
   box-shadow: 0 2px 8px hsl(var(--color-primary) / 0.2);
 }
 
+/* Scanning Input Section - Below Loading */
+.scanning-input-section {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.scanning-input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--color-foreground-muted));
+}
+
+.scanning-sample-url {
+  font-family: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+  font-size: 0.75rem;
+  color: rgba(59, 130, 246, 0.9);
+  background: rgba(59, 130, 246, 0.08);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  word-break: break-all;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+.scanning-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.scanning-divider::before,
+.scanning-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+.scanning-divider span {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--color-foreground-subtle));
+}
+
+.scanning-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.scanning-arrow {
+  color: rgba(34, 197, 94, 0.8);
+}
+
+.scanning-cta span:last-child {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(34, 197, 94, 0.9);
+}
+
+.scanning-help-text {
+  font-size: 0.75rem;
+  color: hsl(var(--color-foreground-subtle));
+  text-align: center;
+  line-height: 1.6;
+  max-width: 400px;
+  margin-top: 0.5rem;
+}
+
+.scanning-input-section .sample-report-btn {
+  margin-top: 1rem;
+}
+
 .simple-loader {
   margin-bottom: 2rem;
   display: flex;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -16,6 +16,7 @@ import "./DashboardPage.scss";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [url, setUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanStage, setScanStage] = useState(null);
@@ -32,6 +33,15 @@ const DashboardPage = () => {
     loadScanHistory();
     loadDashboardStats();
   }, []);
+
+  // Handle prefilled URL from homepage scanner
+  useEffect(() => {
+    if (location.state?.prefillUrl) {
+      setUrl(location.state.prefillUrl);
+      // Clear the state so refresh doesn't re-trigger
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const loadScanHistory = async () => {
     try {
@@ -320,28 +330,6 @@ const DashboardPage = () => {
           </button>
         </div>
 
-        {/* Trust Bullets */}
-        <div className="trust-bullets">
-          <div className="trust-bullet">
-            <span className="trust-bullet-icon">🔒</span>
-            <span className="trust-bullet-text">Static analysis only—no browsing capture or runtime monitoring</span>
-          </div>
-          <div className="trust-bullet">
-            <span className="trust-bullet-icon">🗑️</span>
-            <span className="trust-bullet-text">Files processed securely and automatically deleted after 24 hours</span>
-          </div>
-          <div className="trust-bullet">
-            <span className="trust-bullet-icon">📋</span>
-            <span className="trust-bullet-text">
-              Evidence-based reports; not legal advice
-              <span className="trust-footnote">*</span>
-            </span>
-          </div>
-        </div>
-        <p className="trust-disclaimer">
-          * Reports are generated from deterministic rule evaluation and code evidence. They do not constitute legal advice or guarantee compliance.
-        </p>
-
         {/* Glowing Arc Separator */}
         <div className="hero-glow-arc">
           <div className="glow-arc-beam"></div>
@@ -349,40 +337,67 @@ const DashboardPage = () => {
 
         {/* Lower Section - Below Glowing Arc */}
         <div className="hero-lower-section">
-          <h2 className="hero-feature-title">What you get</h2>
-          <p className="hero-feature-description">
-            Deterministic compliance evaluation with evidence-grade findings and policy citations.
-          </p>
+          {/* Stats Overview */}
+          <div className="dashboard-content-wrapper">
+            <div className="section-header-row">
+              <h2 className="section-title">
+                <span className="icon">📊</span> Security Overview
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHistory(!showHistory)}
+                className="history-toggle-btn"
+              >
+                {showHistory ? "Hide History" : "Show History"}
+              </Button>
+            </div>
 
-          {/* What You Get Section */}
-          <div className="what-you-get-grid">
-            <div className="what-you-get-item">
-              <div className="what-you-get-icon">✅</div>
-              <div className="what-you-get-content">
-                <h3 className="what-you-get-title">Deterministic Verdicts</h3>
-                <p className="what-you-get-description">Clear PASS/FAIL/NEEDS_REVIEW outcomes based on rule evaluation, not subjective scoring</p>
-              </div>
-            </div>
-            <div className="what-you-get-item">
-              <div className="what-you-get-icon">📄</div>
-              <div className="what-you-get-content">
-                <h3 className="what-you-get-title">Evidence Table</h3>
-                <p className="what-you-get-description">File path, line range, and code snippet for every finding—ready for audit trails</p>
-              </div>
-            </div>
-            <div className="what-you-get-item">
-              <div className="what-you-get-icon">📚</div>
-              <div className="what-you-get-content">
-                <h3 className="what-you-get-title">Policy Citations</h3>
-                <p className="what-you-get-description">Direct references to Chrome Web Store policies and DPDP v0 requirements</p>
-              </div>
-            </div>
-            <div className="what-you-get-item">
-              <div className="what-you-get-icon">💾</div>
-              <div className="what-you-get-content">
-                <h3 className="what-you-get-title">Exportable Reports</h3>
-                <p className="what-you-get-description">JSON export available now; PDF reports coming soon</p>
-              </div>
+            <div className="stats-grid">
+              <EnhancedMetricCard
+                icon="🔍"
+                title="Total Scans"
+                subtitle="Analyzed Extensions"
+                value={dashboardStats.totalScans.value}
+                label={dashboardStats.totalScans.value === 1 ? "Scan completed" : "Scans completed"}
+                variant="primary"
+                trend={null}
+                sparklineData={dashboardStats.totalScans.sparkline}
+                helpText="Total number of unique Chrome extensions analyzed."
+              />
+              <EnhancedMetricCard
+                icon="🛡️"
+                title="High Risk"
+                subtitle="Critical Threats"
+                value={dashboardStats.highRisk.value}
+                label="Critical issues found"
+                variant="danger"
+                trend={null}
+                sparklineData={dashboardStats.highRisk.sparkline}
+                helpText="Extensions identified with critical security vulnerabilities."
+              />
+              <EnhancedMetricCard
+                icon="📁"
+                title="Code Analysis"
+                subtitle="Files Processed"
+                value={dashboardStats.totalFiles.value}
+                label="Source files analyzed"
+                variant="success"
+                trend={null}
+                sparklineData={dashboardStats.totalFiles.sparkline}
+                helpText="Total file count processed across all scans."
+              />
+              <EnhancedMetricCard
+                icon="🚨"
+                title="Vulnerabilities"
+                subtitle="Issues Detected"
+                value={dashboardStats.totalVulnerabilities.value}
+                label="Security alerts"
+                variant="warning"
+                trend={null}
+                sparklineData={dashboardStats.totalVulnerabilities.sparkline}
+                helpText="Aggregated count of security findings and potential risks."
+              />
             </div>
           </div>
 
@@ -411,70 +426,6 @@ const DashboardPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Stats Overview */}
-      <div className="dashboard-content-wrapper">
-        <div className="section-header-row">
-          <h2 className="section-title">
-            <span className="icon">📊</span> Security Overview
-          </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowHistory(!showHistory)}
-            className="history-toggle-btn"
-          >
-            {showHistory ? "Hide History" : "Show History"}
-          </Button>
-        </div>
-
-        <div className="stats-grid">
-          <EnhancedMetricCard
-            icon="🔍"
-            title="Total Scans"
-            subtitle="Analyzed Extensions"
-            value={dashboardStats.totalScans.value}
-            label={dashboardStats.totalScans.value === 1 ? "Scan completed" : "Scans completed"}
-            variant="primary"
-            trend={null}
-            sparklineData={dashboardStats.totalScans.sparkline}
-            helpText="Total number of unique Chrome extensions analyzed."
-          />
-          <EnhancedMetricCard
-            icon="🛡️"
-            title="High Risk"
-            subtitle="Critical Threats"
-            value={dashboardStats.highRisk.value}
-            label="Critical issues found"
-            variant="danger"
-            trend={null}
-            sparklineData={dashboardStats.highRisk.sparkline}
-            helpText="Extensions identified with critical security vulnerabilities."
-          />
-          <EnhancedMetricCard
-            icon="📁"
-            title="Code Analysis"
-            subtitle="Files Processed"
-            value={dashboardStats.totalFiles.value}
-            label="Source files analyzed"
-            variant="success"
-            trend={null}
-            sparklineData={dashboardStats.totalFiles.sparkline}
-            helpText="Total file count processed across all scans."
-          />
-          <EnhancedMetricCard
-            icon="🚨"
-            title="Vulnerabilities"
-            subtitle="Issues Detected"
-            value={dashboardStats.totalVulnerabilities.value}
-            label="Security alerts"
-            variant="warning"
-            trend={null}
-            sparklineData={dashboardStats.totalVulnerabilities.sparkline}
-            helpText="Aggregated count of security findings and potential risks."
-          />
-        </div>
-      </div>
 
       {/* Recent Activity / History */}
       {showHistory && scanHistory.length > 0 && (
@@ -543,6 +494,29 @@ const DashboardPage = () => {
               <span className="step">🔍 Static Analysis</span>
               <span className="step">🛡️ Threat Check</span>
             </div>
+          </div>
+          
+          {/* Input Section Below Loading */}
+          <div className="scanning-input-section">
+            <div className="scanning-input-label">Chrome Web Store URL</div>
+            <code className="scanning-sample-url">https://chromewebstore.google.com/detail/ais-visa-auto-rescheduler/bmihdnoolhjbhjcoiamedcghafihcooi</code>
+            <div className="scanning-divider">
+              <span>OR</span>
+            </div>
+            <div className="scanning-input-label">Upload CRX/ZIP File</div>
+            <div className="scanning-cta">
+              <span className="scanning-arrow">→</span>
+              <span>Scan & Analyze</span>
+            </div>
+            <p className="scanning-help-text">
+              Enter a Chrome Web Store URL or upload a .crx/.zip file to analyze the extension's security posture
+            </p>
+            <button
+              className="sample-report-btn"
+              onClick={() => navigate("/sample-report")}
+            >
+              View Sample Report
+            </button>
           </div>
         </div>
       )}

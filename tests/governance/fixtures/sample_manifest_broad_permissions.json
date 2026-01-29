@@ -1,0 +1,33 @@
+{
+  "name": "Broad Access Extension",
+  "version": "2.0.0",
+  "manifest_version": 3,
+  "description": "Extension with broad permissions for testing BLOCK rules",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "debugger",
+    "clipboardRead",
+    "clipboardWrite",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
+
+
+
+

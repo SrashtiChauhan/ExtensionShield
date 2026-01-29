@@ -1,0 +1,465 @@
+# Citations and Policy References
+# Provides authoritative sources for governance rules
+
+citations:
+  # ============================================================================
+  # ENTERPRISE_GOV_BASELINE Citations
+  # ============================================================================
+  
+  ENTERPRISE_GOV_BASELINE::GUIDE_1:
+    title: "Excessive Host Permissions Guidelines"
+    description: |
+      Wildcard permissions (<all_urls>, *://*/*) grant access to all websites.
+      This should only be allowed with explicit business justification from the extension
+      developer and security review by enterprise IT.
+    standard: "NIST SP 800-53 AC-3"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_2:
+    title: "Data Exfiltration Prevention"
+    description: |
+      Extensions that transfer data externally must declare all data categories
+      and third-party recipients in Chrome Web Store listing. Undisclosed data
+      transfer represents significant compliance and privacy risk.
+    standard: "GDPR Article 32, CCPA 1798.100"
+    url: "https://gdpr-info.eu/art-32-gdpr/"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_3:
+    title: "Sensitive Chrome API Usage"
+    description: |
+      APIs like webRequest, proxy, debugger, and enterprise_platformKeys should only
+      be used for documented business purposes. Misuse can enable surveillance or MITM attacks.
+    standard: "NIST SP 800-53 SI-4"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_4:
+    title: "Code Obfuscation and Transparency"
+    description: |
+      Obfuscated code prevents security analysis and audit. Extensions should
+      provide source transparency or accept additional dynamic analysis requirements.
+    standard: "CWS Developer Program Policies"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_5:
+    title: "Malware Detection and Threat Intelligence"
+    description: |
+      Extensions flagged as malware by VirusTotal (>3 vendors) or threat feeds
+      must be blocked immediately from installation.
+    standard: "NIST SP 800-53 SI-3"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_6:
+    title: "Dangerous Permission Analysis"
+    description: |
+      Permissions like storage, clipboard, and unlimitedStorage pose higher privacy/security
+      risks and require explicit justification.
+    standard: "OWASP Mobile Security Testing Guide"
+    url: "https://owasp.org/www-project-mobile-security-testing-guide/"
+    
+  ENTERPRISE_GOV_BASELINE::GUIDE_7:
+    title: "Privacy Policy Disclosure"
+    description: |
+      Extensions that collect any user data must provide a privacy policy.
+      Absence of privacy policy indicates lack of transparency.
+    standard: "FTC Guides Endorsements & Testimonials, GDPR Article 14"
+    url: "https://gdpr-info.eu/art-14-gdpr/"
+    
+  # ============================================================================
+  # CWS_LIMITED_USE Citations
+  # ============================================================================
+  
+  CWS_LIMITED_USE::SECTION_1:
+    title: "Chrome Web Store Limited Use Policy - Host Permissions"
+    description: |
+      Chrome Web Store Limited Use policies restrict which APIs and permissions
+      extensions can use unless they have a narrow, well-defined purpose.
+      Host permissions must be scoped to necessary domains only.
+    standard: "Chrome Web Store Developer Program Policies"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_2:
+    title: "Chrome Web Store Limited Use Policy - Data Categories"
+    description: |
+      Extensions that collect PII (email, phone, payment info, etc.) must:
+      1. Explicitly declare data categories in store listing
+      2. Provide clear privacy policy
+      3. Only use data for stated purposes
+    standard: "Chrome Web Store Sensitive User Data Policy"
+    url: "https://developer.chrome.com/docs/webstore/sensitive_data/"
+    
+  CWS_LIMITED_USE::SECTION_3:
+    title: "Chrome Web Store Limited Use Policy - Data Sale Prohibition"
+    description: |
+      Extensions must NOT sell user data. Data monetization is only allowed
+      through ads served within the extension, with explicit transparency.
+    standard: "Chrome Web Store Program Policies"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_4:
+    title: "Chrome Web Store Limited Use Policy - Third-Party Data Sharing"
+    description: |
+      Any transfer of user data to third parties must be:
+      1. Explicitly declared in store listing
+      2. Limited to vendors necessary for stated purpose
+      3. Covered by data processing agreements
+    standard: "Chrome Web Store Program Policies"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_5:
+    title: "Chrome Web Store Limited Use Policy - Clipboard Access"
+    description: |
+      Clipboard permissions should only be used for explicit user-initiated
+      copy/paste operations. Background access or monitoring is prohibited.
+    standard: "Chrome Web Store Clipboard Policy"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_6:
+    title: "Chrome Web Store Limited Use Policy - Storage Permissions"
+    description: |
+      unlimitedStorage permission should be used only when justified by
+      the extension's core functionality (e.g., offline tools, data sync).
+    standard: "Chrome Web Store Program Policies"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_7:
+    title: "Chrome Web Store Limited Use Policy - Sensitive Sites"
+    description: |
+      Content scripts and host permissions on banking, payment, and healthcare
+      sites require heightened scrutiny and narrowly defined business purpose.
+    standard: "Chrome Web Store Security Requirements"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_8:
+    title: "Chrome Web Store Limited Use Policy - External Endpoints"
+    description: |
+      All external communication (APIs, analytics, ad servers) must be
+      disclosed in the Chrome Web Store listing with privacy policy links.
+    standard: "Chrome Web Store Transparency Requirements"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_9:
+    title: "Chrome Web Store Limited Use Policy - Network Interception"
+    description: |
+      webRequest and declarativeNetRequest APIs allow interception of all
+      network traffic. Use must be disclosed and limited to documented purpose.
+    standard: "Chrome Web Store Sensitive API Policy"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  CWS_LIMITED_USE::SECTION_10:
+    title: "Chrome Web Store Limited Use Policy - Malware Prevention"
+    description: |
+      Extensions must not include malware, spyware, adware, or code that
+      engages in unexpected or unwanted behavior.
+    standard: "Chrome Web Store Malware Policy"
+    url: "https://developer.chrome.com/docs/webstore/program_policies/"
+    
+  # ============================================================================
+  # STANDARDS and FRAMEWORKS
+  # ============================================================================
+  
+  NIST-SP-800-53::AC-3:
+    title: "NIST SP 800-53 - Access Control (AC-3)"
+    description: "Enforce approved authorizations for logical and physical access"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  NIST-SP-800-53::SI-3:
+    title: "NIST SP 800-53 - Malware Prevention (SI-3)"
+    description: "Employ malware protection mechanisms"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  NIST-SP-800-53::SI-4:
+    title: "NIST SP 800-53 - Information System Monitoring (SI-4)"
+    description: "Monitor information systems and network communications"
+    url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    
+  GDPR:
+    title: "General Data Protection Regulation (GDPR)"
+    description: "EU regulation for data protection and privacy"
+    url: "https://gdpr-info.eu/"
+    
+  CCPA:
+    title: "California Consumer Privacy Act (CCPA)"
+    description: "California law for consumer data privacy rights"
+    url: "https://oag.ca.gov/privacy/ccpa"
+
+  - citation_id: "CWS_UD_002"
+    source: "Chrome Web Store Developer Program Policies"
+    section: "User Data Privacy - Consent Requirements"
+    url: "https://developer.chrome.com/docs/webstore/program-policies/user-data-faq/"
+    summary: "Extensions must obtain affirmative user consent before collecting or using personal data beyond what is necessary for the disclosed functionality."
+    effective_date: "2021-01-18"
+
+  - citation_id: "CWS_PERM_001"
+    source: "Chrome Web Store Developer Program Policies"
+    section: "Permissions - Minimum Required"
+    url: "https://developer.chrome.com/docs/webstore/program-policies/permissions/"
+    summary: "Extensions must request the minimum permissions necessary for functionality. Broad host permissions require justification."
+    effective_date: "2023-06-01"
+
+  - citation_id: "CWS_PERM_002"
+    source: "Chrome Web Store Developer Program Policies"
+    section: "Permissions - activeTab Preference"
+    url: "https://developer.chrome.com/docs/webstore/program-policies/permissions/"
+    summary: "Extensions should prefer activeTab permission over broad host permissions when functionality only requires access to the current tab."
+    effective_date: "2023-06-01"
+
+  - citation_id: "CWS_SEC_001"
+    source: "Chrome Web Store Developer Program Policies"
+    section: "Security - Remote Code Prohibition"
+    url: "https://developer.chrome.com/docs/webstore/program-policies/"
+    summary: "Extensions must not download or execute remote code (eval, new Function from remote sources). All code must be included in the extension package."
+    effective_date: "2021-01-18"
+
+  - citation_id: "CWS_SEC_002"
+    source: "Chrome Web Store Developer Program Policies"
+    section: "Security - Code Obfuscation"
+    url: "https://developer.chrome.com/docs/webstore/program-policies/"
+    summary: "Extensions must not obfuscate code in a way that hides functionality. Minification is allowed but code must remain reviewable."
+    effective_date: "2021-01-18"
+
+  - citation_id: "CWS_MV3_001"
+    source: "Chrome Extensions Manifest V3 Requirements"
+    section: "Service Workers"
+    url: "https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3"
+    summary: "Manifest V3 extensions must use service workers instead of persistent background pages, improving security and performance."
+    effective_date: "2024-06-01"
+
+  # ===========================================================================
+  # ENTERPRISE SECURITY STANDARDS
+  # ===========================================================================
+
+  - citation_id: "ENT_SEC_001"
+    source: "Enterprise Security Baseline"
+    section: "Extension Permissions - Broad Access Review"
+    summary: "Extensions requesting <all_urls>, *://*/* or broad host patterns require mandatory security review before enterprise deployment."
+    severity: "high"
+
+  - citation_id: "ENT_SEC_002"
+    source: "Enterprise Security Baseline"
+    section: "Sensitive APIs - Network Interception"
+    summary: "Extensions using webRequest, webRequestBlocking, or proxy APIs require security team justification review."
+    severity: "high"
+
+  - citation_id: "ENT_SEC_003"
+    source: "Enterprise Security Baseline"
+    section: "Malware Detection - VirusTotal"
+    summary: "Extensions with any VirusTotal malicious detection must be blocked immediately and reported to security operations."
+    severity: "critical"
+
+  - citation_id: "ENT_SEC_004"
+    source: "Enterprise Security Baseline"
+    section: "Code Obfuscation Review"
+    summary: "Extensions with detected code obfuscation or high entropy patterns require manual code review before approval."
+    severity: "medium"
+
+  - citation_id: "ENT_SEC_005"
+    source: "Enterprise Security Baseline"
+    section: "Static Analysis Findings"
+    summary: "Extensions with high-severity SAST findings must remediate issues before enterprise deployment."
+    severity: "high"
+
+  - citation_id: "ENT_SEC_006"
+    source: "Enterprise Security Baseline"
+    section: "Native Messaging"
+    summary: "Extensions using nativeMessaging API require architecture review to ensure native host security."
+    severity: "high"
+
+  - citation_id: "ENT_SEC_007"
+    source: "Enterprise Security Baseline"
+    section: "Developer Trust Score"
+    summary: "Extensions from developers with low trust scores or new accounts require enhanced review."
+    severity: "medium"
+
+  - citation_id: "ENT_SEC_008"
+    source: "Enterprise Security Baseline"
+    section: "Update Frequency Monitoring"
+    summary: "Extensions with frequent permission changes or update patterns require continuous monitoring."
+    severity: "medium"
+
+  # ===========================================================================
+  # GDPR - GENERAL DATA PROTECTION REGULATION (EU)
+  # ===========================================================================
+
+  - citation_id: "GDPR_ART_5"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 5 - Principles relating to processing"
+    url: "https://gdpr-info.eu/art-5-gdpr/"
+    summary: "Personal data must be processed lawfully, fairly, transparently; collected for specified purposes; adequate, relevant, and limited to what is necessary (data minimization)."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_6"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 6 - Lawfulness of processing"
+    url: "https://gdpr-info.eu/art-6-gdpr/"
+    summary: "Processing is lawful only if the data subject has given consent, or processing is necessary for contract performance, legal obligation, vital interests, public task, or legitimate interests."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_7"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 7 - Conditions for consent"
+    url: "https://gdpr-info.eu/art-7-gdpr/"
+    summary: "Consent must be freely given, specific, informed, and unambiguous. Controller must be able to demonstrate consent was given."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_13"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 13 - Information to be provided"
+    url: "https://gdpr-info.eu/art-13-gdpr/"
+    summary: "When collecting personal data, the controller must provide identity, purposes, recipients, retention period, and data subject rights information."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_25"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 25 - Data protection by design and by default"
+    url: "https://gdpr-info.eu/art-25-gdpr/"
+    summary: "Controllers must implement appropriate technical and organizational measures to ensure only necessary personal data is processed (privacy by design)."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_32"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 32 - Security of processing"
+    url: "https://gdpr-info.eu/art-32-gdpr/"
+    summary: "Controllers must implement appropriate security measures including encryption, confidentiality, integrity, availability, and resilience of processing systems."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  - citation_id: "GDPR_ART_44"
+    source: "General Data Protection Regulation (EU) 2016/679"
+    section: "Article 44 - General principle for transfers"
+    url: "https://gdpr-info.eu/art-44-gdpr/"
+    summary: "Transfer of personal data to third countries may only take place with adequate safeguards or under specific conditions."
+    effective_date: "2018-05-25"
+    jurisdiction: "EU"
+
+  # ===========================================================================
+  # CCPA - CALIFORNIA CONSUMER PRIVACY ACT
+  # ===========================================================================
+
+  - citation_id: "CCPA_1798_100"
+    source: "California Consumer Privacy Act"
+    section: "Section 1798.100 - Right to Know"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100.&lawCode=CIV"
+    summary: "Consumers have the right to know what personal information is collected, used, shared, or sold."
+    effective_date: "2020-01-01"
+    jurisdiction: "US-CA"
+
+  - citation_id: "CCPA_1798_110"
+    source: "California Consumer Privacy Act"
+    section: "Section 1798.110 - Disclosure Requirements"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.110.&lawCode=CIV"
+    summary: "Businesses must disclose categories of personal information collected, purposes, and third parties with whom information is shared."
+    effective_date: "2020-01-01"
+    jurisdiction: "US-CA"
+
+  - citation_id: "CCPA_1798_120"
+    source: "California Consumer Privacy Act"
+    section: "Section 1798.120 - Right to Opt-Out of Sale"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.120.&lawCode=CIV"
+    summary: "Consumers have the right to opt-out of the sale of their personal information."
+    effective_date: "2020-01-01"
+    jurisdiction: "US-CA"
+
+  - citation_id: "CCPA_1798_150"
+    source: "California Consumer Privacy Act"
+    section: "Section 1798.150 - Private Right of Action"
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.150.&lawCode=CIV"
+    summary: "Consumers may bring civil action for data breaches resulting from failure to implement reasonable security."
+    effective_date: "2020-01-01"
+    jurisdiction: "US-CA"
+
+  # ===========================================================================
+  # NIST CYBERSECURITY FRAMEWORK
+  # ===========================================================================
+
+  - citation_id: "NIST_CSF_PR_AC"
+    source: "NIST Cybersecurity Framework"
+    section: "PR.AC - Identity Management and Access Control"
+    url: "https://www.nist.gov/cyberframework"
+    summary: "Access to assets and associated facilities is limited to authorized users, processes, or devices, and to authorized activities and transactions."
+    version: "1.1"
+
+  - citation_id: "NIST_CSF_PR_DS"
+    source: "NIST Cybersecurity Framework"
+    section: "PR.DS - Data Security"
+    url: "https://www.nist.gov/cyberframework"
+    summary: "Information and records (data) are managed consistent with the organization's risk strategy to protect confidentiality, integrity, and availability."
+    version: "1.1"
+
+  - citation_id: "NIST_CSF_DE_CM"
+    source: "NIST Cybersecurity Framework"
+    section: "DE.CM - Continuous Monitoring"
+    url: "https://www.nist.gov/cyberframework"
+    summary: "The information system and assets are monitored at discrete intervals to identify cybersecurity events and verify effectiveness of protective measures."
+    version: "1.1"
+
+  # ===========================================================================
+  # CIS CONTROLS
+  # ===========================================================================
+
+  - citation_id: "CIS_CTRL_2"
+    source: "CIS Critical Security Controls"
+    section: "Control 2 - Inventory and Control of Software Assets"
+    url: "https://www.cisecurity.org/controls/inventory-and-control-of-software-assets"
+    summary: "Actively manage all software on the network so that only authorized software is installed and can execute, reducing attack surface."
+    version: "8"
+
+  - citation_id: "CIS_CTRL_7"
+    source: "CIS Critical Security Controls"
+    section: "Control 7 - Continuous Vulnerability Management"
+    url: "https://www.cisecurity.org/controls/continuous-vulnerability-management"
+    summary: "Continuously acquire, assess, and take action on new information about vulnerabilities to minimize the window of opportunity for attackers."
+    version: "8"
+
+  - citation_id: "CIS_CTRL_16"
+    source: "CIS Critical Security Controls"
+    section: "Control 16 - Application Software Security"
+    url: "https://www.cisecurity.org/controls/application-software-security"
+    summary: "Manage the security life cycle of in-house developed, hosted, or acquired software to prevent, detect, and remediate security weaknesses."
+    version: "8"
+
+  # ===========================================================================
+  # BROWSER EXTENSION SPECIFIC GUIDANCE
+  # ===========================================================================
+
+  - citation_id: "OWASP_EXT_001"
+    source: "OWASP Browser Extension Security"
+    section: "Permission Model Best Practices"
+    url: "https://owasp.org/www-project-web-security-testing-guide/"
+    summary: "Extensions should follow the principle of least privilege, requesting only permissions essential for core functionality."
+
+  - citation_id: "OWASP_EXT_002"
+    source: "OWASP Browser Extension Security"
+    section: "Content Script Isolation"
+    url: "https://owasp.org/www-project-web-security-testing-guide/"
+    summary: "Content scripts should minimize interaction with page context and validate all data received from web pages."
+
+  - citation_id: "OWASP_EXT_003"
+    source: "OWASP Browser Extension Security"
+    section: "Secure Communication"
+    url: "https://owasp.org/www-project-web-security-testing-guide/"
+    summary: "Extensions must use HTTPS for all external communications and validate server certificates."
+
+# =============================================================================
+# CITATION SCHEMA REFERENCE
+# =============================================================================
+#
+# Required fields:
+#   - citation_id: Unique identifier (format: PREFIX_CATEGORY_NUM)
+#   - source: Authoritative source name
+#   - section: Specific section or article
+#   - summary: Brief description of the requirement
+#
+# Optional fields:
+#   - url: Link to the source document
+#   - effective_date: When the policy became effective (YYYY-MM-DD)
+#   - jurisdiction: Geographic scope (e.g., "EU", "US-CA", "GLOBAL")
+#   - version: Version number of the source document
+#   - severity: Importance level (low, medium, high, critical)
+#
+# =============================================================================
+

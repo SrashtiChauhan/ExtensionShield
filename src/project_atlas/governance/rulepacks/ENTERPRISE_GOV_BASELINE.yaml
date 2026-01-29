@@ -1,0 +1,162 @@
+rulepack_id: "ENTERPRISE_GOV_BASELINE"
+version: "1.0.0"
+name: "Enterprise Governance Baseline"
+description: "High-confidence rules to drive ALLOW/BLOCK/NEEDS_REVIEW decisions for IT admins and security teams"
+
+rules:
+  # ============================================================================
+  # HOST PERMISSIONS RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R1"
+    name: "Excessive Host Permissions — Wildcard Access"
+    description: "Extension requests broad host permissions that grant access to all websites"
+    condition: |
+      facts.host_access_patterns contains "<all_urls>" OR
+      facts.host_access_patterns contains "*://*/*"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.95
+    recommended_action: "Require explicit business justification from developer before allowing org-wide"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_1", "NIST-SP-800-53::AC-3"]
+    evidence_refs: []
+
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R2"
+    name: "Specific Domain Host Permissions"
+    description: "Extension requests access to sensitive domains (banking, government, healthcare)"
+    condition: |
+      facts.host_access_patterns contains "*.banking.com" OR
+      facts.host_access_patterns contains "*.gov" OR
+      facts.host_access_patterns contains "*.healthcare.gov"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.85
+    recommended_action: "Verify extension purpose aligns with sensitive domain access"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_1"]
+    evidence_refs: []
+
+  # ============================================================================
+  # DATA EXFILTRATION RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R3"
+    name: "Data Transfer Without Store Declaration"
+    description: |
+      Code performs data transfer (detected by SAST/behavioral analysis) but 
+      Chrome Web Store listing declares no data categories
+    condition: |
+      extraction.status == "ok" AND
+      signals contains type="DATAFLOW_TRACE" AND
+      declared_data_categories is empty
+    verdict: "BLOCK"
+    confidence: 0.9
+    recommended_action: "Block installation — undisclosed data exfiltration risk"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_2", "CWS_LIMITED_USE::SECTION_5"]
+    evidence_refs: []
+
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R4"
+    name: "Data Transfer — Declaration Unknown"
+    description: |
+      Code performs data transfer but store listing extraction failed.
+      Cannot verify declared data categories.
+    condition: |
+      extraction.status != "ok" AND
+      signals contains type="DATAFLOW_TRACE"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.8
+    recommended_action: "Require manual verification of store listing or source code review"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_2"]
+    evidence_refs: []
+
+  # ============================================================================
+  # SENSITIVE API RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R5"
+    name: "Sensitive API Usage Without Justification"
+    description: |
+      Extension uses sensitive Chrome APIs (webRequest, proxy, debugger) 
+      without clear business purpose
+    condition: |
+      signals contains type="SENSITIVE_API"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.75
+    recommended_action: "Require security review of API usage and network behavior"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_3"]
+    evidence_refs: []
+
+  # ============================================================================
+  # EXTERNAL ENDPOINT RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R6"
+    name: "Unknown External Endpoints"
+    description: "Extension communicates with external endpoints not declared in store listing"
+    condition: |
+      signals contains type="ENDPOINT_FOUND" AND
+      declared_third_parties is empty
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.8
+    recommended_action: "Review external endpoints and require declaration on Chrome Web Store"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_2"]
+    evidence_refs: []
+
+  # ============================================================================
+  # OBFUSCATION RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R7"
+    name: "Code Obfuscation Detected"
+    description: "Extension contains obfuscated or packed code that prevents static analysis"
+    condition: |
+      signals contains type="OBFUSCATION" OR
+      (facts.security_findings.entropy_risk_level contains "high" AND
+       facts.security_findings.obfuscation_detected is not empty)
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.7
+    recommended_action: "Require source code transparency or additional dynamic analysis"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_4"]
+    evidence_refs: []
+
+  # ============================================================================
+  # MALWARE/THREAT RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R8"
+    name: "Known Malware Detected"
+    description: "VirusTotal or threat intelligence indicates known malicious patterns"
+    condition: |
+      facts.security_findings.virustotal_threat_level == "malicious" OR
+      facts.security_findings.virustotal_malicious_count > 3
+    verdict: "BLOCK"
+    confidence: 0.95
+    recommended_action: "Block immediately — known malware signature detected"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_5"]
+    evidence_refs: []
+
+  # ============================================================================
+  # PERMISSION ANALYSIS RULES
+  # ============================================================================
+  
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R9"
+    name: "Dangerous Permissions"
+    description: "Extension requests permissions flagged as dangerous (storage, clipboard, etc.)"
+    condition: |
+      manifest.permissions contains "storage" OR
+      manifest.permissions contains "clipboard" OR
+      manifest.permissions contains "unlimitedStorage"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.8
+    recommended_action: "Verify justification for each dangerous permission"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_6"]
+    evidence_refs: []
+
+  - rule_id: "ENTERPRISE_GOV_BASELINE::R10"
+    name: "No Privacy Policy Available"
+    description: "Store listing does not provide a privacy policy URL"
+    condition: |
+      extraction.status == "ok" AND
+      privacy_policy_url is empty
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.7
+    recommended_action: "Require developer to publish privacy policy"
+    citations: ["ENTERPRISE_GOV_BASELINE::GUIDE_7"]
+    evidence_refs: []

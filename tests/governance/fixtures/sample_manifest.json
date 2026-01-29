@@ -1,0 +1,41 @@
+{
+  "name": "Test Extension",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "A test extension for unit testing",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://example.com/*",
+    "https://api.example.com/*"
+  ],
+  "optional_permissions": [
+    "webRequest"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://test.com/*", "https://demo.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "externally_connectable": {
+    "matches": ["https://external.example.com/*"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+

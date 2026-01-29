@@ -2,59 +2,60 @@
 
 :root {
   /* ============================================================================
-     COMPLIANCE PLATFORM COLOR SYSTEM - Light Theme with Yellow Accents
+     PROJECT ATLAS - Dark Theme with Emerald Accents
+     Extension Governance Platform
      ============================================================================ */
 
-  /* Background Colors - Dark theme */
-  --color-background: 0 0% 8%;
-  --color-surface: 0 0% 12%;
-  --color-surface-elevated: 0 0% 16%;
-  --color-surface-hover: 0 0% 20%;
+  /* Background Colors - Deep Navy Dark Theme */
+  --color-background: 222 47% 5%;
+  --color-surface: 222 47% 7%;
+  --color-surface-elevated: 222 47% 9%;
+  --color-surface-hover: 222 47% 12%;
 
-  /* Foreground Colors - Light Gray/White */
-  --color-foreground: 0 0% 95%;
-  --color-foreground-muted: 0 0% 75%;
-  --color-foreground-subtle: 0 0% 60%;
+  /* Foreground Colors */
+  --color-foreground: 210 40% 98%;
+  --color-foreground-muted: 215 20% 65%;
+  --color-foreground-subtle: 215 16% 47%;
 
-  /* Primary Brand - Yellow Accent */
-  --color-primary: 45 100% 50%;
-  --color-primary-hover: 45 100% 45%;
-  --color-primary-foreground: 0 0% 20%;
+  /* Primary Brand - Emerald */
+  --color-primary: 142 71% 45%;
+  --color-primary-hover: 142 71% 40%;
+  --color-primary-foreground: 222 47% 5%;
 
-  /* Secondary - Dark Gray */
-  --color-secondary: 0 0% 30%;
-  --color-secondary-hover: 0 0% 25%;
-  --color-secondary-foreground: 0 0% 100%;
+  /* Secondary - Purple */
+  --color-secondary: 256 65% 65%;
+  --color-secondary-hover: 256 65% 58%;
+  --color-secondary-foreground: 210 40% 98%;
 
-  /* Accent - Yellow */
-  --color-accent: 45 100% 50%;
-  --color-accent-hover: 45 100% 45%;
-  --color-accent-foreground: 0 0% 20%;
+  /* Accent - Emerald */
+  --color-accent: 142 71% 45%;
+  --color-accent-hover: 142 71% 40%;
+  --color-accent-foreground: 222 47% 5%;
 
   /* Status Colors */
-  --color-muted: 0 0% 95%;
-  --color-muted-foreground: 0 0% 50%;
+  --color-muted: 215 16% 47%;
+  --color-muted-foreground: 215 20% 65%;
 
   --color-destructive: 0 84% 60%;
   --color-destructive-hover: 0 84% 55%;
-  --color-destructive-foreground: 0 0% 100%;
+  --color-destructive-foreground: 210 40% 98%;
 
-  --color-success: 142 76% 36%;
-  --color-success-hover: 142 76% 32%;
-  --color-success-foreground: 0 0% 100%;
+  --color-success: 142 71% 45%;
+  --color-success-hover: 142 71% 40%;
+  --color-success-foreground: 210 40% 98%;
 
   --color-warning: 38 92% 50%;
   --color-warning-hover: 38 92% 45%;
-  --color-warning-foreground: 0 0% 20%;
+  --color-warning-foreground: 222 47% 5%;
 
   /* Borders & Inputs */
-  --color-border: 0 0% 25%;
-  --color-border-subtle: 0 0% 20%;
-  --color-border-strong: 0 0% 30%;
+  --color-border: 215 20% 15%;
+  --color-border-subtle: 215 20% 12%;
+  --color-border-strong: 215 20% 20%;
 
-  --color-input: 0 0% 15%;
-  --color-input-focus: 45 100% 50%;
-  --color-ring: 45 100% 50%;
+  --color-input: 222 47% 8%;
+  --color-input-focus: 142 71% 45%;
+  --color-ring: 142 71% 45%;
 
   /* Radii */
   --radius-sm: 0.5rem;
@@ -125,24 +126,21 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #0a0f1a !important;
 }
 
 body {
-  background: #141414 !important;
+  background: #0a0f1a !important;
   color: hsl(var(--color-foreground)) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   line-height: 1.6;
   min-height: 100vh;
 }
 
-html {
-  background: #141414 !important;
-}
-
 #root {
-  background: #141414 !important;
+  background: #0a0f1a !important;
 }
 
 /* ============================================================================
@@ -150,23 +148,23 @@ html {
    ============================================================================ */
 
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--color-surface));
-  border-radius: 10px;
+  background: #0d1424;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--color-primary));
-  border-radius: 10px;
-  border: 2px solid hsl(var(--color-surface));
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 5px;
+  border: 2px solid #0d1424;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--color-primary-hover));
+  background: rgba(148, 163, 184, 0.3);
 }
 
 /* ============================================================================
@@ -174,17 +172,17 @@ html {
    ============================================================================ */
 
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(16, 24, 40, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(16, 24, 40, 0.8);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 /* ============================================================================
@@ -196,11 +194,11 @@ html {
 }
 
 .gradient-accent {
-  background: linear-gradient(135deg, hsl(var(--color-accent)), hsl(var(--color-primary)));
+  background: linear-gradient(135deg, #22c55e, #4ade80);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, hsl(var(--color-primary)), hsl(var(--color-accent)));
+  background: linear-gradient(135deg, #22c55e, #4ade80);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -211,21 +209,21 @@ html {
    ============================================================================ */
 
 .glow-primary {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
-    0 0 40px rgba(59, 130, 246, 0.2),
-    0 0 60px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3),
+    0 0 40px rgba(34, 197, 94, 0.2),
+    0 0 60px rgba(34, 197, 94, 0.1);
 }
 
 .glow-secondary {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3),
-    0 0 40px rgba(168, 85, 247, 0.2),
-    0 0 60px rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3),
+    0 0 40px rgba(139, 92, 246, 0.2),
+    0 0 60px rgba(139, 92, 246, 0.1);
 }
 
 .glow-accent {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3),
-    0 0 40px rgba(6, 182, 212, 0.2),
-    0 0 60px rgba(6, 182, 212, 0.1);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4),
+    0 0 40px rgba(34, 197, 94, 0.25),
+    0 0 60px rgba(34, 197, 94, 0.1);
 }
 
 /* ============================================================================
@@ -233,28 +231,24 @@ html {
    ============================================================================ */
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0px);
   }
-
   50% {
     transform: translateY(-10px);
   }
 }
 
 @keyframes pulse-glow {
-
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
   }
-
   50% {
     opacity: 0.8;
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
   }
 }
 
@@ -262,7 +256,6 @@ html {
   0% {
     background-position: -1000px 0;
   }
-
   100% {
     background-position: 1000px 0;
   }
@@ -273,7 +266,6 @@ html {
     opacity: 0;
     transform: translateY(30px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -284,7 +276,6 @@ html {
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
@@ -295,7 +286,6 @@ html {
     opacity: 0;
     transform: scale(0.95);
   }
-
   to {
     opacity: 1;
     transform: scale(1);
@@ -343,12 +333,12 @@ html {
    ============================================================================ */
 
 ::selection {
-  background: hsl(var(--color-primary) / 0.2);
+  background: rgba(34, 197, 94, 0.25);
   color: hsl(var(--color-foreground));
 }
 
 ::-moz-selection {
-  background: hsl(var(--color-primary) / 0.2);
+  background: rgba(34, 197, 94, 0.25);
   color: hsl(var(--color-foreground));
 }
 
@@ -357,7 +347,6 @@ html {
    ============================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {

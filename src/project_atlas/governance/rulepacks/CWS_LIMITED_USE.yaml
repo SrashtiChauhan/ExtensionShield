@@ -1,0 +1,161 @@
+rulepack_id: "CWS_LIMITED_USE"
+version: "1.0.0"
+name: "Chrome Web Store Limited Use Policy"
+description: "Rules enforcing Chrome Web Store Limited Use policies for data handling, permissions, and user privacy"
+
+rules:
+  # ============================================================================
+  # LIMITED USE / DATA HANDLING RULES
+  # ============================================================================
+  
+  - rule_id: "CWS_LIMITED_USE::R1"
+    name: "Excessive Host Permissions"
+    description: "Wildcard host permissions require strong justification under CWS Limited Use policy"
+    condition: |
+      facts.host_access_patterns contains "<all_urls>" OR
+      facts.host_access_patterns contains "*://*/*"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.9
+    recommended_action: "Require developer justification or reduce scope to specific domains"
+    citations: ["CWS_LIMITED_USE::SECTION_1"]
+    evidence_refs: []
+
+  - rule_id: "CWS_LIMITED_USE::R2"
+    name: "PII Collection Without Declaration"
+    description: |
+      Extension collects sensitive PII (location, payment info, credentials, etc.)
+      but store listing does not declare data categories
+    condition: |
+      extraction.status == "ok" AND
+      signals contains type="SENSITIVE_API" AND
+      declared_data_categories is empty
+    verdict: "BLOCK"
+    confidence: 0.85
+    recommended_action: "Block — Limited Use policy requires explicit PII declaration"
+    citations: ["CWS_LIMITED_USE::SECTION_2"]
+    evidence_refs: []
+
+  - rule_id: "CWS_LIMITED_USE::R3"
+    name: "Data Sale Prohibition"
+    description: |
+      Extension shows patterns consistent with data harvesting/selling behavior.
+      Limited Use policy prohibits selling user data.
+    condition: |
+      signals contains type="DATAFLOW_TRACE" AND
+      signals contains type="ENDPOINT_FOUND" AND
+      declared_third_parties is not empty
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.75
+    recommended_action: "Manual review required to confirm data handling practices"
+    citations: ["CWS_LIMITED_USE::SECTION_3"]
+    evidence_refs: []
+
+  - rule_id: "CWS_LIMITED_USE::R4"
+    name: "Third-Party Data Sharing Without Consent"
+    description: |
+      Extension transfers data to third parties but store listing 
+      does not declare third-party sharing
+    condition: |
+      extraction.status == "ok" AND
+      signals contains type="DATAFLOW_TRACE" AND
+      declared_third_parties is empty
+    verdict: "BLOCK"
+    confidence: 0.8
+    recommended_action: "Block — Limited Use requires explicit third-party data sharing declaration"
+    citations: ["CWS_LIMITED_USE::SECTION_4"]
+    evidence_refs: []
+
+  # ============================================================================
+  # PERMISSION SCOPE RULES
+  # ============================================================================
+  
+  - rule_id: "CWS_LIMITED_USE::R5"
+    name: "Clipboard Access Scope"
+    description: "Clipboard permission should only be used for user-initiated actions"
+    condition: |
+      manifest.permissions contains "clipboardRead" OR
+      manifest.permissions contains "clipboardWrite"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.7
+    recommended_action: "Verify clipboard access is limited to user-initiated copy/paste operations"
+    citations: ["CWS_LIMITED_USE::SECTION_5"]
+    evidence_refs: []
+
+  - rule_id: "CWS_LIMITED_USE::R6"
+    name: "Unlimted Storage Permission"
+    description: "Unlimited storage should have explicit justification"
+    condition: |
+      manifest.permissions contains "unlimitedStorage"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.7
+    recommended_action: "Require justification for unlimited storage use"
+    citations: ["CWS_LIMITED_USE::SECTION_6"]
+    evidence_refs: []
+
+  # ============================================================================
+  # CONTENT SCRIPT RULES
+  # ============================================================================
+  
+  - rule_id: "CWS_LIMITED_USE::R7"
+    name: "Content Scripts on Sensitive Sites"
+    description: |
+      Content scripts run on sensitive domains (banking, payment, healthcare)
+      but extension purpose does not justify access
+    condition: |
+      (facts.host_access_patterns contains "*.banking.com" OR
+       facts.host_access_patterns contains "*.paypal.com" OR
+       facts.host_access_patterns contains "*.healthcare.gov") AND
+      signals contains type="SENSITIVE_API"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.85
+    recommended_action: "Manual security review required for sensitive domain access"
+    citations: ["CWS_LIMITED_USE::SECTION_7"]
+    evidence_refs: []
+
+  # ============================================================================
+  # TRANSPARENCY & DISCLOSURE RULES
+  # ============================================================================
+  
+  - rule_id: "CWS_LIMITED_USE::R8"
+    name: "External Endpoints Not Disclosed"
+    description: "Extension communicates with external servers not listed in store disclosure"
+    condition: |
+      extraction.status == "ok" AND
+      signals contains type="ENDPOINT_FOUND" AND
+      declared_third_parties is empty
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.8
+    recommended_action: "Require developer to disclose all external endpoints in store listing"
+    citations: ["CWS_LIMITED_USE::SECTION_8"]
+    evidence_refs: []
+
+  - rule_id: "CWS_LIMITED_USE::R9"
+    name: "Undisclosed Use of webRequest API"
+    description: |
+      Extension uses webRequest or declarativeNetRequest API but does not
+      disclose network interception in store listing
+    condition: |
+      manifest.permissions contains "webRequest" OR
+      manifest.permissions contains "webRequestBlocking" OR
+      signals contains type="SENSITIVE_API"
+    verdict: "NEEDS_REVIEW"
+    confidence: 0.8
+    recommended_action: "Require disclosure of network interception capabilities"
+    citations: ["CWS_LIMITED_USE::SECTION_9"]
+    evidence_refs: []
+
+  # ============================================================================
+  # SECURITY & INTEGRITY RULES
+  # ============================================================================
+  
+  - rule_id: "CWS_LIMITED_USE::R10"
+    name: "Malware / Adware Detection"
+    description: "VirusTotal or threat intelligence flags extension as malware or adware"
+    condition: |
+      facts.security_findings.virustotal_threat_level == "malicious" OR
+      facts.security_findings.virustotal_malicious_count > 2
+    verdict: "BLOCK"
+    confidence: 0.95
+    recommended_action: "Block immediately — malware/adware detected"
+    citations: ["CWS_LIMITED_USE::SECTION_10"]
+    evidence_refs: []
