@@ -213,21 +213,23 @@ const TabbedResultsPanel = ({
 
       {/* Tabbed Interface */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="threatintel">Threat Intel</TabsTrigger>
           <TabsTrigger value="obfuscation">Obfuscation</TabsTrigger>
           <TabsTrigger value="files">Files ({scanResults.files?.length || 0})</TabsTrigger>
-          <TabsTrigger value="findings">SAST ({scanResults.sastResults?.length || 0})</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-          <TabsTrigger value="compliance">
+          {/* SAST/Findings tab hidden - internal Semgrep rules not exposed to users */}
+          {/* <TabsTrigger value="findings">SAST ({scanResults.sastResults?.length || 0})</TabsTrigger> */}
+          {/* Compliance tab hidden - governance rule engine internal details not exposed */}
+          {/* <TabsTrigger value="compliance">
             Compliance
             {complianceData?.rule_results?.length > 0 && (
               <Badge variant="outline" className="ml-1 text-xs">
                 {complianceData.rule_results.length}
               </Badge>
             )}
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         {/* Overview Tab */}
@@ -620,8 +622,8 @@ const TabbedResultsPanel = ({
           </div>
         </TabsContent>
 
-        {/* SAST Findings Tab */}
-        <TabsContent value="findings" className="space-y-4">
+        {/* SAST Findings Tab - HIDDEN: Internal Semgrep rules not exposed to users */}
+        {/* <TabsContent value="findings" className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">
               Security Findings ({filteredFindings.length} of {scanResults.sastResults?.length || 0})
@@ -706,7 +708,7 @@ const TabbedResultsPanel = ({
               </div>
             )}
           </div>
-        </TabsContent>
+        </TabsContent> */}
 
         {/* Recommendations Tab */}
         <TabsContent value="recommendations" className="space-y-4">
@@ -752,8 +754,8 @@ const TabbedResultsPanel = ({
           )}
         </TabsContent>
 
-        {/* Compliance Tab */}
-        <TabsContent value="compliance" className="space-y-4">
+        {/* Compliance Tab - HIDDEN: Governance rule engine details not exposed to users */}
+        {/* <TabsContent value="compliance" className="space-y-4">
           {isLoadingCompliance ? (
             <Card>
               <CardContent className="p-8 text-center">
@@ -763,7 +765,6 @@ const TabbedResultsPanel = ({
             </Card>
           ) : complianceData && complianceData.rule_results?.length > 0 ? (
             <>
-              {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                   <CardHeader>
@@ -839,7 +840,6 @@ const TabbedResultsPanel = ({
                 </Card>
               </div>
 
-              {/* Disclosure Mismatch Alert */}
               {complianceData.disclosure_claims && (
                 <DisclosureMismatchAlert
                   disclosureClaims={complianceData.disclosure_claims}
@@ -848,7 +848,6 @@ const TabbedResultsPanel = ({
                 />
               )}
 
-              {/* Compliance Matrix */}
               <ComplianceMatrixCard
                 ruleResults={complianceData.rule_results}
                 evidenceIndex={complianceData.evidence_index}
@@ -856,7 +855,6 @@ const TabbedResultsPanel = ({
                 onViewEvidence={handleViewEvidence}
               />
 
-              {/* Export Button */}
               <div className="flex justify-end">
                 <Button
                   variant="outline"
@@ -880,14 +878,13 @@ const TabbedResultsPanel = ({
             </Card>
           )}
 
-          {/* Evidence Modal */}
           <EvidenceModal
             evidenceRefs={selectedEvidenceRefs}
             evidenceIndex={complianceData?.evidence_index || {}}
             isOpen={evidenceModalOpen}
             onClose={() => setEvidenceModalOpen(false)}
           />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

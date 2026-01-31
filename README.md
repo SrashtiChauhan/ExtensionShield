@@ -1,5 +1,5 @@
 
-# Project Atlas
+# ExtensionShield
 
 <p align="center">
   <strong>AI-Powered Chrome Extension Compliance Analysis</strong>
@@ -17,15 +17,15 @@
 
 ## Overview
 
-**Project Atlas** is a comprehensive security analysis tool for Chrome browser extensions. It combines static analysis (SAST), threat intelligence (VirusTotal), and AI-powered assessment to help security researchers, malware analysts, and browser security teams identify malicious behavior in browser extensions.
+**ExtensionShield** is a comprehensive security analysis tool for Chrome browser extensions. It combines static analysis (SAST), threat intelligence (VirusTotal), and AI-powered assessment to help security researchers, malware analysts, and browser security teams identify malicious behavior in browser extensions.
 
 ## Quick Start (Docker)
 
-The fastest way to run Project Atlas is with Docker.
+The fastest way to run ExtensionShield is with Docker.
 
 ```bash
 # 1. Clone the repository
-cd Project-Atlas
+cd ExtensionShield
 
 # 2. Configure environment
 cp .env.example .env
@@ -51,7 +51,7 @@ docker compose up --build
 
 ### Custom Semgrep Rules
 
-Located in `src/project_atlas/config/custom_semgrep_rules.yaml`:
+Located in `src/extension_shield/config/custom_semgrep_rules.yaml`:
 
 | Rule ID | Category | Description |
 |---------|----------|-------------|
@@ -85,7 +85,7 @@ Full API documentation available at http://localhost:8007/docs
 
 ## Claude Desktop Integration (MCP)
 
-Project Atlas integrates with Claude Desktop via MCP (Model Context Protocol).
+ExtensionShield integrates with Claude Desktop via MCP (Model Context Protocol).
 
 **Setup:**
 
@@ -94,15 +94,15 @@ Project Atlas integrates with Claude Desktop via MCP (Model Context Protocol).
 ```json
 {
   "mcpServers": {
-    "Project Atlas": {
+    "ExtensionShield": {
       "command": "uv",
       "args": [
         "--directory",
-        "/absolute/path/to/Project-Atlas",
+        "/absolute/path/to/ExtensionShield",
         "run",
         "python",
         "-m",
-        "project_atlas.mcp_server.main"
+        "extension_shield.mcp_server.main"
       ]
     }
   }
@@ -114,7 +114,7 @@ Project Atlas integrates with Claude Desktop via MCP (Model Context Protocol).
 3. Ask Claude: *"Analyze this Chrome extension: https://chromewebstore.google.com/detail/..."*
 
 <p align="center">
-  <img src="images/claude.png" alt="Project Atlas Claude" width="800"/>
+  <img src="images/claude.png" alt="ExtensionShield Claude" width="800"/>
 </p>
 
 ---
@@ -123,7 +123,7 @@ Project Atlas integrates with Claude Desktop via MCP (Model Context Protocol).
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Project Atlas                            │
+│                    ExtensionShield                            │
 ├─────────────────────────────────────────────────────────────┤
 │  Interfaces                                                 │
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐         │
@@ -300,7 +300,7 @@ The **Extension Governance Engine** transforms security findings into **governan
 ### Design Philosophy
 
 1. **Minimal v0 Contracts**: Lock schemas that support 10–15 rules; expand only when needed  
-2. **Keep Existing Code**: Security analysis (Project Atlas / ThreatXtension) remains unchanged  
+2. **Keep Existing Code**: Security analysis (ExtensionShield / ExtensionShield) remains unchanged  
 3. **Scan Artifact Directory**: Every scan creates `/scans/{scan_id}/` with all JSONs  
 4. **Reuse Endpoints**: Change response format; minimize new endpoints (except bundle export)  
 5. **Dataflow is "Nice to Have"**: Ship 2–3 high-confidence correlations, not full taint analysis for MVP  
@@ -367,7 +367,7 @@ graph TB
     
     subgraph "Security Analysis Pipeline (Existing)"
         S0[Stage 0: Ingest + Extract]
-        S1[Stage 1: Project Atlas / ThreatXtension Scan]
+        S1[Stage 1: ExtensionShield / ExtensionShield Scan]
     end
     
     subgraph "Governance Pipeline (New)"
@@ -914,12 +914,12 @@ The Rules Engine provides a **unified evaluation context** to the DSL. Fields fr
 
 ### File Structure
 
-**Recommendation**: Put governance code under `src/project_atlas/governance/`.
+**Recommendation**: Put governance code under `src/extension_shield/governance/`.
 
-If your repo already uses `src/project_atlas/compliance/`, you can keep it for MVP and rename later. The architecture stays the same.
+If your repo already uses `src/extension_shield/compliance/`, you can keep it for MVP and rename later. The architecture stays the same.
 
 ```
-src/project_atlas/
+src/extension_shield/
 ├── governance/                    # NEW: Governance pipeline (Stages 2–8)
 │   ├── __init__.py
 │   ├── schemas.py

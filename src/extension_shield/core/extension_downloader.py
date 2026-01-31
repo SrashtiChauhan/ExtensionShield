@@ -9,7 +9,7 @@ from typing import Optional, Dict
 from datetime import datetime
 from dotenv import load_dotenv
 import requests
-from project_atlas.utils.extension import calculate_file_hash, extract_extension_id_by_url
+from extension_shield.utils.extension import calculate_file_hash, extract_extension_id_by_url
 
 load_dotenv()
 logger = logging.getLogger(__name__)

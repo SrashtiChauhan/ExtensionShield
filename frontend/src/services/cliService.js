@@ -1,4 +1,4 @@
-// CLI Service for Project Atlas
+// CLI Service for ExtensionShield
 // This service provides a bridge between the web interface and the Python CLI tool
 
 class CLIService {
@@ -45,7 +45,7 @@ class CLIService {
       {
         phase: 'Initialization',
         messages: [
-          { type: 'info', message: '🔍 Project Atlas CLI - Starting Extension Analysis' },
+          { type: 'info', message: '🔍 ExtensionShield CLI - Starting Extension Analysis' },
           { type: 'info', message: '📅 Scan initiated at: ' + new Date().toLocaleString() },
           { type: 'info', message: '🎯 Target: ' + url },
           { type: 'info', message: '🆔 Extension ID: ' + extensionId }
@@ -78,16 +78,16 @@ class CLIService {
         ]
       },
       {
-        phase: 'SAST',
+        phase: 'SecurityScan',
         messages: [
-          { type: 'info', message: '🔒 Phase 3: Security Analysis (SAST)' },
+          { type: 'info', message: '🔒 Phase 3: Security Analysis' },
           { type: 'info', message: '   📊 Analyzing manifest.json...' },
           { type: 'warning', message: '   ⚠️  High-risk permissions detected' },
           { type: 'info', message: '   📄 Scanning JavaScript files for vulnerabilities...' },
           { type: 'error', message: '   🚨 eval() usage detected in background.js' },
           { type: 'error', message: '   🚨 innerHTML assignment in popup.js' },
           { type: 'warning', message: '   ⚠️  Suspicious URL patterns found' },
-          { type: 'info', message: '   📊 SAST analysis completed' }
+          { type: 'info', message: '   📊 Security analysis completed' }
         ]
       },
       {
@@ -183,7 +183,7 @@ class CLIService {
    */
   async getSystemStatus() {
     return {
-      sastEngine: { status: 'active', version: '1.0.0' },
+      securityEngine: { status: 'active', version: '1.0.0' },
       fileExtraction: { status: 'active', version: '1.0.0' },
       loggingSystem: { status: 'active', version: '1.0.0' },
       cliTool: { status: 'active', version: '1.0.0' }

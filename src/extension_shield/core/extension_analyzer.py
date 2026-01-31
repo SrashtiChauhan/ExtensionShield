@@ -5,12 +5,12 @@ This module provides the main analyzer class for Chrome extensions.
 """
 
 from typing import Optional, Dict
-from project_atlas.core.analyzers.permissions import PermissionsAnalyzer
-from project_atlas.core.analyzers.sast import JavaScriptAnalyzer
-from project_atlas.core.analyzers.webstore import WebstoreAnalyzer
-from project_atlas.core.analyzers.virustotal import VirusTotalAnalyzer
-from project_atlas.core.analyzers.entropy import EntropyAnalyzer
-from project_atlas.core.analyzers.chromestats import ChromeStatsAnalyzer
+from extension_shield.core.analyzers.permissions import PermissionsAnalyzer
+from extension_shield.core.analyzers.sast import JavaScriptAnalyzer
+from extension_shield.core.analyzers.webstore import WebstoreAnalyzer
+from extension_shield.core.analyzers.virustotal import VirusTotalAnalyzer
+from extension_shield.core.analyzers.entropy import EntropyAnalyzer
+from extension_shield.core.analyzers.chromestats import ChromeStatsAnalyzer
 
 
 class ExtensionAnalyzer:

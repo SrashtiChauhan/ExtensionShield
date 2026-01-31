@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Optional, List, Any
 from collections import Counter
 
-from project_atlas.core.analyzers import BaseAnalyzer
+from extension_shield.core.analyzers import BaseAnalyzer
 
 logger = logging.getLogger(__name__)
 

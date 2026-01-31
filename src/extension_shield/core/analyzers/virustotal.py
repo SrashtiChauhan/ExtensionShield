@@ -25,7 +25,7 @@ except ImportError:
     VT_AVAILABLE = False
     logger.warning("vt-py not installed. VirusTotal analysis will be disabled.")
 
-from project_atlas.core.analyzers import BaseAnalyzer
+from extension_shield.core.analyzers import BaseAnalyzer
 
 
 class VirusTotalAnalyzer(BaseAnalyzer):

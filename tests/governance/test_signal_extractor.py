@@ -5,14 +5,14 @@ Unit tests for Signal Extractor (Stage 4)
 import pytest
 from datetime import datetime
 
-from project_atlas.governance.schemas import (
+from extension_shield.governance.schemas import (
     Facts,
     ManifestFacts,
     SecurityFindings,
     SastFinding,
     EntropyFileFinding,
 )
-from project_atlas.governance.signal_extractor import (
+from extension_shield.governance.signal_extractor import (
     SignalExtractor,
     SignalType,
 )

@@ -2,7 +2,7 @@
 
 Please Read it Carefully, it took me some time to put this project together.
 
-This document outlines how to compartmentalize Project-Atlas for freelancer collaboration, where each person works on isolated components without access to the full codebase.
+This document outlines how to compartmentalize ExtensionShield for freelancer collaboration, where each person works on isolated components without access to the full codebase.
 
 ## 🎯 Core Philosophy
 **Contract-Driven Development**: Define clear interfaces (schemas, types) that freelancers code against. They receive input/output contracts + isolated module code, never the full system.
@@ -61,15 +61,15 @@ case $STREAM in
     ;;
   "analyzer-sast")
     mkdir -p "$OUTPUT_DIR/src"
-    cp src/project_atlas/core/analyzers/sast.py "$OUTPUT_DIR/src/"
-    cp src/project_atlas/config/sast_config.json "$OUTPUT_DIR/config/"
-    cp src/project_atlas/config/custom_semgrep_rules.yaml "$OUTPUT_DIR/config/"
+    cp src/extension_shield/core/analyzers/sast.py "$OUTPUT_DIR/src/"
+    cp src/extension_shield/config/sast_config.json "$OUTPUT_DIR/config/"
+    cp src/extension_shield/config/custom_semgrep_rules.yaml "$OUTPUT_DIR/config/"
     # Include interface contract
     cp docs/contracts/analyzer_interface.py "$OUTPUT_DIR/"
     ;;
   "semgrep-rules")
     mkdir -p "$OUTPUT_DIR"
-    cp src/project_atlas/config/custom_semgrep_rules.yaml "$OUTPUT_DIR/"
+    cp src/extension_shield/config/custom_semgrep_rules.yaml "$OUTPUT_DIR/"
     cp docs/contracts/semgrep_rule_template.yaml "$OUTPUT_DIR/"
     ;;
 esac
@@ -178,7 +178,7 @@ class ExampleAnalyzer(BaseAnalyzer):
 # OpenAPI spec - what the frontend developer receives
 openapi: 3.0.0
 info:
-  title: Project Atlas API
+  title: ExtensionShield API
   version: 1.0.0
   description: API contract for Chrome Extension Security Scanner
 
@@ -451,12 +451,12 @@ find . -name ".env*" -delete
 rm -rf .git
 
 # Remove sensitive configs
-rm -f src/project_atlas/llm/clients/*.py
-rm -f src/project_atlas/api/database.py
+rm -f src/extension_shield/llm/clients/*.py
+rm -f src/extension_shield/api/database.py
 
 # Remove workflow orchestration
-rm -f src/project_atlas/workflow/graph.py
-rm -f src/project_atlas/workflow/nodes.py
+rm -f src/extension_shield/workflow/graph.py
+rm -f src/extension_shield/workflow/nodes.py
 ```
 
 ---

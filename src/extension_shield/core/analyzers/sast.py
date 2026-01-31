@@ -9,7 +9,7 @@ import fnmatch
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dotenv import load_dotenv
-from project_atlas.core.analyzers import BaseAnalyzer
+from extension_shield.core.analyzers import BaseAnalyzer
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -407,8 +407,8 @@ class JavaScriptAnalyzer(BaseAnalyzer):
         self, all_findings: Dict[str, List], files_scanned: int, metadata: Optional[Dict] = None
     ) -> Optional[str]:
         """Generate LLM-based summary of SAST findings."""
-        from project_atlas.llm.prompts import get_prompts
-        from project_atlas.llm.clients import get_chat_llm_client
+        from extension_shield.llm.prompts import get_prompts
+        from extension_shield.llm.clients import get_chat_llm_client
         from langchain_core.output_parsers import StrOutputParser
         from langchain_core.prompts import PromptTemplate
 

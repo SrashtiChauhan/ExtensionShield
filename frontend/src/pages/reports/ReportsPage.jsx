@@ -74,8 +74,8 @@ const ReportsPage = () => {
       {/* Header */}
       <header className="reports-header">
         <div className="header-text">
-          <h1>Governance Reports</h1>
-          <p>Extension verdicts with deterministic rules and evidence citations</p>
+          <h1>Security Reports</h1>
+          <p>Extension security verdicts with evidence citations</p>
         </div>
         <Button onClick={() => navigate("/scanner")} className="scan-btn">
           + New Scan
@@ -116,7 +116,7 @@ const ReportsPage = () => {
           <div className="empty-state">
             <div className="empty-icon">📋</div>
             <h3>No Reports Yet</h3>
-            <p>Scan an extension to generate a governance report</p>
+            <p>Scan an extension to generate a security report</p>
             <Button onClick={() => navigate("/scanner")}>Start Scanning</Button>
           </div>
         ) : (
@@ -191,7 +191,7 @@ const ReportsPage = () => {
         <div className="info-item">
           <span className="info-icon">⚖️</span>
           <div>
-            <strong>Deterministic Rules</strong>
+            <strong>Consistent Analysis</strong>
             <p>Same input → same verdict, every time</p>
           </div>
         </div>
@@ -206,7 +206,7 @@ const ReportsPage = () => {
           <span className="info-icon">📦</span>
           <div>
             <strong>Export Bundle</strong>
-            <p>Download enforcement packages for IT workflows</p>
+            <p>Download reports for IT workflows</p>
           </div>
         </div>
       </footer>

@@ -5,7 +5,7 @@ This module constructs the LangGraph workflow for extension analysis.
 """
 
 from langgraph.graph import StateGraph
-from project_atlas.workflow.nodes import (
+from extension_shield.workflow.nodes import (
     extension_path_routing_node,
     extension_metadata_node,
     chromestats_downloader_node,
@@ -15,8 +15,8 @@ from project_atlas.workflow.nodes import (
     summary_generation_node,
     cleanup_node,
 )
-from project_atlas.workflow.governance_nodes import governance_node
-from project_atlas.workflow.node_types import (
+from extension_shield.workflow.governance_nodes import governance_node
+from extension_shield.workflow.node_types import (
     EXTENSION_PATH_ROUTING_NODE,
     EXTENSION_METADATA_NODE,
     EXTENSION_DOWNLOADER_NODE,
@@ -26,7 +26,7 @@ from project_atlas.workflow.node_types import (
     GOVERNANCE_NODE,
     CLEANUP_NODE,
 )
-from project_atlas.workflow.state import WorkflowState
+from extension_shield.workflow.state import WorkflowState
 
 
 def build_graph():

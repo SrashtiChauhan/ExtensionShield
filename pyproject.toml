@@ -1,7 +1,7 @@
 [project]
-name = "project-atlas"
+name = "extension-shield"
 version = "0.1.0"
-description = "Add your description here"
+description = "Enterprise Chrome Extension Governance & Security Analysis - extensionshield.com"
 readme = "README.md"
 requires-python = ">=3.11.13"
 dependencies = [
@@ -37,7 +37,7 @@ dev = [
 line-length = 100
 
 [project.scripts]
-project-atlas = "project_atlas.cli.main:main"
+extension-shield = "extension_shield.cli.main:main"
 
 [build-system]
 requires = ["hatchling"]

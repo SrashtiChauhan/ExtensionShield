@@ -14,7 +14,7 @@ from typing import Optional
 from langgraph.graph import END
 from langgraph.types import Command
 
-from project_atlas.governance import (
+from extension_shield.governance import (
     FactsBuilder,
     SignalExtractor,
     EvidenceIndexBuilder,
@@ -25,7 +25,7 @@ from project_atlas.governance import (
     link_evidence_to_signals,
     get_context_for_rules_engine,
 )
-from project_atlas.workflow.node_types import CLEANUP_NODE
+from extension_shield.workflow.node_types import CLEANUP_NODE
 
 
 logger = logging.getLogger(__name__)

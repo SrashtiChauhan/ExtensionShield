@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Command line interface for Project Atlas - Chrome Extension Security Analysis Tool.
+Command line interface for ExtensionShield - Chrome Extension Security Analysis Tool.
 
 Usage:
-    project-atlas analyze --url <chrome_web_store_url>
-    project-atlas analyze --url <url> --output <output_file>
+    extension-shield analyze --url <chrome_web_store_url>
+    extension-shield analyze --url <url> --output <output_file>
 """
 
 import json
@@ -19,8 +19,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from project_atlas.workflow.graph import build_graph
-from project_atlas.workflow.state import WorkflowStatus
+from extension_shield.workflow.graph import build_graph
+from extension_shield.workflow.state import WorkflowStatus
 
 
 console = Console()
@@ -44,7 +44,7 @@ def print_header():
     """Print CLI header."""
     console.print(
         Panel.fit(
-            "[bold cyan]Project Atlas - Chrome Extension Security Analyzer[/bold cyan]",
+            "[bold cyan]ExtensionShield - Chrome Extension Security Analyzer[/bold cyan]",
             border_style="cyan",
         )
     )
@@ -347,9 +347,9 @@ def save_results_json(result: dict, output_path: Path):
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="project-atlas")
+@click.version_option(version="0.1.0", prog_name="extension-shield")
 def cli():
-    """Project Atlas - Chrome Extension Security Analyzer.
+    """ExtensionShield - Chrome Extension Security Analyzer.
 
     Analyzes Chrome extensions for security threats using LangGraph workflows
     and LLM-powered analysis.
@@ -383,9 +383,9 @@ def analyze(url: Optional[str], file: Optional[str], output: Optional[str], verb
     """Analyze a Chrome extension for security threats.
 
     Example:
-        project-atlas analyze --url https://chromewebstore.google.com/detail/example/abcdef
-        project-atlas analyze --file /path/to/extension.crx
-        project-atlas analyze --file /path/to/extension.zip
+        extension-shield analyze --url https://chromewebstore.google.com/detail/example/abcdef
+        extension-shield analyze --file /path/to/extension.crx
+        extension-shield analyze --file /path/to/extension.zip
     """
     # Validate input
     if not url and not file:
@@ -451,16 +451,16 @@ def serve(host: str, port: int, reload: bool):
     """Start the FastAPI server for the web frontend.
 
     Example:
-        project-atlas serve
-        project-atlas serve --port 8080 --reload
+        extension-shield serve
+        extension-shield serve --port 8080 --reload
     """
     import uvicorn
 
-    # from project_atlas.api.main import app  # Unused import
+    # from extension_shield.api.main import app  # Unused import
 
     console.print(
         Panel.fit(
-            f"[bold cyan]Starting Project Atlas API Server[/bold cyan]\n"
+            f"[bold cyan]Starting ExtensionShield API Server[/bold cyan]\n"
             f"[white]Host:[/white] [green]{host}[/green]\n"
             f"[white]Port:[/white] [green]{port}[/green]\n"
             f"[white]Reload:[/white] [green]{'Enabled' if reload else 'Disabled'}[/green]",
@@ -474,14 +474,14 @@ def serve(host: str, port: int, reload: bool):
     console.print("[dim]Press CTRL+C to stop[/dim]\n")
 
     uvicorn.run(
-        "project_atlas.api.main:app", host=host, port=port, reload=reload, log_level="info"
+        "extension_shield.api.main:app", host=host, port=port, reload=reload, log_level="info"
     )
 
 
 @cli.command()
 def version():
     """Show version information."""
-    console.print("[cyan]Project Atlas[/cyan] version [green]0.1.0[/green]")
+    console.print("[cyan]ExtensionShield[/cyan] version [green]0.1.0[/green]")
 
 
 def main():

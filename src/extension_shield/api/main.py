@@ -1,5 +1,5 @@
 """
-FastAPI Backend for Project Atlas
+FastAPI Backend for ExtensionShield
 
 Provides REST API endpoints for the frontend to trigger extension analysis
 and retrieve results.
@@ -18,11 +18,11 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import shutil
 
-from project_atlas.core.report_generator import ReportGenerator
+from extension_shield.core.report_generator import ReportGenerator
 
-from project_atlas.workflow.graph import build_graph
-from project_atlas.workflow.state import WorkflowState, WorkflowStatus
-from project_atlas.api.database import db
+from extension_shield.workflow.graph import build_graph
+from extension_shield.workflow.state import WorkflowState, WorkflowStatus
+from extension_shield.api.database import db
 
 
 # Pydantic models for request/response
@@ -56,7 +56,7 @@ class FileListResponse(BaseModel):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Project Atlas API",
+    title="ExtensionShield API",
     description="REST API for Chrome extension security analysis",
     version="1.0.0",
 )
@@ -533,7 +533,7 @@ async def root():
     if STATIC_DIR.exists() and index_file.exists():
         return FileResponse(index_file)
     # Otherwise return API info (development mode)
-    return {"name": "Project Atlas API", "version": "1.0.0", "status": "running"}
+    return {"name": "ExtensionShield API", "version": "1.0.0", "status": "running"}
 
 
 @app.post("/api/scan/trigger")
@@ -825,7 +825,7 @@ async def generate_pdf_report(extension_id: str) -> Response:
         # Get extension name for filename
         extension_name = results.get("extension_name", results.get("metadata", {}).get("title", extension_id))
         safe_name = "".join(c for c in extension_name if c.isalnum() or c in " -_")[:50]
-        filename = f"Project_Atlas_Report_{safe_name}.pdf"
+        filename = f"ExtensionShield_Report_{safe_name}.pdf"
 
         return Response(
             content=pdf_bytes,
@@ -997,7 +997,7 @@ async def clear_all_scans():
 @app.get("/health")
 async def health_check():
     """Health check endpoint for container orchestration."""
-    return {"status": "healthy", "service": "project-atlas", "version": "1.0.0"}
+    return {"status": "healthy", "service": "extension-shield", "version": "1.0.0"}
 
 
 # Mount static files for React frontend assets (if static directory exists)
@@ -1025,7 +1025,7 @@ async def serve_spa(full_path: str):
 
     # If no static files, return API info (development mode)
     return {
-        "name": "Project Atlas API",
+        "name": "ExtensionShield API",
         "version": "1.0.0",
         "docs": "/docs",
         "note": "Frontend not built. Run 'npm run build' in frontend/ directory.",

@@ -1,6 +1,6 @@
 class CacheService {
   constructor() {
-    this.cacheKey = "project-atlas_scan_cache";
+    this.cacheKey = "extension-shield_scan_cache";
     this.maxCacheAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   }
 

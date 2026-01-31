@@ -1,6 +1,6 @@
 {
   "hero_headline": "Extension Compliance Scanner",
-  "hero_subheadline": "Evidence-grade PASS/FAIL/NEEDS_REVIEW verdicts with deterministic rules and code-level citations. Built on ThreatXtension security signals.",
+  "hero_subheadline": "Evidence-grade PASS/FAIL/NEEDS_REVIEW verdicts with deterministic rules and code-level citations. Built on ExtensionShield security signals.",
   "trust_bullets": [
     {
       "text": "Static analysis only—no browsing capture or runtime monitoring",
@@ -66,7 +66,7 @@
   "card_left": {
     "name": "Security Findings",
     "code": "SEC",
-    "description": "ThreatXtension security signals detected"
+    "description": "ExtensionShield security signals detected"
   },
   "card_right": {
     "name": "Compliance Verdicts",

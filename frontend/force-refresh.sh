@@ -1,6 +1,6 @@
 #!/bin/bash
-echo "🔄 Force refreshing Project Atlas frontend..."
-cd /Users/stanzin/Desktop/Project-Atlas/frontend
+echo "🔄 Force refreshing ExtensionShield frontend..."
+cd /Users/stanzin/Desktop/ExtensionShield/frontend
 
 # Kill any running dev servers
 echo "Stopping any running dev servers..."

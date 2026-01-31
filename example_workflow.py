@@ -13,8 +13,8 @@ from datetime import datetime
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from project_atlas.workflow.graph import build_graph
-from project_atlas.workflow.state import WorkflowStatus
+from extension_shield.workflow.graph import build_graph
+from extension_shield.workflow.state import WorkflowStatus
 
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 /**
  * GPT-OSS Service for Frontend
- * Integrates with the Project Atlas backend for AI-powered security analysis
+ * Integrates with the ExtensionShield backend for AI-powered security analysis
  * Supports both local (MLX) and cloud (OpenAI) GPT-OSS deployment
  */
 

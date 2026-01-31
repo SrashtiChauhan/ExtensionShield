@@ -1,12 +1,12 @@
-# Project Atlas Docker Compose Configuration
+# ExtensionShield Docker Compose Configuration
 # For BlackHat Arsenal 2026 Demo
 
 services:
-  project-atlas:
+  extension-shield:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: project-atlas
+    container_name: extension-shield
     ports:
       - "8007:8007"
     volumes:
@@ -23,7 +23,7 @@ services:
       - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY:-}
       # Storage paths (container paths)
       - EXTENSION_STORAGE_PATH=/app/extensions_storage
-      - DATABASE_PATH=/app/data/project-atlas.db
+      - DATABASE_PATH=/app/data/extension-shield.db
     env_file:
       - .env
     restart: unless-stopped

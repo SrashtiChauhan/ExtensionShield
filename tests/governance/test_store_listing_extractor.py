@@ -9,8 +9,8 @@ import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from project_atlas.governance.schemas import StoreListing, ExtractionStatus
-from project_atlas.governance.store_listing_extractor import (
+from extension_shield.governance.schemas import StoreListing, ExtractionStatus
+from extension_shield.governance.store_listing_extractor import (
     StoreListingExtractor,
     extract_store_listing,
 )
@@ -259,7 +259,7 @@ class TestExtractStoreListingConvenience:
 class TestStoreListingExtractorIntegration:
     """Integration tests with mocked network calls."""
     
-    @patch("project_atlas.governance.store_listing_extractor.StoreListingExtractor._extract_fallback")
+    @patch("extension_shield.governance.store_listing_extractor.StoreListingExtractor._extract_fallback")
     def test_handles_fetch_failure(self, mock_fallback, extractor):
         """Should return failed status when fetch fails."""
         mock_fallback.return_value = StoreListing(
@@ -276,7 +276,7 @@ class TestStoreListingExtractorIntegration:
         )
         
         # Mock the ExtensionMetadata import to fail
-        with patch.dict("sys.modules", {"project_atlas.core.extension_metadata": None}):
+        with patch.dict("sys.modules", {"extension_shield.core.extension_metadata": None}):
             # This will trigger the ImportError and call fallback
             pass
         

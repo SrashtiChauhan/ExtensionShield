@@ -13,7 +13,7 @@ from typing import Dict, Optional, List, Any
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-from project_atlas.core.analyzers import BaseAnalyzer
+from extension_shield.core.analyzers import BaseAnalyzer
 
 load_dotenv()
 logger = logging.getLogger(__name__)

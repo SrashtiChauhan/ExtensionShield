@@ -5,7 +5,7 @@ Unit tests for Report Generator (Stage 8)
 import pytest
 from datetime import datetime
 
-from project_atlas.governance.schemas import (
+from extension_shield.governance.schemas import (
     Facts,
     ManifestFacts,
     SecurityFindings,
@@ -14,7 +14,7 @@ from project_atlas.governance.schemas import (
     GovernanceReport,
     GovernanceDecision,
 )
-from project_atlas.governance.report_generator import (
+from extension_shield.governance.report_generator import (
     ReportGenerator,
     generate_governance_report,
     aggregate_verdict,

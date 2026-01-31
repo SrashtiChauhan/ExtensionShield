@@ -22,12 +22,12 @@ const mockReportData = {
     needs_review_count: 3,
     pass_count: 8,
   },
-  rulepacks: ["CWS_LIMITED_USE", "DPDP_RISK_INDICATORS"],
+  // rulepacks hidden from users
   findings: [
     {
       id: "finding_001",
       verdict: "FAIL",
-      rule_id: "CWS_LIMITED_USE_001",
+      rule_id: "SEC_PERM_001",
       title: "Excessive Permission Request",
       confidence: "HIGH",
       evidence_count: 2,
@@ -60,7 +60,7 @@ const mockReportData = {
     {
       id: "finding_002",
       verdict: "NEEDS_REVIEW",
-      rule_id: "DPDP_RISK_INDICATORS_005",
+      rule_id: "SEC_PRIVACY_002",
       title: "Data Collection Without Disclosure",
       confidence: "MEDIUM",
       evidence_count: 3,
@@ -93,7 +93,7 @@ const mockReportData = {
     {
       id: "finding_003",
       verdict: "NEEDS_REVIEW",
-      rule_id: "CWS_LIMITED_USE_003",
+      rule_id: "SEC_DATA_003",
       title: "Third-Party Data Sharing",
       confidence: "MEDIUM",
       evidence_count: 1,
@@ -121,7 +121,7 @@ const mockReportData = {
     {
       id: "finding_004",
       verdict: "FAIL",
-      rule_id: "DPDP_RISK_INDICATORS_002",
+      rule_id: "SEC_STORAGE_004",
       title: "Sensitive Data Storage",
       confidence: "HIGH",
       evidence_count: 2,
@@ -149,7 +149,7 @@ const mockReportData = {
     {
       id: "finding_005",
       verdict: "NEEDS_REVIEW",
-      rule_id: "CWS_LIMITED_USE_007",
+      rule_id: "SEC_CODE_005",
       title: "Obfuscated Code Detected",
       confidence: "LOW",
       evidence_count: 1,
@@ -283,7 +283,8 @@ const SampleReportPage = () => {
               <div className="summary-card-label">Pass</div>
               <div className="summary-card-value pass-count">{mockReportData.summary.pass_count}</div>
             </div>
-            <div className="summary-card rulepacks">
+            {/* Rulepacks hidden - internal details not exposed to users */}
+            {/* <div className="summary-card rulepacks">
               <div className="summary-card-label">Rulepacks Enabled</div>
               <div className="summary-card-value rulepacks-list">
                 {mockReportData.rulepacks.map((pack, idx) => (
@@ -292,7 +293,7 @@ const SampleReportPage = () => {
                   </Badge>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Findings Table */}

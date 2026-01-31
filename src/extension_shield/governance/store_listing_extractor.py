@@ -146,7 +146,7 @@ class StoreListingExtractor:
         
         try:
             # Use existing ExtensionMetadata class
-            from project_atlas.core.extension_metadata import ExtensionMetadata
+            from extension_shield.core.extension_metadata import ExtensionMetadata
             
             metadata_fetcher = ExtensionMetadata(store_url)
             metadata = metadata_fetcher.fetch_metadata()

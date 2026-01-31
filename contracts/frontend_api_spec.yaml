@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Project Atlas API
+  title: ExtensionShield API
   version: 1.0.0
   description: |
     API contract for Chrome Extension Security Scanner.

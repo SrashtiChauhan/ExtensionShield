@@ -1,4 +1,4 @@
-# Project Atlas Dockerfile
+# ExtensionShield Dockerfile
 # Multi-stage build: Node.js for frontend, Python for backend
 
 # =============================================================================
@@ -60,7 +60,7 @@ RUN mkdir -p extensions_storage data
 
 # Set default environment variables
 ENV EXTENSION_STORAGE_PATH=/app/extensions_storage \
-    DATABASE_PATH=/app/data/project-atlas.db \
+    DATABASE_PATH=/app/data/extension-shield.db \
     LLM_PROVIDER=openai
 
 # Expose the API port
@@ -71,4 +71,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8007/health || exit 1
 
 # Run the application
-CMD ["uv", "run", "uvicorn", "project_atlas.api.main:app", "--host", "0.0.0.0", "--port", "8007"]
+CMD ["uv", "run", "uvicorn", "extension_shield.api.main:app", "--host", "0.0.0.0", "--port", "8007"]

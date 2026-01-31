@@ -5,7 +5,7 @@ Unit tests for Context Builder (Stage 6)
 import pytest
 from datetime import datetime
 
-from project_atlas.governance.schemas import (
+from extension_shield.governance.schemas import (
     Facts,
     ManifestFacts,
     SecurityFindings,
@@ -13,7 +13,7 @@ from project_atlas.governance.schemas import (
     Context,
     GovernanceContext,
 )
-from project_atlas.governance.context_builder import (
+from extension_shield.governance.context_builder import (
     ContextBuilder,
     build_governance_context,
     get_context_for_rules_engine,

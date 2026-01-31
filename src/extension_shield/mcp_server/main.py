@@ -1,14 +1,14 @@
-"""Main MCP server for Project Atlas Chrome extension analysis."""
+"""Main MCP server for ExtensionShield Chrome extension analysis."""
 
 import uuid
 import json
 from datetime import datetime
 from mcp.server.fastmcp import FastMCP
-from project_atlas.workflow.graph import build_graph
-from project_atlas.workflow.state import WorkflowStatus
+from extension_shield.workflow.graph import build_graph
+from extension_shield.workflow.state import WorkflowStatus
 
 
-mcp = FastMCP("Project Atlas")
+mcp = FastMCP("ExtensionShield")
 
 
 @mcp.tool()

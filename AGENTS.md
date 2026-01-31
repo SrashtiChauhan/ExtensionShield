@@ -4,7 +4,7 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Project Overview
 
-**Project-Atlas** is a Python-based security analysis tool for Chrome browser extensions. It combines static analysis (SAST) with AI-powered threat intelligence to identify malicious behavior patterns in browser extensions.
+**ExtensionShield** is a Python-based security analysis tool for Chrome browser extensions. It combines static analysis (SAST) with AI-powered threat intelligence to identify malicious behavior patterns in browser extensions.
 
 ### Core Technologies
 - **Python 3.11+** with `uv` package manager
@@ -21,27 +21,27 @@ This file provides guidance to agents when working with code in this repository.
 
 The project follows a **workflow-based architecture** using LangGraph:
 
-1. **Workflow Pipeline** (`src/project_atlas/workflow/`):
+1. **Workflow Pipeline** (`src/extension_shield/workflow/`):
    - State-driven analysis flow with 7 nodes
    - Entry: `extension_path_routing_node` → determines if URL or local path
    - Nodes: metadata → downloader → manifest parser → analyzer → summary → cleanup
    - State management via `WorkflowState` TypedDict with status tracking
 
-2. **Multi-Analyzer System** (`src/project_atlas/core/analyzers/`):
+2. **Multi-Analyzer System** (`src/extension_shield/core/analyzers/`):
    - **PermissionsAnalyzer**: Evaluates manifest permissions against risk database
    - **JavaScriptAnalyzer**: Runs Semgrep with 10+ custom rules for banking fraud, credential theft, data exfiltration
    - **WebstoreAnalyzer**: Extracts Chrome Web Store metadata (ratings, users, developer info)
 
-3. **LLM Integration** (`src/project_atlas/llm/`):
+3. **LLM Integration** (`src/extension_shield/llm/`):
    - Provider-agnostic design supporting WatsonX, RITS, OpenAI, Ollama
    - YAML-based prompt templates for each analysis type
    - Context-aware analysis with full extension metadata
 
 4. **Multiple Interfaces**:
-   - **CLI** (`src/project_atlas/cli/main.py`): Primary interface with rich console output
-   - **Web UI** (`src/project_atlas/ui/app.py`): Gradio-based demo interface
-   - **REST API** (`src/project_atlas/api/main.py`): FastAPI backend for React frontend
-   - **MCP Server** (`src/project_atlas/mcp_server/main.py`): Claude Desktop integration
+   - **CLI** (`src/extension_shield/cli/main.py`): Primary interface with rich console output
+   - **Web UI** (`src/extension_shield/ui/app.py`): Gradio-based demo interface
+   - **REST API** (`src/extension_shield/api/main.py`): FastAPI backend for React frontend
+   - **MCP Server** (`src/extension_shield/mcp_server/main.py`): Claude Desktop integration
 
 ## Building and Running
 
@@ -65,7 +65,7 @@ make analyze URL=https://chromewebstore.google.com/detail/extension-id/abcdef
 make analyze URL=<url> OUTPUT=results.json
 
 # Direct command
-uv run project_atlas analyze --url <chrome_web_store_url>
+uv run extension_shield analyze --url <chrome_web_store_url>
 ```
 
 **Web UI**:
@@ -115,17 +115,17 @@ make clean       # Remove caches and output files
 - Cleanup node preserves FAILED status (recent fix in commit f276768)
 
 ### LLM Integration
-- Prompts stored as YAML files in `src/project_atlas/llm/prompts/`
+- Prompts stored as YAML files in `src/extension_shield/llm/prompts/`
 - Each analyzer has dedicated prompt template
 - Provider selection via `LLM_PROVIDER` environment variable
 - Always include full context (manifest, metadata) in prompts
 
 ### Configuration Files
-- **SAST Config**: `src/project_atlas/config/sast_config.json`
+- **SAST Config**: `src/extension_shield/config/sast_config.json`
   - Semgrep rule selection, exclusion patterns, parallel scanning settings
-- **Custom Rules**: `src/project_atlas/config/custom_semgrep_rules.yaml`
+- **Custom Rules**: `src/extension_shield/config/custom_semgrep_rules.yaml`
   - 10+ banking/fraud-specific rules with MITRE ATT&CK mappings
-- **Sensitive Domains**: `src/project_atlas/config/sensitive_domains.json`
+- **Sensitive Domains**: `src/extension_shield/config/sensitive_domains.json`
   - Domain categories for permission risk assessment
 
 ### Testing
@@ -139,7 +139,7 @@ make clean       # Remove caches and output files
 - Supports multiple LLM providers (see README for details)
 
 ### MCP Server Integration
-- Server entry point: `src/project_atlas/mcp_server/main.py`
+- Server entry point: `src/extension_shield/mcp_server/main.py`
 - Exposes `analyze_chrome_extension()` tool to Claude Desktop
 - Configuration in Claude's `claude_desktop_config.json`
 - Uses `uv` command with absolute path to project directory
@@ -160,7 +160,7 @@ make clean       # Remove caches and output files
 - `rich>=13.5.2` - Terminal formatting
 
 ### Project Structure Notes
-- `src/project_atlas/` - Main package
+- `src/extension_shield/` - Main package
 - `frontend/` - React-based frontend (separate from Gradio UI)
 - `docs/` - Documentation (e.g., WatsonX API key guide)
 - `images/` - Screenshots and logos for README

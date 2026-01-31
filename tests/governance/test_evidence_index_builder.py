@@ -5,7 +5,7 @@ Unit tests for Evidence Index Builder (Stage 3)
 import pytest
 from datetime import datetime
 
-from project_atlas.governance.schemas import (
+from extension_shield.governance.schemas import (
     Facts,
     ManifestFacts,
     SecurityFindings,
@@ -15,7 +15,7 @@ from project_atlas.governance.schemas import (
     PermissionAnalysisFinding,
     FileInventoryItem,
 )
-from project_atlas.governance.evidence_index_builder import (
+from extension_shield.governance.evidence_index_builder import (
     EvidenceIndexBuilder,
     EvidenceSource,
     link_evidence_to_signals,

@@ -2,7 +2,7 @@
 
 # Default target - show help
 help:
-	@echo "Project Atlas - Available Make Commands"
+	@echo "ExtensionShield - Available Make Commands"
 	@echo "======================================="
 	@echo ""
 	@echo "Docker (Recommended):"
@@ -57,7 +57,7 @@ api:
 	@echo "Starting FastAPI server with auto-reload..."
 	@echo "Access at: http://localhost:8007"
 	@echo "API docs at: http://localhost:8007/docs"
-	uv run project-atlas serve --reload
+	uv run extension-shield serve --reload
 
 # Start React frontend
 frontend:
@@ -75,9 +75,9 @@ ifndef URL
 endif
 	@echo "Analyzing Chrome extension from URL..."
 ifdef OUTPUT
-	uv run project-atlas analyze --url $(URL) --output $(OUTPUT)
+	uv run extension-shield analyze --url $(URL) --output $(OUTPUT)
 else
-	uv run project-atlas analyze --url $(URL)
+	uv run extension-shield analyze --url $(URL)
 endif
 
 # Analyze local CRX/ZIP file via CLI
@@ -90,9 +90,9 @@ ifndef FILE
 endif
 	@echo "Analyzing local extension file..."
 ifdef OUTPUT
-	uv run project-atlas analyze --file $(FILE) --output $(OUTPUT)
+	uv run extension-shield analyze --file $(FILE) --output $(OUTPUT)
 else
-	uv run project-atlas analyze --file $(FILE)
+	uv run extension-shield analyze --file $(FILE)
 endif
 
 # Install dependencies
@@ -115,25 +115,25 @@ clean:
 
 # Build Docker container
 docker-build:
-	@echo "Building Project Atlas Docker container..."
+	@echo "Building ExtensionShield Docker container..."
 	docker compose build
 	@echo "✓ Docker build complete"
 
 # Start container in foreground
 docker-up:
-	@echo "Starting Project Atlas container..."
+	@echo "Starting ExtensionShield container..."
 	@echo "Access at: http://localhost:8007"
 	docker compose up
 
 # Start container in background
 docker-up-d:
-	@echo "Starting Project Atlas container in background..."
+	@echo "Starting ExtensionShield container in background..."
 	docker compose up -d
 	@echo "✓ Container started. Access at: http://localhost:8007"
 
 # Stop container
 docker-down:
-	@echo "Stopping Project Atlas container..."
+	@echo "Stopping ExtensionShield container..."
 	docker compose down
 	@echo "✓ Container stopped"
 

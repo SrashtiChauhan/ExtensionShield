@@ -8,13 +8,13 @@ import logging
 from datetime import datetime
 from langgraph.graph import END
 from langgraph.types import Command
-from project_atlas.workflow.state import WorkflowState, WorkflowStatus
-from project_atlas.core.extension_metadata import ExtensionMetadata
-from project_atlas.core.extension_downloader import ExtensionDownloader
-from project_atlas.core.manifest_parser import ManifestParser
-from project_atlas.core.extension_analyzer import ExtensionAnalyzer
-from project_atlas.core.summary_generator import SummaryGenerator
-from project_atlas.utils.extension import (
+from extension_shield.workflow.state import WorkflowState, WorkflowStatus
+from extension_shield.core.extension_metadata import ExtensionMetadata
+from extension_shield.core.extension_downloader import ExtensionDownloader
+from extension_shield.core.manifest_parser import ManifestParser
+from extension_shield.core.extension_analyzer import ExtensionAnalyzer
+from extension_shield.core.summary_generator import SummaryGenerator
+from extension_shield.utils.extension import (
     extract_extension_crx,
     cleanup_extension_dir,
     cleanup_downloaded_crx,
@@ -22,8 +22,8 @@ from project_atlas.utils.extension import (
     is_local_extension_crx_file,
     is_chrome_extension_id,
 )
-from project_atlas.core.chromestats_downloader import ChromeStatsDownloader
-from project_atlas.workflow.node_types import (
+from extension_shield.core.chromestats_downloader import ChromeStatsDownloader
+from extension_shield.workflow.node_types import (
     EXTENSION_METADATA_NODE,
     EXTENSION_DOWNLOADER_NODE,
     MANIFEST_PARSER_NODE,

@@ -1,8 +1,8 @@
-# Project Atlas: Governance Engine - Complete Architecture & Data Flow
+# ExtensionShield: Governance Engine - Complete Architecture & Data Flow
 
 ## Executive Summary
 
-Project Atlas implements a **dual-pipeline architecture** for Chrome extension security and governance:
+ExtensionShield implements a **dual-pipeline architecture** for Chrome extension security and governance:
 
 - **Pipeline A (Security)**: Extract → Analyze → Score (Stages 0-1) ✅ **Complete**
 - **Pipeline B (Governance)**: Facts → Evidence → Signals → Rules → Decision (Stages 2-8) ⬜ **In Progress**
@@ -15,7 +15,7 @@ This document provides the **complete HLD, data contracts, and decision flow** f
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                      PROJECT ATLAS: DUAL PIPELINE SYSTEM                     │
+│                      EXTENSIONSHIELD: DUAL PIPELINE SYSTEM                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌────────────────────────────────────────────────────────────────────────┐ │

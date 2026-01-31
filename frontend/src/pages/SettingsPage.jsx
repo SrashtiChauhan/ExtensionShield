@@ -55,7 +55,7 @@ const SettingsPage = () => {
               <Shield className="w-6 h-6 text-success mt-1" />
               <div className="flex-1">
                 <div className="font-semibold text-lg">Security Engine Mode</div>
-                <p className="text-sm text-foreground-muted mb-4">Set the sensitivity of the SAST analysis engine.</p>
+                <p className="text-sm text-foreground-muted mb-4">Set the sensitivity of the security analysis engine.</p>
 
                 <div className="flex gap-4">
                   <label className={`flex-1 p-4 rounded-lg border cursor-pointer transition-all ${settings.securityEngine === 'standard' ? 'bg-primary/20 border-primary' : 'bg-background/50 border-border hover:border-border-strong'}`}>

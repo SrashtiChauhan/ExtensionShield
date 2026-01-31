@@ -70,10 +70,10 @@ const ScanProgressPage = () => {
               </div>
               <p className="status-description">
                 {scanStage === "extracting" && "Downloading and extracting extension package..."}
-                {scanStage === "security_scan" && "Running static analysis and security checks..."}
-                {scanStage === "building_evidence" && "Building evidence index from code patterns..."}
-                {scanStage === "applying_rules" && "Evaluating compliance rulepacks..."}
-                {scanStage === "generating_report" && "Generating final compliance report..."}
+                {scanStage === "security_scan" && "Running security analysis..."}
+                {scanStage === "building_evidence" && "Analyzing code patterns..."}
+                {scanStage === "applying_rules" && "Evaluating security policies..."}
+                {scanStage === "generating_report" && "Generating final report..."}
               </p>
             </div>
 

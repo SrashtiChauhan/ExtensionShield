@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnableSequence
 from langchain_core.output_parsers import JsonOutputParser
-from project_atlas.core.analyzers import BaseAnalyzer
-from project_atlas.llm.prompts import get_prompts
-from project_atlas.llm.clients import get_chat_llm_client
+from extension_shield.core.analyzers import BaseAnalyzer
+from extension_shield.llm.prompts import get_prompts
+from extension_shield.llm.clients import get_chat_llm_client
 
 load_dotenv()
 logger = logging.getLogger(__name__)

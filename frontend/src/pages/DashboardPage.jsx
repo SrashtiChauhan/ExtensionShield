@@ -401,8 +401,8 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Statistics Section - Safe Demo Stats */}
-          <div className="hero-statistics">
+          {/* Statistics Section - Hidden: Internal rule engine details not exposed to users */}
+          {/* <div className="hero-statistics">
             <div className="stat-item">
               <div className="stat-number">2</div>
               <div className="stat-label">Rulepacks Enabled</div>
@@ -423,7 +423,7 @@ const DashboardPage = () => {
               <div className="stat-label">Avg Scan Time</div>
               <div className="stat-description">Typical analysis duration</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

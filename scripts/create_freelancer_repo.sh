@@ -322,12 +322,12 @@ EOF
         mkdir -p "$OUTPUT_DIR/tests"
         
         # Copy analyzer and contract
-        cp "$PROJECT_ROOT/src/project_atlas/core/analyzers/sast.py" "$OUTPUT_DIR/src/"
+        cp "$PROJECT_ROOT/src/extension_shield/core/analyzers/sast.py" "$OUTPUT_DIR/src/"
         cp "$PROJECT_ROOT/contracts/analyzer_interface.py" "$OUTPUT_DIR/contracts/"
         
         # Copy config files
-        cp "$PROJECT_ROOT/src/project_atlas/config/sast_config.json" "$OUTPUT_DIR/config/"
-        cp "$PROJECT_ROOT/src/project_atlas/config/custom_semgrep_rules.yaml" "$OUTPUT_DIR/config/"
+        cp "$PROJECT_ROOT/src/extension_shield/config/sast_config.json" "$OUTPUT_DIR/config/"
+        cp "$PROJECT_ROOT/src/extension_shield/config/custom_semgrep_rules.yaml" "$OUTPUT_DIR/config/"
         
         create_test_fixtures
         create_requirements
@@ -347,11 +347,11 @@ EOF
         mkdir -p "$OUTPUT_DIR/tests"
         
         # Copy analyzer and contract
-        cp "$PROJECT_ROOT/src/project_atlas/core/analyzers/permissions.py" "$OUTPUT_DIR/src/"
+        cp "$PROJECT_ROOT/src/extension_shield/core/analyzers/permissions.py" "$OUTPUT_DIR/src/"
         cp "$PROJECT_ROOT/contracts/analyzer_interface.py" "$OUTPUT_DIR/contracts/"
         
         # Copy permissions database
-        cp "$PROJECT_ROOT/src/project_atlas/data/permissions_db.json" "$OUTPUT_DIR/data/"
+        cp "$PROJECT_ROOT/src/extension_shield/data/permissions_db.json" "$OUTPUT_DIR/data/"
         
         create_test_fixtures
         create_requirements
@@ -632,7 +632,7 @@ EOF
         mkdir -p "$OUTPUT_DIR/test_cases/negative"
         
         # Copy existing rules
-        cp "$PROJECT_ROOT/src/project_atlas/config/custom_semgrep_rules.yaml" "$OUTPUT_DIR/rules/"
+        cp "$PROJECT_ROOT/src/extension_shield/config/custom_semgrep_rules.yaml" "$OUTPUT_DIR/rules/"
         cp "$PROJECT_ROOT/contracts/semgrep_rule_template.yaml" "$OUTPUT_DIR/"
         
         # Create test cases
@@ -712,7 +712,7 @@ EOF
         mkdir -p "$OUTPUT_DIR/examples"
         
         # Copy existing prompts
-        cp "$PROJECT_ROOT/src/project_atlas/llm/prompts/"*.yaml "$OUTPUT_DIR/prompts/" 2>/dev/null || true
+        cp "$PROJECT_ROOT/src/extension_shield/llm/prompts/"*.yaml "$OUTPUT_DIR/prompts/" 2>/dev/null || true
         cp "$PROJECT_ROOT/contracts/llm_prompt_template.yaml" "$OUTPUT_DIR/"
         
         # Create example input data

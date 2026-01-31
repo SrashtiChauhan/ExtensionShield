@@ -1,6 +1,6 @@
-# 🚀 Project Atlas - Deployment Guide
+# 🚀 ExtensionShield - Deployment Guide
 
-This guide walks you through deploying Project Atlas to production using **Railway** (recommended) with a GitHub Actions CI/CD pipeline.
+This guide walks you through deploying ExtensionShield to production using **Railway** (recommended) with a GitHub Actions CI/CD pipeline.
 
 ---
 
@@ -36,7 +36,7 @@ git init
 git add .
 git commit -m "Initial commit"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/Project-Atlas.git
+git remote add origin https://github.com/YOUR_USERNAME/ExtensionShield.git
 git push -u origin main
 ```
 
@@ -44,7 +44,7 @@ git push -u origin main
 
 1. Go to [railway.app](https://railway.app) and sign in with GitHub
 2. Click **"New Project"** → **"Deploy from GitHub repo"**
-3. Select your `Project-Atlas` repository
+3. Select your `ExtensionShield` repository
 4. Railway will auto-detect the Dockerfile and start building
 
 ### 3. Configure Environment Variables
@@ -59,7 +59,7 @@ OPENAI_API_KEY=sk-your-key-here
 
 ### 4. Access Your App
 
-Railway will provide a URL like: `https://project-atlas-production.up.railway.app`
+Railway will provide a URL like: `https://extension-shield-production.up.railway.app`
 
 **That's it! Your app is live! 🎉**
 
@@ -77,7 +77,7 @@ Railway will provide a URL like: `https://project-atlas-production.up.railway.ap
 
 1. From Railway dashboard, click **"New Project"**
 2. Select **"Deploy from GitHub repo"**
-3. Choose `Project-Atlas` from the repository list
+3. Choose `ExtensionShield` from the repository list
 4. Railway will:
    - Clone your repository
    - Detect the `Dockerfile`
@@ -108,13 +108,13 @@ Navigate to your project → Click the service → **Variables** tab:
 To persist scan results and database:
 
 1. Go to **Settings** → **Volumes**
-2. Add volume mount: `/app/data` → `project-atlas-data`
+2. Add volume mount: `/app/data` → `extension-shield-data`
 3. Add volume mount: `/app/extensions_storage` → `extensions-storage`
 
 ### Step 4: Verify Deployment
 
-1. Click the generated URL (e.g., `project-atlas-xxx.up.railway.app`)
-2. You should see the Project Atlas frontend
+1. Click the generated URL (e.g., `extension-shield-xxx.up.railway.app`)
+2. You should see the ExtensionShield frontend
 3. Test the API at `/docs` for Swagger documentation
 4. Check health endpoint at `/health`
 
@@ -179,7 +179,7 @@ Every push to `main` will deploy automatically! 🚀
 
 ### Option 1: Railway Subdomain (Free)
 
-Railway provides free subdomains like `project-atlas-xxx.up.railway.app`
+Railway provides free subdomains like `extension-shield-xxx.up.railway.app`
 
 ### Option 2: Custom Domain (Recommended for Production)
 
@@ -252,7 +252,7 @@ railway variables set OPENAI_API_KEY=sk-your-key
 ```yaml
 services:
   - type: web
-    name: project-atlas
+    name: extension-shield
     runtime: docker
     dockerfilePath: ./Dockerfile
     envVars:
@@ -272,7 +272,7 @@ curl -L https://fly.io/install.sh | sh
 fly auth login
 
 # Launch (first time)
-fly launch --name project-atlas
+fly launch --name extension-shield
 
 # Set secrets
 fly secrets set OPENAI_API_KEY=sk-your-key
@@ -415,6 +415,6 @@ docker compose up
 
 - 📖 [Railway Documentation](https://docs.railway.app)
 - 💬 [Railway Discord](https://discord.gg/railway)
-- 🐛 [Project Atlas Issues](https://github.com/YOUR_USERNAME/Project-Atlas/issues)
+- 🐛 [ExtensionShield Issues](https://github.com/YOUR_USERNAME/ExtensionShield/issues)
 
 

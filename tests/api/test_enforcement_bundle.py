@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
-from project_atlas.api.main import app, scan_results, scan_status
+from extension_shield.api.main import app, scan_results, scan_status
 
 
 @pytest.fixture
@@ -288,7 +288,7 @@ class TestEnforcementBundleFromDatabase:
         ext_id = "dbfallback1234567890123456789012"
         
         # Mock database call
-        with patch("project_atlas.api.main.db") as mock_db:
+        with patch("extension_shield.api.main.db") as mock_db:
             mock_db.get_scan_result.return_value = sample_scan_result
             
             response = client.get(f"/api/scan/enforcement_bundle/{ext_id}")
@@ -306,8 +306,8 @@ class TestEnforcementBundleFromDatabase:
         import json
         from pathlib import Path
         
-        with patch("project_atlas.api.main.db") as mock_db, \
-             patch("project_atlas.api.main.RESULTS_DIR", tmp_path):
+        with patch("extension_shield.api.main.db") as mock_db, \
+             patch("extension_shield.api.main.RESULTS_DIR", tmp_path):
             
             mock_db.get_scan_result.return_value = None
             

@@ -3,7 +3,7 @@
 import os
 from typing import Dict, Optional, Any
 from dotenv import load_dotenv
-from project_atlas.llm.clients.provider_type import LLMProviderType
+from extension_shield.llm.clients.provider_type import LLMProviderType
 
 load_dotenv()
 

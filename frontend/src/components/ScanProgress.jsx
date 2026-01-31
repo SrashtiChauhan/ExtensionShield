@@ -2,11 +2,12 @@ import React from "react";
 import "./ScanProgress.scss";
 
 const ScanProgress = ({ currentStage, stages }) => {
+  // User-friendly stage names (internal details hidden)
   const defaultStages = [
     { id: "extracting", label: "Extracting", icon: "📦" },
     { id: "security_scan", label: "Security Scan", icon: "🔍" },
-    { id: "building_evidence", label: "Building Evidence Index", icon: "📚" },
-    { id: "applying_rules", label: "Applying Rulepacks", icon: "⚖️" },
+    { id: "building_evidence", label: "Analyzing Code", icon: "📚" },
+    { id: "applying_rules", label: "Evaluating", icon: "⚖️" },
     { id: "generating_report", label: "Generating Report", icon: "📄" },
   ];
 

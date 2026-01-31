@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from langgraph.graph import END
 
-from project_atlas.workflow.governance_nodes import governance_node, _extract_extension_id
+from extension_shield.workflow.governance_nodes import governance_node, _extract_extension_id
 
 
 class TestExtractExtensionId:

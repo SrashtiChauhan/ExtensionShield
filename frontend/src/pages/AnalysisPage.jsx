@@ -83,7 +83,7 @@ const AnalysisPage = () => {
       <div className="page-header">
         <h1 className="page-title">🔬 Analysis Report: {scanResults.name || scanResults.extensionId}</h1>
         <p className="page-subtitle">
-          Detailed security analysis and SAST findings
+          Detailed security analysis and findings
         </p>
       </div>
 
