@@ -1,0 +1,12 @@
+# https://extensionaudit.com robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://extensionaudit.com/sitemap.xml
+
+# Disallow admin/internal routes
+Disallow: /settings
+Disallow: /reports
+
