@@ -443,7 +443,6 @@ const HomePage = () => {
                 </svg>
               </button>
             </div>
-            <p className="search-hint">✓ No install. No signup. Results in 60 seconds.</p>
           </div>
         </div>
 
