@@ -32,6 +32,7 @@ restartPolicyMaxRetries = 3
 PYTHONDONTWRITEBYTECODE = "1"
 PYTHONUNBUFFERED = "1"
 LLM_PROVIDER = "openai"
+EXTENSION_STORAGE_PATH = "/app/extensions_storage"
 
 [static]
 # Not used since we serve static files via FastAPI
