@@ -21,6 +21,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/supabase-js": "^2.94.1",
     "axios": "^1.12.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
