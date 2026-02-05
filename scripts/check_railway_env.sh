@@ -1,5 +1,6 @@
 #!/bin/bash
 # Quick helper script to check Railway environment variables
+# Compatible with bash 3.2+ (macOS default)
 
 echo "🔍 ExtensionShield - Railway Environment Variables Check"
 echo "========================================================="
@@ -25,54 +26,68 @@ echo ""
 echo "📋 Checking environment variables..."
 echo ""
 
-# Define required variables
-declare -A REQUIRED_VARS=(
-    ["VITE_SUPABASE_URL"]="Frontend build-time: Supabase project URL"
-    ["VITE_SUPABASE_ANON_KEY"]="Frontend build-time: Supabase anon key"
-    ["SUPABASE_URL"]="Backend runtime: Supabase project URL"
-    ["SUPABASE_SERVICE_ROLE_KEY"]="Backend runtime: Supabase service role key"
-    ["LLM_PROVIDER"]="Backend runtime: LLM provider (openai, watsonx, ollama)"
-    ["OPENAI_API_KEY"]="Backend runtime: OpenAI API key (if using OpenAI)"
-)
-
-declare -A OPTIONAL_VARS=(
-    ["LLM_MODEL"]="LLM model name (default: gpt-4o)"
-    ["VIRUSTOTAL_API_KEY"]="VirusTotal API key for malware checks"
-    ["VITE_API_BASE_URL"]="Custom API base URL for frontend"
-    ["CORS_ORIGINS"]="Comma-separated CORS origins"
-)
-
 # Get all Railway variables
 VARS=$(railway variables 2>/dev/null)
+
+# Function to check if a variable exists
+check_var() {
+    local var_name="$1"
+    local description="$2"
+    
+    if echo "$VARS" | grep -q "^$var_name="; then
+        echo "✅ $var_name"
+        echo "   $description"
+        return 0
+    else
+        echo "❌ $var_name (MISSING)"
+        echo "   $description"
+        return 1
+    fi
+}
+
+# Function to check optional variable
+check_optional_var() {
+    local var_name="$1"
+    local description="$2"
+    
+    if echo "$VARS" | grep -q "^$var_name="; then
+        echo "✅ $var_name"
+    else
+        echo "⚪ $var_name (not set)"
+    fi
+    echo "   $description"
+}
 
 # Check required variables
 echo "REQUIRED VARIABLES:"
 echo "==================="
 MISSING_COUNT=0
-for var in "${!REQUIRED_VARS[@]}"; do
-    if echo "$VARS" | grep -q "^$var="; then
-        echo "✅ $var"
-        echo "   ${REQUIRED_VARS[$var]}"
-    else
-        echo "❌ $var (MISSING)"
-        echo "   ${REQUIRED_VARS[$var]}"
-        ((MISSING_COUNT++))
-    fi
-    echo ""
-done
+
+check_var "VITE_SUPABASE_URL" "Frontend build-time: Supabase project URL" || ((MISSING_COUNT++))
+echo ""
+check_var "VITE_SUPABASE_ANON_KEY" "Frontend build-time: Supabase anon key" || ((MISSING_COUNT++))
+echo ""
+check_var "SUPABASE_URL" "Backend runtime: Supabase project URL" || ((MISSING_COUNT++))
+echo ""
+check_var "SUPABASE_SERVICE_ROLE_KEY" "Backend runtime: Supabase service role key" || ((MISSING_COUNT++))
+echo ""
+check_var "LLM_PROVIDER" "Backend runtime: LLM provider (openai, watsonx, ollama)" || ((MISSING_COUNT++))
+echo ""
+check_var "OPENAI_API_KEY" "Backend runtime: OpenAI API key (if using OpenAI)" || ((MISSING_COUNT++))
+echo ""
 
 # Check optional variables
 echo "OPTIONAL VARIABLES:"
 echo "==================="
-for var in "${!OPTIONAL_VARS[@]}"; do
-    if echo "$VARS" | grep -q "^$var="; then
-        echo "✅ $var"
-    else
-        echo "⚪ $var (not set)"
-    fi
-    echo "   ${OPTIONAL_VARS[$var]}"
-    echo ""
-done
+
+check_optional_var "LLM_MODEL" "LLM model name (default: gpt-4o)"
+echo ""
+check_optional_var "VIRUSTOTAL_API_KEY" "VirusTotal API key for malware checks"
+echo ""
+check_optional_var "VITE_API_BASE_URL" "Custom API base URL for frontend"
+echo ""
+check_optional_var "CORS_ORIGINS" "Comma-separated CORS origins"
+echo ""
 
 # Summary
 echo "========================================================="
@@ -95,4 +110,3 @@ else
     echo "See docs/RAILWAY_DEPLOYMENT.md for detailed setup instructions."
 fi
 echo ""
-
