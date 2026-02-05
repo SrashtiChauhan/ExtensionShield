@@ -40,3 +40,27 @@ disabled = true
 
 # Trigger redeployment - Updated: 2025-02-04 21:40 UTC
 
+# =============================================================================
+# CLI Deployment Shortcuts
+# =============================================================================
+# To trigger auto deployment from CLI, use one of these commands:
+#
+# Quick deploy:
+#   railway up
+#   OR
+#   make deploy
+#   OR
+#   ./scripts/deploy.sh
+#
+# Deploy with detach (non-blocking):
+#   railway up --detach
+#
+# First time setup (link project):
+#   railway login
+#   railway link
+#
+# View deployment status:
+#   railway status
+#   railway logs -f
+# =============================================================================
+

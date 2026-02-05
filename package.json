@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "deploy": "./scripts/deploy.sh"
+  },
   "devDependencies": {
     "supabase": "^2.75.3"
   }
