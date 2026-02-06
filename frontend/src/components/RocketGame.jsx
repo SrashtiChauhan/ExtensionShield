@@ -8,7 +8,12 @@ import "./RocketGame.scss";
  * - Destroy targets to score points
  * - Easy and visually appealing
  */
-const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) => {
+const RocketGame = ({ 
+  isActive = true, 
+  statusLabel = "Running the scan...",
+  onStatsUpdate,
+  showScoreboard = true,
+}) => {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const keysDownRef = useRef(new Set());
@@ -59,6 +64,10 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
     best: loadBestScore(), 
     gameOver: false,
     leaderboard: loadLeaderboard(),
+    timerPoints: 0,
+    escapePoints: 0,
+    survivalPoints: 0,
+    totalScore: 0,
   });
 
   const gameRef = useRef({
@@ -73,6 +82,11 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
     nextTargetSpawn: 0,
     stars: [],
     particles: [],
+    timerPoints: 0,
+    escapePoints: 0,
+    survivalPoints: 0,
+    targetsEscaped: 0,
+    lastTimerUpdate: 0,
   });
 
   // Initialize stars - more stars for larger screens
@@ -200,7 +214,21 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
     g.targets = [];
     g.nextTargetSpawn = 1;
     g.particles = [];
-    setUi({ score: 0, best: g.best, gameOver: false, leaderboard });
+    g.timerPoints = 0;
+    g.escapePoints = 0;
+    g.survivalPoints = 0;
+    g.targetsEscaped = 0;
+    g.lastTimerUpdate = 0;
+    setUi({ 
+      score: 0, 
+      best: g.best, 
+      gameOver: false, 
+      leaderboard,
+      timerPoints: 0,
+      escapePoints: 0,
+      survivalPoints: 0,
+      totalScore: 0,
+    });
   };
 
   // Main game loop
@@ -313,9 +341,16 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
         }
         g.bullets = g.bullets.filter((b) => b.x < w + 50);
 
-        // Update targets
+        // Update targets and track escapes
         for (const target of g.targets) {
           target.x -= target.speed * dt;
+        }
+        // Count targets that escaped (passed left edge without being hit)
+        const escapedTargets = g.targets.filter((t) => t.x + t.w < -50);
+        if (escapedTargets.length > 0) {
+          g.targetsEscaped += escapedTargets.length;
+          // Award escape points: 5 points per escaped target
+          g.escapePoints += escapedTargets.length * 5;
         }
         g.targets = g.targets.filter((t) => t.x + t.w > -50);
 
@@ -361,19 +396,24 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
             g.rocket.y + g.rocket.h > target.y
           ) {
             g.gameOver = true;
-            const finalScore = Math.floor(g.score);
-            const newBest = Math.max(g.best, finalScore);
+            // Calculate final total score
+            const finalTotalScore = Math.floor(g.score + g.timerPoints + g.escapePoints + g.survivalPoints);
+            const newBest = Math.max(g.best, finalTotalScore);
             g.best = newBest;
             
             // Save to localStorage
             try {
               localStorage.setItem('rocketGame_bestScore', newBest.toString());
-              const leaderboard = saveToLeaderboard(finalScore);
+              const leaderboard = saveToLeaderboard(finalTotalScore);
               setUi((prev) => ({ 
                 ...prev, 
                 best: newBest,
                 leaderboard: leaderboard,
-                gameOver: true 
+                gameOver: true,
+                timerPoints: g.timerPoints,
+                escapePoints: g.escapePoints,
+                survivalPoints: g.survivalPoints,
+                totalScore: finalTotalScore,
               }));
             } catch (e) {
               console.error('Failed to save score:', e);
@@ -397,6 +437,14 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
             star.x = w;
             star.y = Math.random() * h;
           }
+        }
+
+        // Calculate timer and survival points (1 point per second survived)
+        const elapsedTime = (ts - g.startedAt) / 1000; // Time in seconds
+        const newTimerPoints = Math.floor(elapsedTime);
+        if (newTimerPoints > g.timerPoints) {
+          g.timerPoints = newTimerPoints;
+          g.survivalPoints = newTimerPoints; // Same as timer points
         }
       }
 
@@ -502,40 +550,63 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
       ctx.closePath();
       ctx.fill();
 
-      // HUD
-      const currentScore = Math.floor(g.score);
-      ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
-      ctx.font = "600 14px system-ui, -apple-system, sans-serif";
-      ctx.fillText(`Score: ${currentScore}`, 12, 24);
-      ctx.fillStyle = "rgba(148, 163, 184, 0.8)";
-      ctx.font = "500 12px system-ui, -apple-system, sans-serif";
-      ctx.fillText(`Best: ${Math.floor(g.best)}`, 12, 42);
+      // Calculate total score (sum of all point types)
+      const totalScore = g.score + g.timerPoints + g.escapePoints + g.survivalPoints;
       
-      // Show rank if leaderboard exists
-      if (ui.leaderboard && ui.leaderboard.length > 0) {
-        const topScore = ui.leaderboard[0]?.score || 0;
-        if (topScore > 0) {
-          ctx.fillStyle = "rgba(34, 197, 94, 0.8)";
-          ctx.font = "500 11px system-ui, -apple-system, sans-serif";
-          ctx.fillText(`Top: ${topScore}`, 12, 60);
+      // Scoreboard HUD (only if showScoreboard is true)
+      if (showScoreboard) {
+        const scoreboardY = 12;
+        const lineHeight = 18;
+        let yOffset = scoreboardY;
+        
+        // Background for scoreboard
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.beginPath();
+        ctx.roundRect(8, 8, 200, 120, 8);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(34, 197, 94, 0.3)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Total Score (larger, at top)
+        ctx.fillStyle = "rgba(34, 197, 94, 1)";
+        ctx.font = "700 16px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`Total: ${Math.floor(totalScore)}`, 16, yOffset);
+        yOffset += lineHeight + 4;
+        
+        // Timer Points
+        ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
+        ctx.font = "500 12px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`Timer: ${g.timerPoints}`, 16, yOffset);
+        yOffset += lineHeight;
+        
+        // Escape Points
+        ctx.fillText(`Escape: ${g.escapePoints}`, 16, yOffset);
+        yOffset += lineHeight;
+        
+        // Survival Points
+        ctx.fillText(`Survival: ${g.survivalPoints}`, 16, yOffset);
+        yOffset += lineHeight;
+        
+        // Shooting Score
+        ctx.fillText(`Shooting: ${Math.floor(g.score)}`, 16, yOffset);
+        yOffset += lineHeight + 4;
+        
+        // Best Score
+        ctx.fillStyle = "rgba(148, 163, 184, 0.8)";
+        ctx.font = "500 11px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`Best: ${Math.floor(g.best)}`, 16, yOffset);
+        
+        // Show rank if leaderboard exists
+        if (ui.leaderboard && ui.leaderboard.length > 0) {
+          const topScore = ui.leaderboard[0]?.score || 0;
+          if (topScore > 0) {
+            yOffset += lineHeight - 2;
+            ctx.fillStyle = "rgba(34, 197, 94, 0.8)";
+            ctx.fillText(`Top: ${topScore}`, 16, yOffset);
+          }
         }
       }
-
-      // Status label
-      ctx.font = "500 12px system-ui, -apple-system, sans-serif";
-      const statusText = statusLabel;
-      const tw = ctx.measureText(statusText).width;
-      const px = Math.floor(w / 2 - (tw + 28) / 2);
-      const py = h - 32;
-      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-      ctx.beginPath();
-      ctx.roundRect(px, py, tw + 28, 22, 11);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
-      ctx.fillText(statusText, px + 14, py + 15);
 
       // Controls hint
       if (g.score < 30) {
@@ -546,22 +617,54 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
 
       // Game over overlay
       if (g.gameOver) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.fillRect(0, 0, w, h);
+        
+        // Game Over Title
         ctx.fillStyle = "#ef4444";
-        ctx.font = "700 24px system-ui, -apple-system, sans-serif";
+        ctx.font = "700 28px system-ui, -apple-system, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("Game Over!", w / 2, h / 2 - 20);
+        ctx.fillText("Game Over!", w / 2, h / 2 - 100);
+        
+        // Final Scoreboard
+        const finalTotal = Math.floor(g.score + g.timerPoints + g.escapePoints + g.survivalPoints);
+        ctx.fillStyle = "rgba(34, 197, 94, 1)";
+        ctx.font = "700 20px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`Final Score: ${finalTotal}`, w / 2, h / 2 - 50);
+        
         ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
         ctx.font = "500 14px system-ui, -apple-system, sans-serif";
-        ctx.fillText("Press Space or Enter to restart", w / 2, h / 2 + 10);
+        ctx.fillText(`Timer: ${g.timerPoints} | Escape: ${g.escapePoints} | Survival: ${g.survivalPoints} | Shooting: ${Math.floor(g.score)}`, w / 2, h / 2 - 20);
+        
+        ctx.fillText("Press Space or Enter to restart", w / 2, h / 2 + 20);
         ctx.textAlign = "left";
       }
 
-      // Sync UI state
+      // Sync UI state and notify parent of stats
       if (ts - (g._lastUiTs || 0) > 100) {
         g._lastUiTs = ts;
-        setUi({ score: Math.floor(g.score), best: Math.floor(g.best), gameOver: g.gameOver });
+        const currentTotal = Math.floor(g.score + g.timerPoints + g.escapePoints + g.survivalPoints);
+        const elapsedTime = (ts - g.startedAt) / 1000;
+        
+        setUi({ 
+          score: Math.floor(g.score), 
+          best: Math.floor(g.best), 
+          gameOver: g.gameOver,
+          timerPoints: g.timerPoints,
+          escapePoints: g.escapePoints,
+          survivalPoints: g.survivalPoints,
+          totalScore: currentTotal,
+        });
+
+        // Notify parent component of stats update
+        if (onStatsUpdate) {
+          onStatsUpdate({
+            score: currentTotal,
+            best: Math.floor(g.best),
+            time: elapsedTime,
+            gameOver: g.gameOver,
+          });
+        }
       }
 
       rafRef.current = requestAnimationFrame(step);
@@ -571,7 +674,7 @@ const RocketGame = ({ isActive = true, statusLabel = "Running the scan..." }) =>
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isActive, statusLabel]);
+  }, [isActive, statusLabel, onStatsUpdate, showScoreboard]);
 
   return (
     <div className="rocket-game">

@@ -125,20 +125,25 @@ export const ScanProvider = ({ children }) => {
 
       setCurrentExtensionId(extId);
 
-      // Daily deep-scan limit check (cached lookups still allowed)
-      try {
-        const limit = await realScanService.getDeepScanLimitStatus();
-        if (limit?.remaining <= 0) {
-          const cached = await realScanService.hasCachedResults(extId);
-          if (!cached) {
-            setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
-            setScanStage(null);
-            setIsScanning(false);
-            return;
+      // Daily deep-scan limit check (cached lookups still allowed) - skip in development
+      const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+      if (isDevelopment) {
+        // In development, skip limit check - backend will also skip it
+      } else {
+        try {
+          const limit = await realScanService.getDeepScanLimitStatus();
+          if (limit?.remaining <= 0) {
+            const cached = await realScanService.hasCachedResults(extId);
+            if (!cached) {
+              setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
+              setScanStage(null);
+              setIsScanning(false);
+              return;
+            }
           }
+        } catch (e) {
+          // If the limit check fails, fall back to backend enforcement.
         }
-      } catch (e) {
-        // If the limit check fails, fall back to backend enforcement.
       }
       
       // Navigate to progress page
@@ -187,17 +192,20 @@ export const ScanProvider = ({ children }) => {
     setScanStage("extracting");
 
     try {
-      // Daily deep-scan limit check (uploads are always deep scans)
-      try {
-        const limit = await realScanService.getDeepScanLimitStatus();
-        if (limit?.remaining <= 0) {
-          setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
-          setScanStage(null);
-          setIsScanning(false);
-          return;
+      // Daily deep-scan limit check (uploads are always deep scans) - skip in development
+      const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+      if (!isDevelopment) {
+        try {
+          const limit = await realScanService.getDeepScanLimitStatus();
+          if (limit?.remaining <= 0) {
+            setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
+            setScanStage(null);
+            setIsScanning(false);
+            return;
+          }
+        } catch (e) {
+          // If the limit check fails, fall back to backend enforcement.
         }
-      } catch (e) {
-        // If the limit check fails, fall back to backend enforcement.
       }
 
       const uploadResult = await realScanService.uploadAndScan(file);

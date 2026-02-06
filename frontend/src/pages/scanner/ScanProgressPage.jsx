@@ -5,6 +5,8 @@ import RocketGame from "../../components/RocketGame";
 import { useScan } from "../../context/ScanContext";
 import { EXTENSION_ICON_PLACEHOLDER } from "../../utils/constants";
 import ShieldLogo from "../../components/ShieldLogo";
+import realScanService from "../../services/realScanService";
+import ScanHUD from "../../components/ScanHUD";
 import {
   Dialog,
   DialogContent,
@@ -28,14 +30,29 @@ const ScanProgressPage = () => {
   } = useScan();
   
   const [extensionLogo, setExtensionLogo] = useState(EXTENSION_ICON_PLACEHOLDER);
+  const [extensionName, setExtensionName] = useState(null);
   const [scanComplete, setScanComplete] = useState(false);
   const [userExited, setUserExited] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [gameStarted, setGameStarted] = useState(false); // Track if game has started
+  const [gameStats, setGameStats] = useState({ score: 0, best: 0, time: 0 });
+  const [gameOver, setGameOver] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   
-  // Fetch extension logo with error handling
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Fetch extension logo and name with error handling
   useEffect(() => {
     if (!scanId) return;
     
@@ -56,6 +73,69 @@ const ScanProgressPage = () => {
       // Silently fail - use placeholder
       setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
     }
+
+    // Try to fetch extension name from scan results
+    const fetchExtensionInfo = async () => {
+      try {
+        const results = await realScanService.getRealScanResults(scanId);
+        if (results?.extension_name) {
+          setExtensionName(results.extension_name);
+        } else if (results?.metadata?.title) {
+          setExtensionName(results.metadata.title);
+        }
+      } catch (e) {
+        // Silently fail - name will remain null
+      }
+    };
+    fetchExtensionInfo();
+  }, [scanId]);
+
+  // Calculate scan progress based on stage
+  useEffect(() => {
+    if (!scanStage) return;
+    
+    const stageProgressMap = {
+      extracting: 14,
+      security_scan: 28,
+      building_evidence: 42,
+      applying_rules: 71,
+      generating_report: 100,
+    };
+    
+    setScanProgress(stageProgressMap[scanStage] || 0);
+  }, [scanStage]);
+
+  // Check scan status on mount and start game if scan is active
+  useEffect(() => {
+    if (!scanId) return;
+    
+    const checkStatus = async () => {
+      try {
+        const status = await realScanService.checkScanStatus(scanId);
+        if (status.scanned) {
+          // Scan is complete, try to load results
+          try {
+            const results = await realScanService.getRealScanResults(scanId);
+            if (results) {
+              setScanComplete(true);
+            }
+          } catch (e) {
+            // Results might not be ready yet
+          }
+        } else if (status.status === "running") {
+          // Scan is running, start the game
+          setGameStarted(true);
+        } else {
+          // Scan might not have started yet, but show game anyway
+          setGameStarted(true);
+        }
+      } catch (e) {
+        // If status check fails, show game anyway
+        setGameStarted(true);
+      }
+    };
+    
+    checkStatus();
   }, [scanId]);
 
   // Track when game should start (when scan begins)
@@ -64,6 +144,17 @@ const ScanProgressPage = () => {
       setGameStarted(true);
     }
   }, [isScanning, currentExtensionId, scanId, gameStarted]);
+
+  // Show game if we have an active scan OR if scan is complete but user hasn't exited yet
+  // OR if game has started (to keep it open even if errors occur)
+  // Also show game if scanId matches currentExtensionId (even if not actively scanning)
+  // OR if we have a scanId (default to showing game when on progress page)
+  const shouldShowGame = 
+    (isScanning && currentExtensionId === scanId) || 
+    (scanComplete && !userExited) ||
+    (gameStarted && !userExited) || // Game has started (from status check or scan context)
+    (currentExtensionId === scanId && !userExited) ||
+    (scanId && !userExited); // Default: show game if we have a scanId
 
   // Track scan completion but don't auto-redirect - let user continue playing
   useEffect(() => {
@@ -174,12 +265,23 @@ const ScanProgressPage = () => {
     setShowCompletionModal(false);
   };
 
-  // Show game if we have an active scan OR if scan is complete but user hasn't exited yet
-  // OR if game has started (to keep it open even if errors occur)
-  const shouldShowGame = 
-    (isScanning && currentExtensionId === scanId) || 
-    (scanComplete && !userExited) ||
-    (gameStarted && currentExtensionId === scanId && !userExited);
+  // Always render something - never show blank page
+  if (!scanId) {
+    return (
+      <div className="scan-progress-page">
+        <div className="progress-container">
+          <div className="no-scan-state">
+            <div className="no-scan-icon">⚠️</div>
+            <h2>Invalid Scan ID</h2>
+            <p>No scan ID provided in the URL.</p>
+            <Button onClick={() => navigate("/scan")} variant="default">
+              Go to Scanner
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="scan-progress-page">
@@ -192,12 +294,9 @@ const ScanProgressPage = () => {
             </div>
             <h1 className="retro-title">
               <span className="retro-text">
-                {scanComplete ? "SCAN COMPLETE" : "ANALYZING EXTENSION"}
+                {scanComplete ? "SCAN COMPLETE" : "Scan in progress — game mode."}
               </span>
             </h1>
-            <div className="retro-subtitle">
-              <span className="retro-id">ID: {scanId}</span>
-            </div>
             {/* Exit button appears when scan is complete */}
             {scanComplete && (
               <div className="retro-exit-container">
@@ -222,15 +321,37 @@ const ScanProgressPage = () => {
                   ? "Scan complete! Keep playing or click 'View Results' above." 
                   : "Running the scan... Play a game till then!"
               }
+              onStatsUpdate={(stats) => {
+                setGameStats(stats);
+                if (stats.gameOver !== undefined) {
+                  setGameOver(stats.gameOver);
+                }
+              }}
+              showScoreboard={false}
             />
           </div>
+
+          {/* Scan HUD */}
+          <ScanHUD
+            extensionIcon={extensionLogo}
+            extensionName={extensionName || `Extension ${scanId?.substring(0, 8)}...`}
+            extensionId={scanId}
+            scanStage={scanStage}
+            scanProgress={scanProgress}
+            gameStats={gameStats}
+            onViewFindings={handleViewResults}
+            onCancelScan={() => navigate("/scan")}
+            isMobile={isMobile}
+            gameOver={gameOver}
+            scanComplete={scanComplete}
+          />
 
           {/* Error Modal - doesn't close game */}
           <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
             <DialogContent className="error-modal-content">
               <DialogHeader>
                 <DialogTitle className="error-modal-title">
-                  ⚠️ Something Went Wrong
+                  Something Went Wrong
                 </DialogTitle>
                 <DialogDescription className="error-modal-description">
                   {errorMessage || "An error occurred, but you can continue playing the game."}
@@ -318,11 +439,15 @@ const ScanProgressPage = () => {
               <div className="no-scan-icon">🔍</div>
               <h2>No Active Scan</h2>
               <p>
-                There's no active scan for this extension ID. 
-                You can start a new scan or check the scan history.
+                There's no active scan for extension ID: <code>{scanId}</code>
+                <br />
+                The scan may have completed, or you can start a new scan.
               </p>
               <div className="no-scan-actions">
-                <Button onClick={() => navigate("/scan")} variant="default">
+                <Button onClick={() => navigate(`/scan/results/${scanId}`)} variant="default">
+                  Check Results
+                </Button>
+                <Button onClick={() => navigate("/scan")} variant="outline">
                   Start New Scan
                 </Button>
                 <Button onClick={() => navigate("/scan/history")} variant="outline">
