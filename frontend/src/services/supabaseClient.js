@@ -26,11 +26,26 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
   );
 } else {
   try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Configure Supabase client with PKCE flow explicitly
+    supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        flowType: 'pkce',
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false, // We handle callbacks manually via AuthCallbackPage
+      },
+    });
   } catch (error) {
     console.error("Supabase client initialization failed:", error);
     // Fallback to placeholder only if createClient itself fails (shouldn't happen)
-    supabase = createClient("https://placeholder.supabase.co", "placeholder-key");
+    supabase = createClient("https://placeholder.supabase.co", "placeholder-key", {
+      auth: {
+        flowType: 'pkce',
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+      },
+    });
   }
 }
 

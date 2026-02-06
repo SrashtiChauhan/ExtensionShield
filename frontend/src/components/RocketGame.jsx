@@ -89,12 +89,15 @@ const RocketGame = ({
     lastTimerUpdate: 0,
   });
 
-  // Initialize stars - more stars for larger screens
-  useEffect(() => {
-    const canvas = canvasRef.current;
+  // Initialize stars function - can be called multiple times
+  const initializeStars = (canvas) => {
     if (!canvas) return;
-    const w = canvas.clientWidth || 600;
-    const h = canvas.clientHeight || 400;
+    const w = canvas.clientWidth || canvas.width || 600;
+    const h = canvas.clientHeight || canvas.height || 400;
+    
+    // Don't initialize if canvas has no dimensions
+    if (w <= 0 || h <= 0) return;
+    
     const screenArea = w * h;
     
     // More stars for larger screens
@@ -110,7 +113,7 @@ const RocketGame = ({
       });
     }
     gameRef.current.stars = stars;
-  }, []);
+  };
 
   // Resize canvas and focus for keyboard input
   useEffect(() => {
@@ -136,6 +139,9 @@ const RocketGame = ({
       const g = gameRef.current;
       g.rocket.x = 50;
       g.rocket.y = h / 2;
+      
+      // Re-initialize stars when canvas is resized
+      initializeStars(canvas);
     };
 
     resize();
@@ -143,7 +149,10 @@ const RocketGame = ({
     // Make canvas focusable and focus it when game is active
     if (isActive) {
       canvas.setAttribute('tabindex', '0');
-      canvas.focus();
+      // Use setTimeout to ensure canvas is rendered before focusing
+      setTimeout(() => {
+        canvas.focus();
+      }, 100);
     }
     
     const ro = new ResizeObserver(resize);
@@ -165,8 +174,8 @@ const RocketGame = ({
       if ([" ", "arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", "enter"].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
+        keysDownRef.current.add(key);
       }
-      keysDownRef.current.add(key);
     };
     
     const onUp = (e) => {
@@ -174,24 +183,28 @@ const RocketGame = ({
       if ([" ", "arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", "enter"].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
+        keysDownRef.current.delete(key);
       }
-      keysDownRef.current.delete(key);
     };
 
     // Use capture phase to catch events early
-    document.addEventListener("keydown", onDown, { passive: false, capture: true });
-    document.addEventListener("keyup", onUp, { passive: false, capture: true });
+    window.addEventListener("keydown", onDown, { passive: false, capture: true });
+    window.addEventListener("keyup", onUp, { passive: false, capture: true });
     
-    // Also prevent wheel/scroll events when game is focused
-    const preventScroll = (e) => {
-      if (e.target.closest('.rocket-game')) {
-        e.preventDefault();
-      }
-    };
+    // Also add listeners to canvas for better focus handling
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener("keydown", onDown);
+      canvas.addEventListener("keyup", onUp);
+    }
     
     return () => {
-      document.removeEventListener("keydown", onDown, { capture: true });
-      document.removeEventListener("keyup", onUp, { capture: true });
+      window.removeEventListener("keydown", onDown, { capture: true });
+      window.removeEventListener("keyup", onUp, { capture: true });
+      if (canvas) {
+        canvas.removeEventListener("keydown", onDown);
+        canvas.removeEventListener("keyup", onUp);
+      }
     };
   }, [isActive]);
 
@@ -234,6 +247,13 @@ const RocketGame = ({
   // Main game loop
   useEffect(() => {
     if (!isActive) return;
+    
+    // Initialize stars before starting game loop
+    const canvas = canvasRef.current;
+    if (canvas) {
+      initializeStars(canvas);
+    }
+    
     resetGame();
 
     const step = (ts) => {
@@ -242,6 +262,11 @@ const RocketGame = ({
       if (!canvas || !ctx) {
         rafRef.current = requestAnimationFrame(step);
         return;
+      }
+      
+      // Ensure stars are initialized if they're missing
+      if (!gameRef.current.stars || gameRef.current.stars.length === 0) {
+        initializeStars(canvas);
       }
 
       // Polyfill for roundRect if not available

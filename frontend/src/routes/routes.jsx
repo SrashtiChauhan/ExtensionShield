@@ -10,6 +10,8 @@ const ScanHistoryPage = React.lazy(() => import("../pages/ScanHistoryPage"));
 const EnterprisePage = React.lazy(() => import("../pages/EnterprisePage"));
 const SettingsPage = React.lazy(() => import("../pages/SettingsPage"));
 const PrivacyPolicyPage = React.lazy(() => import("../pages/PrivacyPolicyPage"));
+const AuthCallbackPage = React.lazy(() => import("../pages/auth/AuthCallbackPage"));
+const AuthDiagnosticsPage = React.lazy(() => import("../pages/auth/AuthDiagnosticsPage"));
 
 // Research Pages
 const ResearchPage = React.lazy(() => import("../pages/research/ResearchPage"));
@@ -260,6 +262,16 @@ export const routes = [
   {
     path: "/reports/:reportId",
     element: <ReportDetailPage />
+  },
+
+  // ============ AUTHENTICATION ============
+  {
+    path: "/auth/callback",
+    element: <AuthCallbackPage />
+  },
+  {
+    path: "/auth/diagnostics",
+    element: <AuthDiagnosticsPage />
   },
 
   // ============ SETTINGS ============

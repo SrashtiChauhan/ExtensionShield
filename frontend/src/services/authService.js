@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "./supabaseClient";
+import { validateReturnTo } from "../utils/authUtils";
 
 const checkSupabaseConfig = () => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
@@ -29,13 +30,20 @@ const checkSupabaseConfig = () => {
 const signInWithGoogle = async () => {
   checkSupabaseConfig();
   
-  // Get the current origin and pathname to redirect back to the same page
-  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  // Store the return URL (pathname + search) before redirecting
+  // This preserves the page and query params the user was on
+  // Use sessionStorage for tab-isolation (prevents cross-tab interference)
+  // Validate to prevent open redirects and loops
+  const returnTo = validateReturnTo(window.location.pathname + window.location.search);
+  sessionStorage.setItem("auth:returnTo", returnTo);
+  
+  // Redirect to dedicated callback route (PKCE flow)
+  const callbackUrl = `${window.location.origin}/auth/callback`;
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: redirectTo,
+      redirectTo: callbackUrl,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
@@ -45,6 +53,7 @@ const signInWithGoogle = async () => {
   
   if (error) {
     console.error("Google OAuth error:", error);
+    sessionStorage.removeItem("auth:returnTo");
     throw new Error(error.message || "Google sign-in failed");
   }
   
@@ -55,18 +64,26 @@ const signInWithGoogle = async () => {
 const signInWithGitHub = async () => {
   checkSupabaseConfig();
   
-  // Get the current origin and pathname to redirect back to the same page
-  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  // Store the return URL (pathname + search) before redirecting
+  // This preserves the page and query params the user was on
+  // Use sessionStorage for tab-isolation (prevents cross-tab interference)
+  // Validate to prevent open redirects and loops
+  const returnTo = validateReturnTo(window.location.pathname + window.location.search);
+  sessionStorage.setItem("auth:returnTo", returnTo);
+  
+  // Redirect to dedicated callback route (PKCE flow)
+  const callbackUrl = `${window.location.origin}/auth/callback`;
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: redirectTo,
+      redirectTo: callbackUrl,
     },
   });
   
   if (error) {
     console.error("GitHub OAuth error:", error);
+    sessionStorage.removeItem("auth:returnTo");
     throw new Error(error.message || "GitHub sign-in failed");
   }
   
