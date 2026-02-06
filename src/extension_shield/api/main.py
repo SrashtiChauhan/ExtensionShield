@@ -2296,6 +2296,25 @@ async def serve_spa(full_path: str):
     # Don't intercept data files (should be handled by static mount above)
     if full_path.startswith("data/"):
         raise HTTPException(status_code=404, detail="Data file not found")
+    
+    # Don't intercept assets (should be handled by static mount above)
+    if full_path.startswith("assets/"):
+        raise HTTPException(status_code=404, detail="Asset not found")
+    
+    # Don't intercept static files (should be handled by static mount above)
+    if full_path.startswith("static/"):
+        raise HTTPException(status_code=404, detail="Static file not found")
+
+    # Check if this is a static file request (favicon, logo, manifest, etc.)
+    # These files are in the root of STATIC_DIR (copied from public/ during build)
+    if STATIC_DIR.exists():
+        static_file = STATIC_DIR / full_path
+        # Only serve actual files, not directories, and only common static file types
+        if static_file.is_file() and full_path not in ("", "/"):
+            # Check if it's a known static file type
+            static_extensions = (".png", ".jpg", ".jpeg", ".svg", ".ico", ".json", ".txt", ".xml", ".webmanifest")
+            if static_file.suffix.lower() in static_extensions or full_path in ("manifest.json", "robots.txt", "sitemap.xml"):
+                return FileResponse(static_file)
 
     # Serve index.html for all other routes (SPA routing)
     index_file = STATIC_DIR / "index.html"
