@@ -19,3 +19,4 @@ values
 on conflict (metric_name) do nothing;
 
 
+

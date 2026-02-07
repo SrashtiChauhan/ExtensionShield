@@ -31,3 +31,4 @@ alter table public.page_views_daily enable row level security;
 --   using (auth.role() = 'authenticated');
 
 
+

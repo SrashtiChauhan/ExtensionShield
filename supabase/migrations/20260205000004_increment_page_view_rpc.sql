@@ -31,3 +31,4 @@ grant execute on function public.increment_page_view(text, text) to service_role
 -- Multiple concurrent calls will correctly increment the count.
 
 
+

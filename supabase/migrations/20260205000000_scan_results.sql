@@ -58,3 +58,4 @@ create trigger scan_results_updated_at
 -- Tables are NOT accessible via Supabase API without explicit policies.
 
 
+
