@@ -18,6 +18,11 @@ const Footer = () => {
         <p className="footer-disclaimer">
           {footerConfig.disclaimer}
         </p>
+        {footerConfig.brandClarification && (
+          <p className="footer-brand-clarification">
+            {footerConfig.brandClarification}
+          </p>
+        )}
         <div className="footer-links">
           {footerConfig.links.map((link, index) => {
             if (link.external) {
