@@ -4,7 +4,6 @@ import { Button } from "../../components/ui/button";
 import RocketGame from "../../components/RocketGame";
 import { useScan } from "../../context/ScanContext";
 import { EXTENSION_ICON_PLACEHOLDER } from "../../utils/constants";
-import ShieldLogo from "../../components/ShieldLogo";
 import realScanService from "../../services/realScanService";
 import ScanHUD from "../../components/ScanHUD";
 import {
@@ -308,9 +307,6 @@ const ScanProgressPage = () => {
         <>
           {/* Retro Style Header Overlay */}
           <div className="retro-header-overlay">
-            <div className="retro-logo-container">
-              <ShieldLogo size={48} />
-            </div>
             <h1 className="retro-title">
               <span className="retro-text">
                 {scanComplete ? "SCAN COMPLETE" : "Scan in progress — game mode."}

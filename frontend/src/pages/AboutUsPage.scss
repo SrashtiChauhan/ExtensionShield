@@ -175,6 +175,38 @@
         }
       }
     }
+    
+    ul {
+      margin: 1.25rem 0;
+      padding-left: 1.5rem;
+      list-style: none;
+      
+      li {
+        font-size: 1.0625rem;
+        line-height: 1.8;
+        color: var(--atlas-text-secondary, #94a3b8);
+        margin-bottom: 0.75rem;
+        position: relative;
+        padding-left: 1.5rem;
+        
+        &::before {
+          content: '→';
+          position: absolute;
+          left: 0;
+          color: var(--atlas-accent, #22c55e);
+          font-weight: 600;
+        }
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        strong {
+          color: var(--atlas-text-primary, #f8fafc);
+          font-weight: 600;
+        }
+      }
+    }
   }
   
   .video-placeholder {

@@ -39,34 +39,45 @@ const AboutUsPage = () => {
               </div>
             </div>
             <h1>Stanzin</h1>
-            <p className="founder-title">Founder & Solo Developer</p>
+            <p className="founder-title">Founder & Engineer</p>
           </div>
 
           <div className="about-story">
             <div className="story-section">
               <h2>Why I Built This</h2>
               <p>
-                ExtensionShield started with a mistake I made: I installed a browser extension that looked harmless—then noticed it requested permissions that didn't match what it claimed to do.
+                I learned the fun way that "harmless" browser extensions sometimes mean: "I would like access to your browsing history, clipboard, and first-born child."
               </p>
               <p>
-                I went looking for a simple, consumer-friendly way to answer one question: "Is this extension actually safe?"
+                One day I installed an extension that looked totally normal… until I noticed the permissions didn't match what it claimed to do. So I went looking for a simple answer to a simple question:
               </p>
               <p>
-                I couldn't find one that combined security analysis, privacy risk, and compliance into a clear, actionable verdict—so I built it.
+                <strong>Is this extension actually safe?</strong>
+              </p>
+              <p>
+                What I found instead were tools that were either too technical, too vague, or confidently wrong in a way only the internet can be. I couldn't find something that combined security analysis + privacy risk + compliance into a clear verdict you can act on.
+              </p>
+              <p>
+                So I built ExtensionShield.
               </p>
             </div>
 
             <div className="story-section">
               <h2>Background</h2>
               <p>
-                My engineering journey began through <strong>Google Summer of Code</strong> with Drupal (<a href="https://www.drupal.org/u/stanzin" target="_blank" rel="noopener noreferrer">drupal.org/u/stanzin</a>), where I contributed to core and modules and learned how to build systems that are transparent, testable, and community-reviewed.
+                I got my start through <strong>Google Summer of Code</strong> with Drupal (<a href="https://www.drupal.org/u/stanzin" target="_blank" rel="noopener noreferrer">drupal.org/u/stanzin</a>), and that pretty much rewired how I think about software. Open source taught me the good stuff: transparency, community review, "show your work," and the occasional spicy-but-correct code review.
               </p>
               <p>
-                Professionally, I've architected and shipped enterprise platforms in regulated environments, including insurance—where security, privacy, and compliance aren't "nice to have," they're non-negotiable. That mix of real-world compliance exposure + hands-on engineering shaped how ExtensionShield works: evidence-driven analysis, explainable findings, and practical remediation.
+                Drupal's community is also genuinely fun—smart engineers, real collaboration, and a culture that makes you level up fast.
               </p>
               <p>
-                ExtensionShield is currently a solo-built project. If you want to collaborate, contribute, or help review the approach, check out the <Link to="/contribute">Contribute page</Link> or the <Link to="/open-source">open-source repo</Link>.
+                Today, I work in insurance at Hanover, which is basically the opposite vibe: regulated environments where security, privacy, and compliance aren't optional—they're the job. That experience shaped ExtensionShield into what I wanted in the first place:
               </p>
+              <ul>
+                <li><strong>Evidence-driven analysis</strong> (not vibes)</li>
+                <li><strong>Explainable findings</strong> (not black-box scores)</li>
+                <li><strong>Practical remediation</strong> (what to do next, not just "good luck")</li>
+              </ul>
             </div>
 
             <div className="video-placeholder">
