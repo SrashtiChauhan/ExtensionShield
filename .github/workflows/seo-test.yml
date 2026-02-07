@@ -1,0 +1,79 @@
+name: SEO Smoke Test
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'frontend/**'
+      - 'src/extension_shield/api/main.py'
+      - '.github/workflows/seo-test.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'frontend/**'
+      - 'src/extension_shield/api/main.py'
+      - '.github/workflows/seo-test.yml'
+  workflow_dispatch:
+
+jobs:
+  seo-test:
+    name: SEO Smoke Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run SEO smoke test
+        working-directory: ./frontend
+        run: npm run seo:test
+        env:
+          BASE_URL: https://extensionshield.com
+        continue-on-error: false
+
+      - name: Comment PR on failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## ❌ SEO Smoke Test Failed
+            
+            The SEO smoke test detected critical SEO issues that must be fixed before merging.
+            
+            Please review the test output above and ensure:
+            - All pages have valid title, description, and canonical tags
+            - OG and Twitter tags are present on key pages
+            - JSON-LD schema markup exists where required
+            - Domain redirects work correctly (301)
+            - robots.txt is configured correctly
+            - sitemap.xml only contains canonical domain URLs
+            
+            See \`docs/SEO_GATE.md\` for details.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
