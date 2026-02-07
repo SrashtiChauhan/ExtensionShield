@@ -290,6 +290,17 @@ export const routes = [
     priority: 0.5,
     changefreq: "monthly"
   },
+  {
+    path: "/glossary",
+    element: React.lazy(() => import("../pages/GlossaryPage")),
+    seo: {
+      title: "Browser Extension Security Glossary | ExtensionShield",
+      description: "Learn extension security terms: permissions, MV3, service workers, risk scores, governance, SAST, threat intelligence, privacy signals, and compliance.",
+      canonical: "/glossary"
+    },
+    priority: 0.7,
+    changefreq: "monthly"
+  },
 
   // ============ LEGACY REDIRECTS ============
   {
