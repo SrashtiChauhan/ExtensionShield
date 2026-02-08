@@ -4,11 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import databaseService from "../services/databaseService";
 import EnhancedMetricCard from "../components/EnhancedMetricCard";
 import {
-  enrichScanWithSignals,
   getRiskColorClass,
   getSignalColorClass,
-  SIGNAL_LEVELS
 } from "../utils/signalMapper";
+import { enrichScans } from "../utils/scanEnrichment";
 import { EXTENSION_ICON_PLACEHOLDER } from "../utils/constants";
 import SEOHead from "../components/SEOHead";
 import "./ScanHistoryPage.scss";
@@ -114,108 +113,73 @@ const ScanHistoryPage = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     const loadHistory = async () => {
-      setLoading(true);
       if (!canLoadHistory) {
-        setAllScans([]);
-        setLoading(false);
+        if (isMounted) {
+          setAllScans([]);
+          setLoading(false);
+        }
         return;
       }
+
+      setLoading(true);
+      
+      // Safety timeout
+      const safetyTimeout = setTimeout(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }, 3000);
+
       try {
+        // Request timeout wrapper
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout')), 5000)
+        );
+
         const token = isAuthenticated ? accessToken : undefined;
-        const history = await databaseService.getScanHistory(100, token);
+        const historyPromise = databaseService.getScanHistory(100, token);
+        const history = await Promise.race([historyPromise, timeoutPromise]);
         
-        // Load dashboard stats for charts
-        try {
-          const metrics = await databaseService.getDashboardMetrics();
-          setDashboardStats(metrics);
-        } catch (err) {
-          console.error("Error loading dashboard stats:", err);
+        // Load dashboard stats for charts (best-effort, don't block)
+        if (isMounted) {
+          databaseService.getDashboardMetrics()
+            .then((metrics) => {
+              if (isMounted) {
+                setDashboardStats(metrics);
+              }
+            })
+            .catch((err) => {
+              console.error("Error loading dashboard stats:", err);
+            });
         }
         
-        // Fetch full details for each scan to get signals data
-        const enrichedScans = await Promise.all(
-          history.map(async (scan) => {
-            try {
-              const fullResult = await databaseService.getScanResult(
-                scan.extension_id || scan.extensionId
-              );
-
-              // Parse metadata if it's a string (JSON)
-              let metadata = {};
-              if (fullResult?.metadata) {
-                if (typeof fullResult.metadata === "string") {
-                  try {
-                    metadata = JSON.parse(fullResult.metadata);
-                  } catch (e) {
-                    metadata = fullResult.metadata;
-                  }
-                } else {
-                  metadata = fullResult.metadata;
-                }
-              }
-
-              // Enrich with signals
-              const enriched = enrichScanWithSignals(
-                {
-                  ...scan,
-                  extension_name:
-                    scan.extension_name ||
-                    scan.extensionName ||
-                    metadata?.title ||
-                    scan.extension_id ||
-                    scan.extensionId,
-                  extension_id: scan.extension_id || scan.extensionId,
-                  timestamp: scan.timestamp,
-                  user_count: metadata?.user_count || metadata?.userCount || null,
-                  rating: metadata?.rating_value || metadata?.rating || null,
-                  rating_count:
-                    metadata?.rating_count ||
-                    metadata?.ratings_count ||
-                    metadata?.ratingCount ||
-                    null,
-                  logo: metadata?.logo || null,
-                },
-                fullResult
-              );
-
-              return enriched;
-            } catch (err) {
-              console.error(`Error loading data for ${scan.extension_id}:`, err);
-              return {
-                ...scan,
-                extension_name:
-                  scan.extension_name ||
-                  scan.extensionName ||
-                  scan.extension_id ||
-                  scan.extensionId,
-                extension_id: scan.extension_id || scan.extensionId,
-                timestamp: scan.timestamp,
-                user_count: null,
-                rating: null,
-                rating_count: null,
-                logo: null,
-                score: 0,
-                risk_level: "UNKNOWN",
-                findings_count: 0,
-                signals: {
-                  code_signal: { level: SIGNAL_LEVELS.OK, label: "—" },
-                  perms_signal: { level: SIGNAL_LEVELS.OK, label: "—" },
-                  intel_signal: { level: SIGNAL_LEVELS.OK, label: "—" },
-                },
-              };
-            }
-          })
-        );
-        setAllScans(enrichedScans);
+        // Enrich scans using utility function (uses Promise.allSettled internally)
+        const enrichedScans = await enrichScans(history);
+        
+        if (isMounted) {
+          setAllScans(enrichedScans);
+        }
       } catch (error) {
         console.error("Failed to load scan history:", error);
+        if (isMounted) {
+          setAllScans([]);
+        }
       } finally {
-        setLoading(false);
+        clearTimeout(safetyTimeout);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadHistory();
+
+    return () => {
+      isMounted = false;
+    };
   }, [isAuthenticated, accessToken, canLoadHistory]);
 
   // Handle scroll shadows for horizontal scrolling
