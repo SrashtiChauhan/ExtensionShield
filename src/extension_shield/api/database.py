@@ -496,7 +496,7 @@ class Database:
             return {"high": 0, "medium": 0, "low": 0}
 
     def get_recent_scans(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get recent scans with summary info."""
+        """Get recent scans with summary info including metadata and signal data to avoid N+1 queries."""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
@@ -504,7 +504,9 @@ class Database:
                     """
                     SELECT 
                         extension_id, extension_name, timestamp,
-                        security_score, risk_level, total_findings
+                        security_score, risk_level, total_findings,
+                        total_files, metadata, 
+                        sast_results, permissions_analysis, manifest
                     FROM scan_results
                     WHERE status = 'completed'
                     ORDER BY timestamp DESC
@@ -513,7 +515,9 @@ class Database:
                     (limit,),
                 )
 
-                return [dict(row) for row in cursor.fetchall()]
+                # Use _row_to_dict to parse JSON fields like metadata, sast_results, etc.
+                rows = cursor.fetchall()
+                return [self._row_to_dict(row) for row in rows]
         except Exception as e:
             print(f"Error getting recent scans: {e}")
             return []
@@ -864,7 +868,7 @@ class SupabaseDatabase:
         try:
             resp = (
                 self.client.table(self.table_scan_results)
-                .select("extension_id, extension_name, scanned_at, security_score, risk_level, total_findings")
+                .select("extension_id, extension_name, scanned_at, security_score, risk_level, total_findings, total_files, metadata, sast_results, permissions_analysis, manifest")
                 .eq("status", "completed")
                 .order("scanned_at", desc=True)
                 .limit(limit)

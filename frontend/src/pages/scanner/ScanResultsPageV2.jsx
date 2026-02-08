@@ -12,6 +12,9 @@ import {
   ExecutiveSummary,
   WhyThisScore,
 } from "../../components/report";
+import TopDriversRow from "../../components/report/TopDriversRow";
+import SafetyLabelCard from "../../components/report/SafetyLabelCard";
+import ScenarioGrid from "../../components/report/ScenarioGrid";
 import FileViewerModal from "../../components/FileViewerModal";
 import StatusMessage from "../../components/StatusMessage";
 import { useScan } from "../../context/ScanContext";
@@ -252,6 +255,11 @@ const ScanResultsPageV2 = () => {
     evidenceIndex: {}
   };
 
+  const consumerInsights = viewModel?.consumerInsights;
+  const handleEvidenceClick = (evidenceId) => {
+    console.log("evidence:", evidenceId);
+  };
+
   // Safety check - if viewModel is null but we have scanResults, show a message
   if (!viewModel && scanResults) {
     return (
@@ -374,96 +382,219 @@ const ScanResultsPageV2 = () => {
 
       {/* Main Content */}
       <main className="results-v2-main">
-        {/* Executive Summary - First, sets context */}
-        {(scanResults?.executiveSummary || (scores?.reasons && scores.reasons.length > 0)) && (
-          <ExecutiveSummary 
-            summary={scanResults?.executiveSummary || null}
-            reasons={scores?.reasons || []}
-          />
+        {consumerInsights && (
+          <section className="consumer-insights">
+            <div className="consumer-insights-header">
+              <h2 className="section-title">Consumer Insights</h2>
+            </div>
+            <div className="consumer-insights-stack">
+              <TopDriversRow
+                drivers={consumerInsights?.top_drivers ?? []}
+                onEvidenceClick={handleEvidenceClick}
+              />
+              <SafetyLabelCard
+                rows={consumerInsights?.safety_label ?? []}
+                onEvidenceClick={handleEvidenceClick}
+              />
+              <ScenarioGrid
+                scenarios={consumerInsights?.scenarios ?? []}
+                onEvidenceClick={handleEvidenceClick}
+              />
+            </div>
+          </section>
         )}
 
-        {/* Score Cards Row - Equal Prominence */}
-        <section className="scores-section">
-          <ReportScoreCard 
-            title="Security"
-            score={scores?.security?.score}
-            band={scores?.security?.band || 'NA'}
-            confidence={scores?.security?.confidence}
-            contributors={factorsByLayer?.security?.slice(0, 2) || []}
-          />
-          <ReportScoreCard 
-            title="Privacy"
-            score={scores?.privacy?.score}
-            band={scores?.privacy?.band || 'NA'}
-            confidence={scores?.privacy?.confidence}
-            contributors={factorsByLayer?.privacy?.slice(0, 2) || []}
-          />
-          <ReportScoreCard 
-            title="Governance"
-            score={scores?.governance?.score}
-            band={scores?.governance?.band || 'NA'}
-            confidence={scores?.governance?.confidence}
-            contributors={factorsByLayer?.governance?.slice(0, 2) || []}
-          />
-        </section>
+        {consumerInsights ? (
+          <details className="results-v2-details">
+            <summary className="details-summary">Details (for teams)</summary>
+            <div className="details-content">
+              {/* Executive Summary - First, sets context */}
+              {(scanResults?.executiveSummary || (scores?.reasons && scores.reasons.length > 0)) && (
+                <ExecutiveSummary 
+                  summary={scanResults?.executiveSummary || null}
+                  reasons={scores?.reasons || []}
+                />
+              )}
 
-        {/* Why This Score - Top Contributors Explanation */}
-        <WhyThisScore 
-          scores={scores}
-          factorsByLayer={factorsByLayer}
-          onViewEvidence={openEvidenceDrawer}
-        />
+              {/* Score Cards Row - Equal Prominence */}
+              <section className="scores-section">
+                <ReportScoreCard 
+                  title="Security"
+                  score={scores?.security?.score}
+                  band={scores?.security?.band || 'NA'}
+                  confidence={scores?.security?.confidence}
+                  contributors={factorsByLayer?.security?.slice(0, 2) || []}
+                />
+                <ReportScoreCard 
+                  title="Privacy"
+                  score={scores?.privacy?.score}
+                  band={scores?.privacy?.band || 'NA'}
+                  confidence={scores?.privacy?.confidence}
+                  contributors={factorsByLayer?.privacy?.slice(0, 2) || []}
+                />
+                <ReportScoreCard 
+                  title="Governance"
+                  score={scores?.governance?.score}
+                  band={scores?.governance?.band || 'NA'}
+                  confidence={scores?.governance?.confidence}
+                  contributors={factorsByLayer?.governance?.slice(0, 2) || []}
+                />
+              </section>
 
-        {/* Key Findings - Issues that matter */}
-        {keyFindings && keyFindings.length > 0 && (
-          <KeyFindings 
-            findings={keyFindings}
-            onViewEvidence={openEvidenceDrawer}
-          />
-        )}
+              {/* Why This Score - Top Contributors Explanation */}
+              <WhyThisScore 
+                scores={scores}
+                factorsByLayer={factorsByLayer}
+                onViewEvidence={openEvidenceDrawer}
+              />
 
-        {/* Detailed Analysis - Full Width */}
-        {/* Security Analysis */}
-        {factorsByLayer?.security && factorsByLayer.security.length > 0 && (
-          <section className="analysis-section">
-            <FactorBars 
-              title="Security Analysis"
-              icon="🛡️"
-              factors={factorsByLayer.security}
+              {/* Key Findings - Issues that matter */}
+              {keyFindings && keyFindings.length > 0 && (
+                <KeyFindings 
+                  findings={keyFindings}
+                  onViewEvidence={openEvidenceDrawer}
+                />
+              )}
+
+              {/* Detailed Analysis - Full Width */}
+              {/* Security Analysis */}
+              {factorsByLayer?.security && factorsByLayer.security.length > 0 && (
+                <section className="analysis-section">
+                  <FactorBars 
+                    title="Security Analysis"
+                    icon="🛡️"
+                    factors={factorsByLayer.security}
+                    onViewEvidence={openEvidenceDrawer}
+                  />
+                </section>
+              )}
+
+              {/* Privacy Analysis - Equal Treatment */}
+              {factorsByLayer?.privacy && factorsByLayer.privacy.length > 0 && (
+                <section className="analysis-section">
+                  <FactorBars 
+                    title="Privacy Analysis"
+                    icon="🔒"
+                    factors={factorsByLayer.privacy}
+                    onViewEvidence={openEvidenceDrawer}
+                  />
+                </section>
+              )}
+
+              {/* Governance Analysis - Equal Treatment */}
+              {factorsByLayer?.governance && factorsByLayer.governance.length > 0 && (
+                <section className="analysis-section">
+                  <FactorBars 
+                    title="Governance Analysis"
+                    icon="📋"
+                    factors={factorsByLayer.governance}
+                    onViewEvidence={openEvidenceDrawer}
+                  />
+                </section>
+              )}
+
+              {/* Permissions */}
+              {permissions && Object.keys(permissions).length > 0 && (
+                <section className="analysis-section">
+                  <PermissionsPanel permissions={permissions} />
+                </section>
+              )}
+            </div>
+          </details>
+        ) : (
+          <>
+            {/* Executive Summary - First, sets context */}
+            {(scanResults?.executiveSummary || (scores?.reasons && scores.reasons.length > 0)) && (
+              <ExecutiveSummary 
+                summary={scanResults?.executiveSummary || null}
+                reasons={scores?.reasons || []}
+              />
+            )}
+
+            {/* Score Cards Row - Equal Prominence */}
+            <section className="scores-section">
+              <ReportScoreCard 
+                title="Security"
+                score={scores?.security?.score}
+                band={scores?.security?.band || 'NA'}
+                confidence={scores?.security?.confidence}
+                contributors={factorsByLayer?.security?.slice(0, 2) || []}
+              />
+              <ReportScoreCard 
+                title="Privacy"
+                score={scores?.privacy?.score}
+                band={scores?.privacy?.band || 'NA'}
+                confidence={scores?.privacy?.confidence}
+                contributors={factorsByLayer?.privacy?.slice(0, 2) || []}
+              />
+              <ReportScoreCard 
+                title="Governance"
+                score={scores?.governance?.score}
+                band={scores?.governance?.band || 'NA'}
+                confidence={scores?.governance?.confidence}
+                contributors={factorsByLayer?.governance?.slice(0, 2) || []}
+              />
+            </section>
+
+            {/* Why This Score - Top Contributors Explanation */}
+            <WhyThisScore 
+              scores={scores}
+              factorsByLayer={factorsByLayer}
               onViewEvidence={openEvidenceDrawer}
             />
-          </section>
-        )}
 
-        {/* Privacy Analysis - Equal Treatment */}
-        {factorsByLayer?.privacy && factorsByLayer.privacy.length > 0 && (
-          <section className="analysis-section">
-            <FactorBars 
-              title="Privacy Analysis"
-              icon="🔒"
-              factors={factorsByLayer.privacy}
-              onViewEvidence={openEvidenceDrawer}
-            />
-          </section>
-        )}
+            {/* Key Findings - Issues that matter */}
+            {keyFindings && keyFindings.length > 0 && (
+              <KeyFindings 
+                findings={keyFindings}
+                onViewEvidence={openEvidenceDrawer}
+              />
+            )}
 
-        {/* Governance Analysis - Equal Treatment */}
-        {factorsByLayer?.governance && factorsByLayer.governance.length > 0 && (
-          <section className="analysis-section">
-            <FactorBars 
-              title="Governance Analysis"
-              icon="📋"
-              factors={factorsByLayer.governance}
-              onViewEvidence={openEvidenceDrawer}
-            />
-          </section>
-        )}
+            {/* Detailed Analysis - Full Width */}
+            {/* Security Analysis */}
+            {factorsByLayer?.security && factorsByLayer.security.length > 0 && (
+              <section className="analysis-section">
+                <FactorBars 
+                  title="Security Analysis"
+                  icon="🛡️"
+                  factors={factorsByLayer.security}
+                  onViewEvidence={openEvidenceDrawer}
+                />
+              </section>
+            )}
 
-        {/* Permissions */}
-        {permissions && Object.keys(permissions).length > 0 && (
-          <section className="analysis-section">
-            <PermissionsPanel permissions={permissions} />
-          </section>
+            {/* Privacy Analysis - Equal Treatment */}
+            {factorsByLayer?.privacy && factorsByLayer.privacy.length > 0 && (
+              <section className="analysis-section">
+                <FactorBars 
+                  title="Privacy Analysis"
+                  icon="🔒"
+                  factors={factorsByLayer.privacy}
+                  onViewEvidence={openEvidenceDrawer}
+                />
+              </section>
+            )}
+
+            {/* Governance Analysis - Equal Treatment */}
+            {factorsByLayer?.governance && factorsByLayer.governance.length > 0 && (
+              <section className="analysis-section">
+                <FactorBars 
+                  title="Governance Analysis"
+                  icon="📋"
+                  factors={factorsByLayer.governance}
+                  onViewEvidence={openEvidenceDrawer}
+                />
+              </section>
+            )}
+
+            {/* Permissions */}
+            {permissions && Object.keys(permissions).length > 0 && (
+              <section className="analysis-section">
+                <PermissionsPanel permissions={permissions} />
+              </section>
+            )}
+          </>
         )}
       </main>
 

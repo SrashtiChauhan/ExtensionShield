@@ -159,6 +159,59 @@
   gap: 2rem;
 }
 
+/* Consumer Insights */
+.consumer-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.consumer-insights-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.consumer-insights-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Details Accordion */
+.results-v2-details {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.details-summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.results-v2-details[open] .details-summary {
+  color: rgba(248, 250, 252, 0.95);
+}
+
+.details-content {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 /* Scores Section */
 .scores-section {
   display: grid;

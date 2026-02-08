@@ -151,45 +151,54 @@ const ScannerPage = () => {
     const loadScans = async () => {
       setLoading(true);
       
-      // Safety timeout - force loading to false after 3 seconds for faster UX
-      // This ensures the page renders even if API is slow/unavailable
-      const safetyTimeout = setTimeout(() => {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }, 3000);
-      
       try {
-        // Add timeout wrapper to prevent hanging - reduced to 5 seconds
+        // Reduced initial limit for faster load - load 25 initially instead of 100
+        // This reduces the number of API calls significantly
+        const initialLimit = 25;
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error("Request timeout")), 5000)
         );
         
-        const historyPromise = databaseService.getRecentScans(100);
+        const historyPromise = databaseService.getRecentScans(initialLimit);
         const history = await Promise.race([historyPromise, timeoutPromise]);
 
         if (!history || history.length === 0) {
           if (isMounted) {
             setAllScans([]);
+            setLoading(false);
           }
-          // Don't return early - let finally block handle setLoading(false)
-          // This ensures loading state is always cleared
+          return;
+        }
+
+        // Show basic data immediately if metadata is available (progressive loading)
+        // Check if scans have metadata - if so, we can render immediately
+        const hasMetadata = history.some(scan => {
+          const metadata = scan.metadata;
+          return metadata && (typeof metadata === 'object' ? Object.keys(metadata).length > 0 : metadata);
+        });
+
+        if (hasMetadata) {
+          // Use metadata from response - skip full fetches to avoid N+1 queries
+          // This makes initial render much faster
+          const enrichedScans = await enrichScans(history, { skipFullFetch: true });
+          
+          if (isMounted) {
+            setAllScans(enrichedScans);
+            setLoading(false);
+          }
         } else {
-          // Enrich scans using utility function (uses Promise.allSettled internally)
+          // Fallback: if no metadata, do full enrichment (slower but necessary)
           const enrichedScans = await enrichScans(history);
           
           if (isMounted) {
             setAllScans(enrichedScans);
+            setLoading(false);
           }
         }
       } catch (error) {
         console.error("Failed to load scans:", error);
         if (isMounted) {
           setAllScans([]);
-        }
-      } finally {
-        clearTimeout(safetyTimeout);
-        if (isMounted) {
           setLoading(false);
         }
       }

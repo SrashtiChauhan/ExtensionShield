@@ -50,6 +50,21 @@ This directory contains comprehensive documentation for the ExtensionShield proj
   - Implementation plan and migration strategy
   - Current state analysis
 
+- **[LLM_CONFIGURATION.md](./LLM_CONFIGURATION.md)** - LLM Provider Configuration Guide ⭐
+  - Complete guide for configuring LLM providers
+  - Currently supported: WatsonX (default), OpenAI, RITS
+  - Step-by-step setup instructions for each provider
+  - How to add new LLM providers (Anthropic, Gemini, etc.)
+  - Troubleshooting and migration guides
+
+- **[WATSONX_SETUP_GUIDE.md](./WATSONX_SETUP_GUIDE.md)** - WatsonX Setup & Troubleshooting ⚠️
+  - **IMPORTANT**: Detailed guide for WatsonX configuration
+  - What's implemented vs what's missing
+  - Step-by-step IBM Cloud setup (more complex than OpenAI)
+  - Common errors and fixes
+  - Testing and verification steps
+  - Comparison with OpenAI setup (why WatsonX needs extra steps)
+
 ### Database Migrations
 
 - **[supabase_migrations/](./supabase_migrations/)** - Supabase database migrations
@@ -75,6 +90,13 @@ This directory contains comprehensive documentation for the ExtensionShield proj
 2. Understand the three-layer scoring system
 3. Review implementation plan and migration strategy
 
+### For LLM Configuration
+1. **Read [LLM_CONFIGURATION.md](./LLM_CONFIGURATION.md)** - Complete LLM setup guide
+2. **For WatsonX specifically**: Read [WATSONX_SETUP_GUIDE.md](./WATSONX_SETUP_GUIDE.md) - Detailed WatsonX setup (more complex than OpenAI)
+3. Choose a provider (WatsonX is default, or OpenAI, RITS)
+4. Configure environment variables
+5. See troubleshooting section if issues arise
+
 ---
 
 ## Documentation Status
@@ -87,6 +109,8 @@ This directory contains comprehensive documentation for the ExtensionShield proj
 | COMPREHENSIVE_SECURITY_REPORT.md | ✅ Complete | Current |
 | CSP_SECURITY_GUIDE.md | ✅ Complete | Current |
 | scoring_v2_design.md | ✅ Complete | 2026-02-03 |
+| LLM_CONFIGURATION.md | ✅ Complete | 2025-01-30 |
+| WATSONX_SETUP_GUIDE.md | ✅ Complete | 2025-01-30 |
 
 ---
 
@@ -97,5 +121,7 @@ This directory contains comprehensive documentation for the ExtensionShield proj
 - **SECURITY_AUDIT_REPORT.md** contains audit findings and recommendations
 - **COMPREHENSIVE_SECURITY_REPORT.md** tracks completion status of security fixes
 - **CSP_SECURITY_GUIDE.md** provides detailed CSP implementation and troubleshooting
+- **LLM_CONFIGURATION.md** provides comprehensive guide for configuring and switching between LLM providers
+- **WATSONX_SETUP_GUIDE.md** provides detailed setup instructions for WatsonX (more complex than OpenAI, requires IBM Cloud account and service setup)
 - Database migrations are versioned in `supabase_migrations/`
 
