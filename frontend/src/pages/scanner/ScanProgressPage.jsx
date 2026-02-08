@@ -6,6 +6,8 @@ import { useScan } from "../../context/ScanContext";
 import { EXTENSION_ICON_PLACEHOLDER } from "../../utils/constants";
 import realScanService from "../../services/realScanService";
 import ScanHUD from "../../components/ScanHUD";
+import { normalizeExtensionId } from "../../utils/extensionId";
+import { logger } from "../../utils/logger";
 import {
   Dialog,
   DialogContent,
@@ -16,9 +18,92 @@ import {
 } from "../../components/ui/dialog";
 import "./ScanProgressPage.scss";
 
+// Error Boundary for RocketGame
+class RocketGameErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    logger.error("RocketGame error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#0a0f1a',
+          color: '#f8fafc',
+          flexDirection: 'column',
+          gap: '1rem',
+          zIndex: 1000
+        }}>
+          <div style={{ fontSize: '3rem' }}>⚠️</div>
+          <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Game Failed to Load</h2>
+          <p style={{ color: '#94a3b8', margin: 0 }}>
+            The game encountered an error, but scan polling continues.
+          </p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Wrapper component to add mount logging for RocketGame
+const RocketGameWrapper = ({ scanComplete, onStatsUpdate }) => {
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      logger.log("[ScanProgressPage] RocketGame mounted successfully");
+      return () => {
+        logger.log("[ScanProgressPage] RocketGame unmounting");
+      };
+    }
+  }, []);
+
+  return (
+    <RocketGame 
+      isActive={true} 
+      statusLabel={
+        scanComplete 
+          ? "Scan complete! Keep playing or click 'View Results' above." 
+          : "Running the scan... Play a game till then!"
+      }
+      onStatsUpdate={onStatsUpdate}
+      showScoreboard={false}
+    />
+  );
+};
+
 const ScanProgressPage = () => {
-  const { scanId } = useParams();
+  const params = useParams();
   const navigate = useNavigate();
+  
+  // Read scanId from any possible param key (scanId, extensionId, id)
+  const rawScanId = params.scanId || params.extensionId || params.id || '';
+  
+  // Normalize the extension ID - extract exactly 32 chars (a-p) and remove trailing characters
+  const scanId = normalizeExtensionId(rawScanId);
+  
+  // Dev-only logging
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      logger.log("[ScanProgressPage] Params:", params);
+      logger.log("[ScanProgressPage] Raw scanId:", rawScanId);
+      logger.log("[ScanProgressPage] Normalized scanId:", scanId);
+    }
+  }, [params, rawScanId, scanId]);
   const {
     isScanning,
     scanStage,
@@ -32,6 +117,7 @@ const ScanProgressPage = () => {
   const [extensionLogo, setExtensionLogo] = useState(EXTENSION_ICON_PLACEHOLDER);
   const [extensionName, setExtensionName] = useState(null);
   const [scanComplete, setScanComplete] = useState(false);
+  // Initialize userExited to false - always start with game visible when scanId exists
   const [userExited, setUserExited] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -166,8 +252,20 @@ const ScanProgressPage = () => {
     };
   }, [scanId, setError, setScanResults]);
 
-  // Always show the game on the progress page until the user exits to view results.
-  const shouldShowGame = Boolean(scanId && !userExited);
+  // Reset userExited when scanId changes or on mount
+  // This ensures that when navigating to a new scan, the game always shows immediately
+  useEffect(() => {
+    if (scanId) {
+      setUserExited(false);
+      // Also reset scanComplete when starting a new scan
+      setScanComplete(false);
+      completionShownRef.current = false;
+    }
+  }, [scanId]);
+  
+  // Always show game when scanId exists in URL (unless user explicitly exited)
+  // This is the primary condition - if scanId exists, show the game
+  const shouldShowGame = scanId ? !userExited : false;
 
   // Handle errors with modal (don't close game)
   useEffect(() => {
@@ -199,6 +297,8 @@ const ScanProgressPage = () => {
         // Check for common error patterns
         if (errorMsg.includes("401") || errorMsg.includes("API key") || errorMsg.includes("Invalid API key") || errorMsg.includes("Connection is down")) {
           errorMsg = "Connection is down try back in a while";
+        } else if (errorMsg.includes("quota") || errorMsg.includes("token_quota") || (errorMsg.includes("403") && errorMsg.includes("token"))) {
+          errorMsg = "LLM service quota exceeded. Your token limit has been reached. Please check your provider limits or add a fallback provider.";
         } else if (errorMsg.includes("Connection refused") || errorMsg.includes("Errno 61") || errorMsg.includes("LLM service")) {
           errorMsg = "LLM service unavailable. Please check your LLM provider configuration.";
         } else if (errorMsg.includes("JSON") || errorMsg.includes("parse")) {
@@ -230,6 +330,8 @@ const ScanProgressPage = () => {
         // Check for API key errors first
         if (errorMsg.includes("401") || errorMsg.includes("API key") || errorMsg.includes("Invalid API key") || errorMsg.includes("Authentication") || errorMsg.includes("sk-proj") || errorMsg.includes("Connection is down")) {
           errorMsg = "Connection is down try back in a while";
+        } else if (errorMsg.includes("quota") || errorMsg.includes("token_quota") || (errorMsg.includes("403") && errorMsg.includes("token"))) {
+          errorMsg = "LLM service quota exceeded. Your token limit has been reached. Please check your provider limits or add a fallback provider.";
         } else if (errorMsg.includes("Connection refused") || errorMsg.includes("Errno 61") || errorMsg.includes("LLM service")) {
           errorMsg = "LLM service unavailable. Please check your LLM provider configuration.";
         } else if (errorMsg.includes("JSON") || errorMsg.includes("parse")) {
@@ -284,14 +386,22 @@ const ScanProgressPage = () => {
   };
 
   // Always render something - never show blank page
+  // Show error if normalized ID is empty (invalid format or missing)
   if (!scanId) {
+    if (import.meta.env.DEV) {
+      logger.warn("[ScanProgressPage] No valid scanId found. Raw params:", params);
+    }
     return (
       <div className="scan-progress-page">
         <div className="progress-container">
           <div className="no-scan-state">
             <div className="no-scan-icon">⚠️</div>
-            <h2>Invalid Scan ID</h2>
-            <p>No scan ID provided in the URL.</p>
+            <h2>Invalid Extension ID</h2>
+            <p>
+              {rawScanId 
+                ? `The extension ID "${rawScanId}" is not in a valid format. Extension IDs must be exactly 32 characters (a-p).`
+                : "No extension ID provided in the URL."}
+            </p>
             <Button onClick={() => navigate("/scan")} variant="default">
               Go to Scanner
             </Button>
@@ -301,9 +411,14 @@ const ScanProgressPage = () => {
     );
   }
 
+  // When scanId exists, always show the game screen (unless user explicitly exited)
+  // This ensures the game shows immediately when navigating to this route
+  // Use the same logic as shouldShowGame for consistency
+  const showGameScreen = shouldShowGame;
+
   return (
     <div className="scan-progress-page">
-      {shouldShowGame ? (
+      {showGameScreen ? (
         <>
           {/* Retro Style Header Overlay */}
           <div className="retro-header-overlay">
@@ -329,21 +444,17 @@ const ScanProgressPage = () => {
 
           {/* Full Viewport Game Container */}
           <div className="game-container-fullscreen">
-            <RocketGame 
-              isActive={true} 
-              statusLabel={
-                scanComplete 
-                  ? "Scan complete! Keep playing or click 'View Results' above." 
-                  : "Running the scan... Play a game till then!"
-              }
-              onStatsUpdate={(stats) => {
-                setGameStats(stats);
-                if (stats.gameOver !== undefined) {
-                  setGameOver(stats.gameOver);
-                }
-              }}
-              showScoreboard={false}
-            />
+            <RocketGameErrorBoundary>
+              <RocketGameWrapper 
+                scanComplete={scanComplete}
+                onStatsUpdate={(stats) => {
+                  setGameStats(stats);
+                  if (stats.gameOver !== undefined) {
+                    setGameOver(stats.gameOver);
+                  }
+                }}
+              />
+            </RocketGameErrorBoundary>
           </div>
 
           {/* Scan HUD */}
