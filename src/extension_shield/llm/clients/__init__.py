@@ -125,20 +125,15 @@ def _get_base_llm_settings(
                 "Please set it in your .env file or environment variables."
             )
         # Validate OpenAI API key format
-        if not api_key.startswith("sk-"):
+        # OpenAI now uses both 'sk-' (legacy) and 'sk-proj-' (project-based keys) formats
+        if not (api_key.startswith("sk-") or api_key.startswith("sk-proj-")):
             raise ValueError(
-                f"Invalid OpenAI API key format. OpenAI API keys should start with 'sk-', "
+                f"Invalid OpenAI API key format. OpenAI API keys should start with 'sk-' or 'sk-proj-', "
                 f"but got '{api_key[:10]}...'. "
                 "Please check your API key at https://platform.openai.com/api-keys"
             )
-        # Reject keys starting with 'sk-proj-' as they are not valid OpenAI API keys
-        if api_key.startswith("sk-proj-"):
-            raise ValueError(
-                f"Invalid API key format detected. Keys starting with 'sk-proj-' are not valid OpenAI API keys. "
-                f"Your key appears to be: '{api_key[:15]}...' "
-                "Please get a valid API key from https://platform.openai.com/api-keys. "
-                "Valid OpenAI API keys start with 'sk-' but NOT 'sk-proj-'."
-            )
+        # Note: Both 'sk-' and 'sk-proj-' formats are now valid OpenAI API keys
+        # 'sk-proj-' is OpenAI's new project-based key format introduced in 2024
         return {
             "model": model_name,
             "api_key": api_key,

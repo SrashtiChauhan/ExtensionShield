@@ -830,13 +830,14 @@ async def run_analysis_workflow(url: str, extension_id: str):
         error_code = None
         
         # Check for OpenAI API key errors - detect specific patterns
-        if "sk-proj-" in error_str:
-            # Specific case: User has a project key instead of an API key
+        # Note: Both 'sk-' and 'sk-proj-' are valid OpenAI API key formats
+        # 'sk-proj-' is OpenAI's project-based key format (introduced 2024)
+        if "sk-proj-" in error_str and "invalid" in error_str.lower():
+            # This might be an actual API error from OpenAI, not a format issue
             error_code = 401
             error_message = (
-                "Invalid API key format: Keys starting with 'sk-proj-' are project keys, not API keys. "
-                "Please get a valid API key from https://platform.openai.com/api-keys. "
-                "Valid OpenAI API keys start with 'sk-' but NOT 'sk-proj-'."
+                "OpenAI API key error detected. Please verify your API key is valid and has not been revoked. "
+                "Check your key at https://platform.openai.com/api-keys"
             )
         elif "invalid_api_key" in error_str or "Incorrect API key" in error_str:
             error_code = 401
