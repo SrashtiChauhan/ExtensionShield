@@ -11,6 +11,7 @@ export { default as EvidenceDrawer } from './EvidenceDrawer';
 export { default as PermissionsPanel } from './PermissionsPanel';
 export { default as SummaryPanel } from './SummaryPanel';
 export { default as LayerModal } from './LayerModal';
+export { default as InputModal } from './InputModal';
 export { default as TopDriversRow } from './TopDriversRow';
 export { default as SafetyLabelCard } from './SafetyLabelCard';
 export { default as ScenarioGrid } from './ScenarioGrid';

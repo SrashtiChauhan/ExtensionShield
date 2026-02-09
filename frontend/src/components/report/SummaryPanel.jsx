@@ -8,19 +8,22 @@ import { normalizeHighlights } from '../../utils/normalizeScanResult';
  * Shows:
  * - One-liner summary (from LLM if available)
  * - Key points (from LLM why_this_score or fallback to deterministic)
- * - View details links (opens modals)
+ * - Key findings (top 2-3 findings, no tags)
+ * - What to watch (if available)
  * 
  * Props:
  * - scores: ScoresVM - Contains decision and reasons
  * - factorsByLayer: FactorsByLayerVM - All factors
  * - rawScanResult: RawScanResult - Raw scan data to access LLM summary
- * - onOpenModal: (layer: 'security' | 'privacy' | 'governance') => void
+ * - keyFindings: KeyFindingVM[] - Key findings to display
+ * - onViewEvidence: (evidenceIds: string[]) => void - Callback for viewing evidence
  */
 const SummaryPanel = ({ 
   scores = {},
   factorsByLayer = {},
   rawScanResult = null,
-  onOpenModal = null
+  keyFindings = [],
+  onViewEvidence = null
 }) => {
   // Use unified normalization helper for highlights
   const { oneLiner, keyPoints, whatToWatch } = normalizeHighlights(rawScanResult);
@@ -86,6 +89,51 @@ const SummaryPanel = ({
           )}
         </div>
 
+        {/* Key Findings - Top 2-3 items, no tags */}
+        {keyFindings && keyFindings.length > 0 && (() => {
+          // Sort by severity and take top 2-3
+          const sortedFindings = [...keyFindings].sort((a, b) => {
+            const severityOrder = { high: 3, medium: 2, low: 1 };
+            return (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0);
+          }).slice(0, 3);
+
+          if (sortedFindings.length === 0) return null;
+
+          return (
+            <div className="summary-section key-findings">
+              <h3 className="section-subtitle">Key Findings</h3>
+              <ul className="summary-bullets">
+                {sortedFindings.map((finding, idx) => (
+                  <li key={idx} className="bullet-item finding-item">
+                    <span className="bullet-icon">•</span>
+                    <span className="finding-content">
+                      {finding.summary && finding.summary !== finding.title ? (
+                        <>
+                          <span className="finding-title-text">{finding.title}</span>
+                          <span className="finding-summary-text">{finding.summary}</span>
+                        </>
+                      ) : (
+                        <span className="finding-title-text">{finding.title}</span>
+                      )}
+                    </span>
+                    {finding.evidenceIds && finding.evidenceIds.length > 0 && onViewEvidence && (
+                      <button
+                        className="view-evidence-link"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewEvidence(finding.evidenceIds);
+                        }}
+                      >
+                        View Evidence
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
+
         {/* What to Watch (if available) */}
         {whatToWatch.length > 0 && (
           <div className="summary-section what-to-watch">
@@ -100,40 +148,6 @@ const SummaryPanel = ({
             </ul>
           </div>
         )}
-
-        {/* View Details Links */}
-        <div className="summary-actions">
-          <span className="actions-label">View details:</span>
-          <div className="action-links">
-            {scores?.security?.score != null && (
-              <button 
-                className="action-link"
-                onClick={() => onOpenModal && onOpenModal('security')}
-              >
-                <span className="link-icon">🛡️</span>
-                Security
-              </button>
-            )}
-            {scores?.privacy?.score != null && (
-              <button 
-                className="action-link"
-                onClick={() => onOpenModal && onOpenModal('privacy')}
-              >
-                <span className="link-icon">🔒</span>
-                Privacy
-              </button>
-            )}
-            {scores?.governance?.score != null && (
-              <button 
-                className="action-link"
-                onClick={() => onOpenModal && onOpenModal('governance')}
-              >
-                <span className="link-icon">📋</span>
-                Governance
-              </button>
-            )}
-          </div>
-        </div>
       </div>
     </section>
   );

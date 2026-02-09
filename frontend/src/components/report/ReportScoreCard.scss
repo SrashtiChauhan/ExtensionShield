@@ -2,37 +2,113 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease-in-out;
+  position: relative;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.1);
+  &.is-clickable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
   }
 
   &.band-good {
-    border-color: rgba(16, 185, 129, 0.15);
-    &:hover { border-color: rgba(16, 185, 129, 0.25); }
+    border-color: rgba(16, 185, 129, 0.1);
+    &.is-clickable:hover { border-color: rgba(16, 185, 129, 0.3); }
   }
 
   &.band-warn {
-    border-color: rgba(245, 158, 11, 0.15);
-    &:hover { border-color: rgba(245, 158, 11, 0.25); }
+    border-color: rgba(245, 158, 11, 0.1);
+    &.is-clickable:hover { border-color: rgba(245, 158, 11, 0.3); }
   }
 
   &.band-bad {
-    border-color: rgba(239, 68, 68, 0.15);
-    &:hover { border-color: rgba(239, 68, 68, 0.25); }
+    border-color: rgba(239, 68, 68, 0.1);
+    &.is-clickable:hover { border-color: rgba(239, 68, 68, 0.3); }
   }
 }
 
 .score-card-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .info-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(248, 250, 252, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover {
+      color: rgba(248, 250, 252, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+
+      .tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -8px);
+      }
+    }
+
+    .info-svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translate(-50%, 0);
+      background: #1e293b;
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+  }
 }
 
 .score-card-icon {

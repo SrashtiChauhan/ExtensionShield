@@ -24,6 +24,7 @@ import './LayerModal.scss';
  * - keyFindings: KeyFindingVM[] (filtered by layer)
  * - gateResults: any[] (filtered by layer)
  * - layerReasons: string[] (filtered by layer)
+ * - layerDetails: object | null (human-friendly explanations)
  * - onViewEvidence: (evidenceIds: string[]) => void
  */
 const LayerModal = ({
@@ -38,9 +39,10 @@ const LayerModal = ({
   keyFindings = [],
   gateResults = [],
   layerReasons = [],
+  layerDetails = null,
   onViewEvidence = null,
 }) => {
-  const [expandedSection, setExpandedSection] = useState('factors');
+  const [expandedSection, setExpandedSection] = useState(null); // Start with all sections collapsed
 
   const getLayerInfo = () => {
     const layers = {
@@ -107,6 +109,51 @@ const LayerModal = ({
         <div className="layer-modal-body">
           {/* Layer Description */}
           <p className="layer-description">{layerInfo.description}</p>
+
+          {/* Human-Friendly Layer Details */}
+          {layerDetails && layerDetails[layer] && (
+            <div className="human-friendly-section">
+              <div className="human-summary">
+                <span className="summary-text">{layerDetails[layer].one_liner}</span>
+              </div>
+              
+              {/* Key Points */}
+              {layerDetails[layer].key_points && layerDetails[layer].key_points.filter(point => point && point.trim()).length > 0 && (
+                <div className="key-points">
+                  <h4 className="key-points-title">Key Findings</h4>
+                  <ul className="key-points-list">
+                    {layerDetails[layer].key_points
+                      .filter(point => point && point.trim())
+                      .map((point, idx) => (
+                        <li key={idx} className="key-point-item">
+                          <span className="bullet">•</span>
+                          <span className="point-text">{point}</span>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </div>
+              )}
+
+              {/* What to Watch */}
+              {layerDetails[layer].what_to_watch && layerDetails[layer].what_to_watch.filter(item => item && item.trim()).length > 0 && (
+                <div className="what-to-watch">
+                  <h4 className="what-to-watch-title">What to Watch</h4>
+                  <ul className="what-to-watch-list">
+                    {layerDetails[layer].what_to_watch
+                      .filter(item => item && item.trim())
+                      .map((item, idx) => (
+                        <li key={idx} className="watch-item">
+                          <span className="bullet">⚠</span>
+                          <span className="watch-text">{item}</span>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Key Findings / Gates / Reasons */}
           {(keyFindings.length > 0 || gateResults.length > 0 || layerReasons.length > 0) && (

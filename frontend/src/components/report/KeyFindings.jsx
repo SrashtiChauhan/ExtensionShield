@@ -81,7 +81,7 @@ const KeyFindings = ({
 
             <h3 className="finding-title">{finding.title}</h3>
             
-            {finding.summary && (
+            {finding.summary && finding.summary !== finding.title && (
               <p className="finding-summary">{finding.summary}</p>
             )}
 
