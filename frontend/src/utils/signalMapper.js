@@ -1,10 +1,13 @@
 /**
  * Signal Mapper Utility
  * 
- * Maps scan results to ExtensionShield's three-engine signal system:
- * - Code: SAST findings, entropy/obfuscation analysis
- * - Permissions: Permission risk assessment
- * - Intel: VirusTotal and threat intelligence
+ * Maps scan results to ExtensionShield's three-layer scoring system:
+ * - Security: Security layer score (SAST, vulnerabilities, code quality)
+ * - Privacy: Privacy layer score (permissions, data exfiltration, network)
+ * - Governance: Governance layer score (policy compliance, behavioral consistency)
+ * 
+ * Uses scoring_v2 layer scores as the primary source of truth.
+ * Falls back to legacy CODE/PERMS/INTEL calculation if scoring_v2 is unavailable.
  */
 
 // Signal levels
@@ -14,7 +17,19 @@ export const SIGNAL_LEVELS = {
   HIGH: 'high'
 };
 
-// Risk level thresholds
+// Score thresholds for Security and Privacy layers (0-100 scale)
+const SECURITY_PRIVACY_THRESHOLDS = {
+  HIGH: 40,   // 0-40: HIGH (red) - Critical/Bad
+  WARN: 60    // 41-60: WARN (yellow) - Review/Warning, 61-100: OK (green) - Good/Clean
+};
+
+// Score thresholds for Governance layer (slightly different)
+const GOVERNANCE_THRESHOLDS = {
+  HIGH: 60,   // 0-60: HIGH (red) - Non-compliant
+  WARN: 80    // 61-80: WARN (yellow) - Review, 81-100: OK (green) - Compliant
+};
+
+// Legacy thresholds (for backward compatibility)
 const THRESHOLDS = {
   PERMISSIONS: {
     HIGH_COUNT_WARN: 2,
@@ -36,10 +51,127 @@ const THRESHOLDS = {
 };
 
 /**
- * Calculate code signal from SAST and entropy analysis
- * Also considers scoring_v2 hard gates for more accurate signal
+ * Calculate Security signal from scoring_v2.security_score
+ * Falls back to legacy CODE signal calculation if scoring_v2 is unavailable
  */
-export function calculateCodeSignal(scanResult) {
+export function calculateSecuritySignal(scanResult) {
+  const scoringV2 = scanResult?.scoring_v2 || {};
+  const securityScore = scoringV2?.security_score;
+  
+  // If we have scoring_v2 security_score, use it directly
+  if (securityScore !== undefined && securityScore !== null) {
+    let level = SIGNAL_LEVELS.OK;
+    let label = 'Good';
+    
+    if (securityScore <= SECURITY_PRIVACY_THRESHOLDS.HIGH) {
+      level = SIGNAL_LEVELS.HIGH;
+      // Check for critical gates
+      const hardGates = scoringV2?.hard_gates_triggered || [];
+      const hasCriticalGate = hardGates.some(gate => 
+        gate.includes('CRITICAL') || gate.includes('CRITICAL_SAST')
+      );
+      label = hasCriticalGate ? 'Critical' : 'Bad';
+    } else if (securityScore <= SECURITY_PRIVACY_THRESHOLDS.WARN) {
+      level = SIGNAL_LEVELS.WARN;
+      label = 'Review';
+    } else {
+      level = SIGNAL_LEVELS.OK;
+      label = 'Good';
+    }
+    
+    return { level, label, score: securityScore };
+  }
+  
+  // Fallback to legacy CODE signal calculation
+  return calculateCodeSignal(scanResult);
+}
+
+/**
+ * Calculate Privacy signal from scoring_v2.privacy_score
+ * Falls back to legacy PERMS signal calculation if scoring_v2 is unavailable
+ */
+export function calculatePrivacySignal(scanResult) {
+  const scoringV2 = scanResult?.scoring_v2 || {};
+  const privacyScore = scoringV2?.privacy_score;
+  
+  // If we have scoring_v2 privacy_score, use it directly
+  if (privacyScore !== undefined && privacyScore !== null) {
+    let level = SIGNAL_LEVELS.OK;
+    let label = 'Good';
+    
+    if (privacyScore <= SECURITY_PRIVACY_THRESHOLDS.HIGH) {
+      level = SIGNAL_LEVELS.HIGH;
+      label = 'Bad';
+    } else if (privacyScore <= SECURITY_PRIVACY_THRESHOLDS.WARN) {
+      level = SIGNAL_LEVELS.WARN;
+      label = 'Warning';
+    } else {
+      level = SIGNAL_LEVELS.OK;
+      label = 'Good';
+    }
+    
+    return { level, label, score: privacyScore };
+  }
+  
+  // Fallback to legacy PERMS signal calculation
+  return calculatePermsSignal(scanResult);
+}
+
+/**
+ * Calculate Governance signal from scoring_v2.governance_score
+ * Falls back to legacy INTEL signal calculation if scoring_v2 is unavailable
+ */
+export function calculateGovernanceSignal(scanResult) {
+  const scoringV2 = scanResult?.scoring_v2 || {};
+  const governanceScore = scoringV2?.governance_score;
+  
+  // If we have scoring_v2 governance_score, use it directly
+  if (governanceScore !== undefined && governanceScore !== null) {
+    let level = SIGNAL_LEVELS.OK;
+    let label = 'Compliant';
+    
+    if (governanceScore <= GOVERNANCE_THRESHOLDS.HIGH) {
+      level = SIGNAL_LEVELS.HIGH;
+      label = 'Non-compliant';
+    } else if (governanceScore <= GOVERNANCE_THRESHOLDS.WARN) {
+      level = SIGNAL_LEVELS.WARN;
+      label = 'Review';
+    } else {
+      level = SIGNAL_LEVELS.OK;
+      label = 'Compliant';
+    }
+    
+    return { level, label, score: governanceScore };
+  }
+  
+  // Fallback to legacy INTEL signal calculation
+  return calculateIntelSignal(scanResult);
+}
+
+/**
+ * Calculate all signals for a scan result
+ * Uses Security/Privacy/Governance from scoring_v2, falls back to legacy CODE/PERMS/INTEL
+ */
+export function calculateAllSignals(scanResult) {
+  return {
+    security_signal: calculateSecuritySignal(scanResult),
+    privacy_signal: calculatePrivacySignal(scanResult),
+    governance_signal: calculateGovernanceSignal(scanResult),
+    // Keep legacy signals for backward compatibility
+    code_signal: calculateCodeSignal(scanResult),
+    perms_signal: calculatePermsSignal(scanResult),
+    intel_signal: calculateIntelSignal(scanResult)
+  };
+}
+
+// ============================================================================
+// Legacy signal calculation functions (for backward compatibility)
+// ============================================================================
+
+/**
+ * Calculate code signal from SAST and entropy analysis (LEGACY)
+ */
+function calculateCodeSignal(scanResult) {
   const sastResults = scanResult?.sast_results || scanResult?.sastResults || {};
   const entropyAnalysis = scanResult?.entropy_analysis || scanResult?.entropyAnalysis || {};
   const scoringV2 = scanResult?.scoring_v2 || {};
@@ -60,7 +192,6 @@ export function calculateCodeSignal(scanResult) {
     if (Array.isArray(fileFindings)) {
       fileFindings.forEach(finding => {
         const severity = (finding.extra?.severity || finding.severity || finding.check_id || '').toUpperCase();
-        // Also check check_id for patterns like CRITICAL_SAST
         if (severity.includes('CRITICAL') || finding.check_id?.includes('CRITICAL')) {
           criticalCount++;
         } else if (severity === 'HIGH' || severity === 'ERROR' || severity.includes('HIGH')) {
@@ -75,7 +206,7 @@ export function calculateCodeSignal(scanResult) {
   // Check obfuscation
   const obfuscatedFiles = entropyAnalysis?.obfuscated_files || entropyAnalysis?.obfuscatedFiles || 0;
   
-  // Determine signal level - prioritize critical gates from scoring_v2
+  // Determine signal level
   let level = SIGNAL_LEVELS.OK;
   let label = 'Clean';
   
@@ -104,9 +235,9 @@ export function calculateCodeSignal(scanResult) {
 }
 
 /**
- * Calculate permissions signal from permissions analysis
+ * Calculate permissions signal from permissions analysis (LEGACY)
  */
-export function calculatePermsSignal(scanResult) {
+function calculatePermsSignal(scanResult) {
   const permsAnalysis = scanResult?.permissions_analysis || scanResult?.permissionsAnalysis || {};
   const permissions = permsAnalysis?.permissions_details || permsAnalysis?.permissions || [];
   
@@ -160,9 +291,9 @@ export function calculatePermsSignal(scanResult) {
 }
 
 /**
- * Calculate intel signal from VirusTotal and threat intelligence
+ * Calculate intel signal from VirusTotal and threat intelligence (LEGACY)
  */
-export function calculateIntelSignal(scanResult) {
+function calculateIntelSignal(scanResult) {
   const vtAnalysis = scanResult?.virustotal_analysis || scanResult?.virustotalAnalysis || {};
   
   const maliciousCount = vtAnalysis?.total_malicious || vtAnalysis?.malicious || 0;
@@ -188,17 +319,6 @@ export function calculateIntelSignal(scanResult) {
   }
   
   return { level, label };
-}
-
-/**
- * Calculate all signals for a scan result
- */
-export function calculateAllSignals(scanResult) {
-  return {
-    code_signal: calculateCodeSignal(scanResult),
-    perms_signal: calculatePermsSignal(scanResult),
-    intel_signal: calculateIntelSignal(scanResult)
-  };
 }
 
 /**
@@ -348,9 +468,9 @@ export function enrichScanWithSignals(scan, fullResult) {
 }
 
 export default {
-  calculateCodeSignal,
-  calculatePermsSignal,
-  calculateIntelSignal,
+  calculateSecuritySignal,
+  calculatePrivacySignal,
+  calculateGovernanceSignal,
   calculateAllSignals,
   getRiskLevel,
   getRiskColorClass,
@@ -360,4 +480,3 @@ export default {
   enrichScanWithSignals,
   SIGNAL_LEVELS
 };
-

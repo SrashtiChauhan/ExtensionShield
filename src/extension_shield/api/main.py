@@ -1457,15 +1457,9 @@ def calculate_risk_distribution(state: WorkflowState) -> Dict[str, int]:
     return distribution
 
 
-def determine_overall_risk(state: WorkflowState) -> str:
-    """Determine overall risk level."""
-    score = calculate_security_score(state)
-
-    if score < 30:
-        return "high"
-    if score < 70:
-        return "medium"
-    return "low"
+# DEPRECATED: determine_overall_risk() removed - replaced by ScoringEngine v2
+# The new scoring system (scoring/engine.py) provides risk_level via scoring_result.risk_level.value
+# This function is no longer used and has been removed to reduce codebase size.
 
 
 def calculate_total_risk_score(state: WorkflowState) -> int:

@@ -6,9 +6,15 @@
 
 // Signal mapper utilities
 export { 
+  // New three-layer scoring signals (primary)
+  calculateSecuritySignal,
+  calculatePrivacySignal,
+  calculateGovernanceSignal,
+  // Legacy signals (kept for backward compatibility with old scans)
   calculateCodeSignal,
   calculatePermsSignal,
   calculateIntelSignal,
+  // Common utilities
   calculateAllSignals,
   getRiskLevel,
   getRiskColorClass,

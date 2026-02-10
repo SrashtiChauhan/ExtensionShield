@@ -15,13 +15,17 @@ import "./ScanHistoryPage.scss";
 // Tooltip component for signal chips
 const SignalTooltip = ({ type, children }) => {
   const tooltips = {
+    security: "Security: Technical vulnerabilities, SAST findings, and code quality analysis",
+    privacy: "Privacy: Data collection risks, permissions analysis, and exfiltration detection",
+    governance: "Governance: Policy compliance, behavioral consistency, and regulatory adherence",
+    // Legacy tooltips for backward compatibility
     code: "Code Analysis: SAST scanning, entropy detection, and obfuscation checks",
     perms: "Permissions: Analysis of requested browser permissions and access levels",
     intel: "Threat Intel: VirusTotal scan results and malware detection flags"
   };
 
   return (
-    <div className="signal-chip-wrapper" title={tooltips[type]}>
+    <div className="signal-chip-wrapper" title={tooltips[type] || tooltips.code}>
       {children}
     </div>
   );
@@ -29,8 +33,38 @@ const SignalTooltip = ({ type, children }) => {
 
 // Signal chip component
 const SignalChip = ({ type, signal }) => {
-  const labels = { code: "Code", perms: "Perms", intel: "Intel" };
+  const labels = { 
+    security: "Security", 
+    privacy: "Privacy", 
+    governance: "Gov",  // Shortened for space
+    // Legacy labels for backward compatibility
+    code: "Code", 
+    perms: "Perms", 
+    intel: "Intel" 
+  };
+  
   const icons = {
+    security: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+    privacy: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+    governance: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <path d="M16 13H8" />
+        <path d="M16 17H8" />
+        <path d="M10 9H8" />
+      </svg>
+    ),
+    // Legacy icons for backward compatibility
     code: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <polyline points="16,18 22,12 16,6" />
@@ -56,8 +90,8 @@ const SignalChip = ({ type, signal }) => {
   return (
     <SignalTooltip type={type}>
       <div className={`signal-chip ${colorClass}`}>
-        <span className="signal-icon">{icons[type]}</span>
-        <span className="signal-label">{labels[type]}</span>
+        <span className="signal-icon">{icons[type] || icons.code}</span>
+        <span className="signal-label">{labels[type] || labels.code}</span>
         <span className="signal-value">{signal?.label || "—"}</span>
       </div>
     </SignalTooltip>
@@ -540,9 +574,9 @@ const ScanHistoryPage = () => {
                       </td>
                       <td className="signals-cell">
                         <div className="signals-container">
-                          <SignalChip type="code" signal={scan.signals?.code_signal} />
-                          <SignalChip type="perms" signal={scan.signals?.perms_signal} />
-                          <SignalChip type="intel" signal={scan.signals?.intel_signal} />
+                          <SignalChip type="security" signal={scan.signals?.security_signal} />
+                          <SignalChip type="privacy" signal={scan.signals?.privacy_signal} />
+                          <SignalChip type="governance" signal={scan.signals?.governance_signal} />
                         </div>
                       </td>
                       <td className="evidence-cell">
