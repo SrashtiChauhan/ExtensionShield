@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import authService from "../services/authService";
 import { supabase } from "../services/supabaseClient";
 import realScanService from "../services/realScanService";
+import databaseService from "../services/databaseService";
 import { validateReturnTo } from "../utils/authUtils";
 import logger from "../utils/logger";
 
@@ -60,11 +61,13 @@ export const AuthProvider = ({ children }) => {
           setUser(toUiUser(nextSession?.user));
           
           // Update API client access token on session changes
-          // This handles both initial sign-in and token refresh
+          // This handles both initial sign-in and token refresh (scan + history APIs)
           if (nextSession?.access_token) {
             realScanService.setAccessToken(nextSession.access_token);
+            databaseService.setAccessToken(nextSession.access_token);
           } else {
             realScanService.setAccessToken(null);
+            databaseService.setAccessToken(null);
           }
           
           // Close modal on successful sign in
@@ -78,12 +81,14 @@ export const AuthProvider = ({ children }) => {
           if (event === 'TOKEN_REFRESHED' && nextSession) {
             logger.log("Token refreshed, updating API client");
             realScanService.setAccessToken(nextSession.access_token);
+            databaseService.setAccessToken(nextSession.access_token);
           }
           
           // Clear error on sign out
           if (event === 'SIGNED_OUT') {
             setAuthError(null);
             realScanService.setAccessToken(null);
+            databaseService.setAccessToken(null);
           }
         });
         authStateSubscription = data;
@@ -256,7 +261,9 @@ export const AuthProvider = ({ children }) => {
   // Note: This is a fallback - the main sync happens in onAuthStateChange
   // to catch TOKEN_REFRESHED events
   useEffect(() => {
-    realScanService.setAccessToken(session?.access_token || null);
+    const token = session?.access_token || null;
+    realScanService.setAccessToken(token);
+    databaseService.setAccessToken(token);
   }, [session]);
 
   const signInWithGoogle = useCallback(async () => {
