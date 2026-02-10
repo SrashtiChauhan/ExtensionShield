@@ -18,7 +18,6 @@ from extension_shield.core.impact_analyzer import ImpactAnalyzer
 from extension_shield.core.privacy_compliance_analyzer import PrivacyComplianceAnalyzer
 from extension_shield.utils.extension import (
     extract_extension_crx,
-    cleanup_extension_dir,
     cleanup_downloaded_crx,
     is_chrome_extension_store_url,
     is_local_extension_crx_file,

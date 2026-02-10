@@ -127,21 +127,6 @@ def extract_extension_crx(file_path: str) -> Optional[str]:
         return None
 
 
-def cleanup_extension_dir(temp_dir: str):
-    """Remove temporary directory and its contents"""
-    try:
-        if os.path.exists(temp_dir):
-            for root, dirs, files in os.walk(temp_dir, topdown=False):
-                for name in files:
-                    os.remove(os.path.join(root, name))
-                for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(temp_dir)
-            logger.info("Cleaned up temporary directory: %s", temp_dir)
-    except Exception as exc:
-        logger.error("Error cleaning up temporary directory: %s", exc)
-
-
 def cleanup_downloaded_crx(crx_file_path: str):
     """
     Remove a downloaded CRX file with safety checks.
