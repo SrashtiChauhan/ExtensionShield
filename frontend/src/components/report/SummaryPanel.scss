@@ -197,5 +197,104 @@
         }
       }
     }
+
+    // --- Concerns section (unified format) ---
+    &.concerns-section {
+      .concerns-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .concern-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 10px;
+        padding: 14px 18px;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.08);
+          border-color: rgba(239, 68, 68, 0.22);
+        }
+
+        .concern-bullet {
+          color: #f87171;
+          font-size: 18px;
+          font-weight: bold;
+          line-height: 1.4;
+          flex-shrink: 0;
+        }
+
+        .concern-text {
+          font-size: 15px;
+          line-height: 1.6;
+          color: rgba(248, 250, 252, 0.9);
+        }
+      }
+    }
+
+    // --- Recommendation section (unified format) ---
+    &.recommendation-section {
+      .recommendation-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-radius: 12px;
+        padding: 16px 20px;
+
+        .recommendation-icon {
+          font-size: 18px;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .recommendation-text {
+          font-size: 15px;
+          line-height: 1.6;
+          color: rgba(248, 250, 252, 0.95);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  // ===========================================================================
+  // Unified Summary Variant (NEW - simpler layout)
+  // ===========================================================================
+  &--unified {
+    .summary-headline-wrapper {
+      margin-bottom: 4px;
+    }
+
+    .summary-headline {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    .summary-tldr-wrapper {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .summary-tldr {
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(248, 250, 252, 0.85);
+      margin: 0;
+    }
   }
 }
