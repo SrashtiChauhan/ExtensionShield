@@ -4,13 +4,15 @@
 // ===========================================================================
 
 .summary-panel {
+  font-family: var(--report-font, inherit);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  font-size: 16px;
+  font-size: var(--report-text-base, 1rem);
+  line-height: var(--report-line-normal, 1.6);
 
   // --- Header ---
   .summary-header {
@@ -25,7 +27,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 16px;
+      font-size: var(--report-text-base, 1rem);
       font-weight: 700;
       color: #f8fafc;
       margin: 0;
@@ -71,8 +73,8 @@
   }
 
   .summary-verdict {
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: var(--report-text-base, 1rem);
+    line-height: var(--report-line-normal, 1.6);
     color: rgba(248, 250, 252, 0.95);
     margin: 0;
     font-weight: 500;
@@ -84,9 +86,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: var(--report-text-xs, 0.875rem);
       font-weight: 700;
-      color: rgba(248, 250, 252, 0.75);
+      color: rgba(248, 250, 252, 0.8);
       margin: 0 0 12px 0;
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -276,24 +278,39 @@
     }
 
     .summary-headline {
-      font-size: 18px;
+      font-size: var(--report-text-lg, 1.125rem);
       font-weight: 700;
-      line-height: 1.4;
+      line-height: var(--report-line-tight, 1.4);
       color: #f8fafc;
       margin: 0;
+    }
+
+    .summary-narrative-wrapper {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .summary-narrative {
+      font-size: var(--report-text-base, 1rem);
+      line-height: var(--report-line-relaxed, 1.7);
+      color: rgba(248, 250, 252, 0.92);
+      margin: 0;
+      font-weight: 450;
     }
 
     .summary-tldr-wrapper {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 18px 20px;
     }
 
     .summary-tldr {
-      font-size: 15px;
-      line-height: 1.7;
-      color: rgba(248, 250, 252, 0.85);
+      font-size: var(--report-text-base, 1rem);
+      line-height: var(--report-line-relaxed, 1.7);
+      color: rgba(248, 250, 252, 0.9);
       margin: 0;
     }
   }

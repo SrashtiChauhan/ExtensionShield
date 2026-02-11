@@ -68,9 +68,13 @@ const SummaryPanel = ({
     );
   };
 
-  // NEW: Unified summary layout - simpler and cleaner
+  // NEW: Unified summary – single cohesive narrative (no fragmented AI-looking sections)
   if (hasUnifiedSummary) {
-    const { headline, tldr, concerns = [], recommendation } = unifiedSummary;
+    const { headline, narrative, tldr, concerns = [], recommendation } = unifiedSummary;
+
+    // Prefer narrative when present – it weaves capabilities, concerns, and recommendation
+    const hasNarrative = narrative && narrative.trim().length > 0;
+    const showLegacySections = !hasNarrative;
 
     return (
       <section className="summary-panel summary-panel--unified">
@@ -83,22 +87,27 @@ const SummaryPanel = ({
         </div>
 
         <div className="summary-content">
-          {/* Headline - the main takeaway */}
+          {/* Headline – short takeaway */}
           {headline && (
             <div className="summary-headline-wrapper">
               <h3 className="summary-headline">{headline}</h3>
             </div>
           )}
 
-          {/* TL;DR - brief explanation */}
-          {tldr && (
+          {/* Unified narrative – single flowing text (capabilities + concerns + recommendation) */}
+          {hasNarrative && (
+            <div className="summary-narrative-wrapper">
+              <p className="summary-narrative">{narrative}</p>
+            </div>
+          )}
+
+          {/* Legacy: separate sections when narrative not available */}
+          {showLegacySections && tldr && (
             <div className="summary-tldr-wrapper">
               <p className="summary-tldr">{tldr}</p>
             </div>
           )}
-
-          {/* Concerns - from LLM or SAST/engine keyFindings */}
-          {((concerns && concerns.length > 0) || engineConcerns.length > 0) && (
+          {showLegacySections && ((concerns && concerns.length > 0) || engineConcerns.length > 0) && (
             <div className="summary-section concerns-section">
               <h3 className="section-subtitle">
                 <span className="subtitle-icon">⚠️</span>
@@ -114,9 +123,7 @@ const SummaryPanel = ({
               </ul>
             </div>
           )}
-
-          {/* Recommendation - what to do */}
-          {recommendation && (
+          {showLegacySections && recommendation && (
             <div className="summary-section recommendation-section">
               <div className="recommendation-card">
                 <span className="recommendation-icon">👉</span>
