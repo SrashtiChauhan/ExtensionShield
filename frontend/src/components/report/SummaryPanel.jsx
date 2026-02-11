@@ -3,17 +3,18 @@ import './SummaryPanel.scss';
 import { normalizeHighlights } from '../../utils/normalizeScanResult';
 
 /**
- * SummaryPanel - Consumer-friendly summary following the format:
+ * SummaryPanel - Simplified consumer-friendly summary
  * 
- * 1) Verdict line (max 12 words)
- * 2) 2-3 bullet reasons (plain English)
- * 3) 1 bullet "What it can access"
- * 4) 1 bullet "What to do"
- * Total: <= 80 words
+ * NEW FORMAT (unified_summary):
+ * - headline: One sentence takeaway
+ * - tldr: 2-3 sentences explaining the situation
+ * - concerns: Top 3 specific concerns
+ * - recommendation: One actionable sentence
  * 
- * Data sources (priority order):
- * A. consumer_summary from report_view_model (new format)
- * B. Fallback to legacy normalizeHighlights
+ * LEGACY FORMAT (consumer_summary):
+ * - verdict + reasons + access + action
+ * 
+ * Falls back gracefully through multiple data sources.
  */
 const SummaryPanel = ({ 
   scores = {},
@@ -22,17 +23,26 @@ const SummaryPanel = ({
   keyFindings = [],
   onViewEvidence = null
 }) => {
-  // Try new consumer_summary format first
+  // Priority 1: New unified_summary format (simpler, LLM-powered)
+  const unifiedSummary = rawScanResult?.report_view_model?.unified_summary;
+  
+  // Priority 2: Legacy consumer_summary format
   const consumerSummary = rawScanResult?.report_view_model?.consumer_summary;
   
-  // Fallback to legacy highlights
-  const { oneLiner, keyPoints, whatToWatch } = normalizeHighlights(rawScanResult);
+  // Priority 3: Fallback to highlights (keyPoints from LLM; keyFindings from SAST/engine preferred for concerns)
+  const { oneLiner, keyPoints } = normalizeHighlights(rawScanResult);
 
-  // Use consumer summary if available, otherwise legacy format
+  // SAST/engine keyFindings – use for Quick Summary concerns when they add value
+  const engineConcerns = (keyFindings || [])
+    .filter(f => f.severity === 'high' || f.severity === 'medium')
+    .slice(0, 4)
+    .map(f => f.summary || f.title);
+
+  const hasUnifiedSummary = unifiedSummary && (unifiedSummary.headline || unifiedSummary.tldr);
   const hasConsumerSummary = consumerSummary && consumerSummary.verdict;
-  const hasLegacy = oneLiner || keyPoints.length > 0;
+  const hasLegacy = oneLiner || keyPoints.length > 0 || engineConcerns.length > 0;
 
-  if (!hasConsumerSummary && !hasLegacy) {
+  if (!hasUnifiedSummary && !hasConsumerSummary && !hasLegacy) {
     return null;
   }
 
@@ -58,7 +68,68 @@ const SummaryPanel = ({
     );
   };
 
-  // New consumer-friendly layout
+  // NEW: Unified summary layout - simpler and cleaner
+  if (hasUnifiedSummary) {
+    const { headline, tldr, concerns = [], recommendation } = unifiedSummary;
+
+    return (
+      <section className="summary-panel summary-panel--unified">
+        <div className="summary-header">
+          <h2 className="summary-title">
+            <span className="title-icon">✨</span>
+            Quick Summary
+          </h2>
+          {getDecisionBadge()}
+        </div>
+
+        <div className="summary-content">
+          {/* Headline - the main takeaway */}
+          {headline && (
+            <div className="summary-headline-wrapper">
+              <h3 className="summary-headline">{headline}</h3>
+            </div>
+          )}
+
+          {/* TL;DR - brief explanation */}
+          {tldr && (
+            <div className="summary-tldr-wrapper">
+              <p className="summary-tldr">{tldr}</p>
+            </div>
+          )}
+
+          {/* Concerns - from LLM or SAST/engine keyFindings */}
+          {((concerns && concerns.length > 0) || engineConcerns.length > 0) && (
+            <div className="summary-section concerns-section">
+              <h3 className="section-subtitle">
+                <span className="subtitle-icon">⚠️</span>
+                Key Concerns
+              </h3>
+              <ul className="concerns-list">
+                {(concerns && concerns.length > 0 ? concerns : engineConcerns).map((concern, idx) => (
+                  <li key={idx} className="concern-item">
+                    <span className="concern-bullet">•</span>
+                    <span className="concern-text">{concern}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Recommendation - what to do */}
+          {recommendation && (
+            <div className="summary-section recommendation-section">
+              <div className="recommendation-card">
+                <span className="recommendation-icon">👉</span>
+                <span className="recommendation-text">{recommendation}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Legacy consumer_summary layout
   if (hasConsumerSummary) {
     const { verdict, reasons = [], access, action } = consumerSummary;
 
@@ -128,7 +199,9 @@ const SummaryPanel = ({
     );
   }
 
-  // Legacy layout (fallback when consumer_summary is not available)
+  // Legacy highlights layout – prefer SAST/engine keyFindings over LLM keyPoints
+  const concernsToShow = engineConcerns.length > 0 ? engineConcerns : keyPoints;
+
   return (
     <section className="summary-panel">
       <div className="summary-header">
@@ -147,36 +220,18 @@ const SummaryPanel = ({
           </div>
         )}
 
-        {/* Key Points */}
-        {keyPoints.length > 0 && (
+        {/* Key Concerns – from SAST/engine when available, else LLM keyPoints */}
+        {concernsToShow.length > 0 && (
           <div className="summary-section key-reasons">
             <h3 className="section-subtitle">
               <span className="subtitle-icon">📌</span>
-              Why This Score
+              Key Concerns
             </h3>
             <div className="reasons-list">
-              {keyPoints.map((point, idx) => (
+              {concernsToShow.map((point, idx) => (
                 <div key={idx} className="reason-card">
                   <span className="reason-number">{idx + 1}</span>
                   <p className="reason-text">{point}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* What to Watch */}
-        {whatToWatch.length > 0 && (
-          <div className="summary-section action-section">
-            <h3 className="section-subtitle">
-              <span className="subtitle-icon">👁️</span>
-              What to Watch
-            </h3>
-            <div className="watch-items">
-              {whatToWatch.map((item, idx) => (
-                <div key={idx} className="action-card">
-                  <span className="watch-icon">⚠️</span>
-                  <span className="action-text">{item}</span>
                 </div>
               ))}
             </div>
