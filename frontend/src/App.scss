@@ -913,6 +913,13 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* All page-level children stretch full width so centering is handled by inner max-width */
+.atlas-main > * {
+  width: 100%;
 }
 
 /* For pages that need padding from header */
