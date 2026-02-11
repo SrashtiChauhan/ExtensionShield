@@ -7,6 +7,10 @@ class RealScanService {
     this.baseURL = import.meta.env.VITE_API_URL || "";
     this.userIdStorageKey = "extensionshield_user_id";
     this.accessToken = null;
+    // In-flight request deduplication to prevent duplicate API calls
+    // from concurrent polling loops (ScanContext + ScanProgressPage).
+    this._inflightStatus = new Map();  // extensionId → Promise
+    this._inflightResults = new Map(); // extensionId → Promise
   }
 
   getOrCreateUserId() {
@@ -151,6 +155,17 @@ class RealScanService {
   // Single API: GET /api/scan/results/{extensionId} (URL from constants).
   // Returns payload as-is from backend (no legacy transformation).
   async getRealScanResults(extensionId) {
+    // Deduplicate concurrent calls for the same extensionId
+    if (this._inflightResults.has(extensionId)) {
+      return this._inflightResults.get(extensionId);
+    }
+    const promise = this._getRealScanResultsInner(extensionId);
+    this._inflightResults.set(extensionId, promise);
+    promise.finally(() => this._inflightResults.delete(extensionId));
+    return promise;
+  }
+
+  async _getRealScanResultsInner(extensionId) {
     const url = getScanResultsUrl(extensionId);
     if (!url) return null;
     try {
@@ -201,6 +216,17 @@ class RealScanService {
   }
 
   async checkScanStatus(extensionId) {
+    // Deduplicate: if a request for the same extensionId is already in-flight, reuse it.
+    if (this._inflightStatus.has(extensionId)) {
+      return this._inflightStatus.get(extensionId);
+    }
+    const promise = this._checkScanStatusInner(extensionId);
+    this._inflightStatus.set(extensionId, promise);
+    promise.finally(() => this._inflightStatus.delete(extensionId));
+    return promise;
+  }
+
+  async _checkScanStatusInner(extensionId) {
     const url = `${this.baseURL}/api/scan/status/${extensionId}`;
     try {
       // console.group(`[DEBUG checkScanStatus] ${extensionId}`); // prod: no console

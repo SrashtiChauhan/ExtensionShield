@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
@@ -16,6 +16,13 @@ export const useScan = () => {
 
 export const ScanProvider = ({ children }) => {
   const navigate = useNavigate();
+
+  // Mount guard — prevents setState on unmounted component during long async flows
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
   
   // Scan state
   const [url, setUrl] = useState("");
@@ -75,15 +82,19 @@ export const ScanProvider = ({ children }) => {
     ];
 
     for (let stageIndex = 0; stageIndex < stages.length; stageIndex++) {
+      if (!mountedRef.current) return;
       setScanStage(stages[stageIndex]);
 
       const stageDuration = 10 + Math.random() * 5;
       const steps = Math.ceil(stageDuration / 2);
 
       for (let step = 0; step < steps; step++) {
+        if (!mountedRef.current) return;
         await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (!mountedRef.current) return;
 
         const status = await realScanService.checkScanStatus(extensionId);
+        if (!mountedRef.current) return;
         if (status.scanned) {
           setScanStage("generating_report");
           await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -352,7 +363,7 @@ export const ScanProvider = ({ children }) => {
     setCurrentExtensionId(null);
   }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     // State
     url,
     setUrl,
@@ -375,7 +386,13 @@ export const ScanProvider = ({ children }) => {
     loadScanHistory,
     extractExtensionId,
     clearScan,
-  };
+  }), [
+    url, isScanning, scanStage, scanResults, error,
+    currentExtensionId, dashboardStats, scanHistory,
+    startScan, handleFileUpload, loadScanFromHistory,
+    loadResultsById, loadDashboardStats, loadScanHistory,
+    extractExtensionId, clearScan,
+  ]);
 
   return (
     <ScanContext.Provider value={value}>

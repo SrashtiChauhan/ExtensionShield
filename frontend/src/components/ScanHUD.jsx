@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Copy, Check, ChevronUp, ChevronDown, X } from "lucide-react";
+import { Copy, Check, ChevronUp, ChevronDown } from "lucide-react";
 import "./ScanHUD.scss";
 
 const SCAN_STAGES = [
@@ -28,10 +28,10 @@ const ScanHUD = ({
   scanProgress = 0,
   gameStats = { score: 0, best: 0, time: 0 },
   onViewFindings,
-  onCancelScan,
   isMobile = false,
   gameOver = false,
   scanComplete = false,
+  alreadyScanned = false,
 }) => {
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // Collapsed by default
@@ -133,11 +133,13 @@ const ScanHUD = ({
 
       {/* Scan Progress */}
       <div className="scan-hud-section">
-        <div className="scan-hud-section-title">Scan Progress</div>
+        <div className="scan-hud-section-title">
+          {alreadyScanned ? "Scan Status" : "Scan Progress"}
+        </div>
         <div className="scan-hud-progress-container">
           <div className="scan-hud-progress-bar">
             <div
-              className="scan-hud-progress-fill"
+              className={`scan-hud-progress-fill${alreadyScanned ? " already-scanned" : ""}`}
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -146,7 +148,7 @@ const ScanHUD = ({
               {Math.round(progressPercentage)}%
             </span>
             <span className="scan-hud-progress-stage scan-hud-terminal-text">
-              {getStageLabel()}
+              {alreadyScanned ? "Previously Scanned" : getStageLabel()}
             </span>
           </div>
         </div>
@@ -175,23 +177,23 @@ const ScanHUD = ({
 
       {/* Actions */}
       <div className="scan-hud-section scan-hud-actions">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onViewFindings}
-          disabled={!scanProgress || scanProgress < 50}
-          className="scan-hud-action-btn"
-        >
-          View Partial Findings
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCancelScan}
-          className="scan-hud-action-btn scan-hud-cancel-btn"
-        >
-          Cancel Scan
-        </Button>
+        {scanComplete ? (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onViewFindings}
+            className="scan-hud-action-btn scan-hud-view-results-btn"
+          >
+            View Results
+          </Button>
+        ) : (
+          <div className="scan-hud-status-indicator">
+            <span className="scan-hud-status-dot" />
+            <span className="scan-hud-status-text">
+              {scanStage ? STAGE_LABEL_MAP[scanStage] || "Scanning..." : "Starting..."}
+            </span>
+          </div>
+        )}
       </div>
     </>
   );
@@ -221,16 +223,6 @@ const ScanHUD = ({
       <div className="scan-hud-collapsed-score scan-hud-terminal-text">
         {Math.floor(gameStats.score || 0)}
       </div>
-      <button
-        className="scan-hud-collapsed-cancel"
-        onClick={(e) => {
-          e.stopPropagation();
-          onCancelScan();
-        }}
-        title="Cancel scan"
-      >
-        <X size={16} />
-      </button>
     </div>
   );
 

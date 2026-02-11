@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import RocketGame from "../../components/RocketGame";
@@ -117,6 +117,7 @@ const ScanProgressPage = () => {
   const [extensionLogo, setExtensionLogo] = useState(EXTENSION_ICON_PLACEHOLDER);
   const [extensionName, setExtensionName] = useState(null);
   const [scanComplete, setScanComplete] = useState(false);
+  const [alreadyScanned, setAlreadyScanned] = useState(false);
   // Initialize userExited to false - always start with game visible when scanId exists
   const [userExited, setUserExited] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -128,6 +129,9 @@ const ScanProgressPage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [userChoseKeepPlaying, setUserChoseKeepPlaying] = useState(false);
   const completionShownRef = useRef(false);
+  // Tracks whether any in-progress state was seen before completion.
+  // If the first poll returns scanned=true, the extension was already scanned.
+  const hasSeenInProgressRef = useRef(false);
   
   // Detect mobile
   useEffect(() => {
@@ -142,6 +146,7 @@ const ScanProgressPage = () => {
   // Fetch extension logo and name with error handling
   useEffect(() => {
     if (!scanId) return;
+    let cancelled = false;
     
     const iconUrl = getExtensionIconUrl(scanId);
     
@@ -149,21 +154,22 @@ const ScanProgressPage = () => {
     try {
       const img = new Image();
       img.onload = () => {
-        setExtensionLogo(iconUrl);
+        if (!cancelled) setExtensionLogo(iconUrl);
       };
       img.onerror = () => {
-        setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
+        if (!cancelled) setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
       };
       img.src = iconUrl;
     } catch (err) {
       // Silently fail - use placeholder
-      setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
+      if (!cancelled) setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
     }
 
     // Try to fetch extension name from scan results
     const fetchExtensionInfo = async () => {
       try {
         const results = await realScanService.getRealScanResults(scanId);
+        if (cancelled) return;
         if (results?.extension_name) {
           setExtensionName(results.extension_name);
         } else if (results?.metadata?.title) {
@@ -171,13 +177,11 @@ const ScanProgressPage = () => {
         }
       } catch (e) {
         // Silently fail - results might not exist yet (scan still running)
-        // This is expected and not an error
-        if (e.message && !e.message.includes("No scan results found") && !e.message.includes("404")) {
-          // console.warn("Failed to fetch extension info:", e); // prod: no console
-        }
       }
     };
     fetchExtensionInfo();
+
+    return () => { cancelled = true; };
   }, [scanId]);
 
   // Calculate scan progress based on stage
@@ -196,6 +200,9 @@ const ScanProgressPage = () => {
   }, [scanStage]);
 
   // Poll scan status while on this page (supports direct refresh/back navigation)
+  // Stops polling once scan completes or fails to save server resources.
+  // Also detects "already scanned" extensions (first poll returns scanned=true
+  // before any in-progress state was observed).
   useEffect(() => {
     if (!scanId) return;
 
@@ -203,6 +210,8 @@ const ScanProgressPage = () => {
     let intervalId = null;
 
     const checkStatus = async () => {
+      if (cancelled) return;
+
       try {
         const status = await realScanService.checkScanStatus(scanId);
         if (cancelled) return;
@@ -210,34 +219,52 @@ const ScanProgressPage = () => {
         // Check for API key errors (401)
         if (status.error_code === 401 || (status.status === "failed" && (status.error?.includes("API key") || status.error?.includes("Connection is down")))) {
           setError("Connection is down try back in a while");
+          if (intervalId) { clearInterval(intervalId); intervalId = null; }
           return;
         }
         if (status.status === "failed") {
-          // Non-auth failure: surface as error but keep game running
           if (status.error) setError(status.error);
+          if (intervalId) { clearInterval(intervalId); intervalId = null; }
           return;
         }
+
+        // Track whether we've ever seen an in-progress (non-complete) state.
+        if (!status.scanned) {
+          hasSeenInProgressRef.current = true;
+        }
+
         if (status.scanned) {
+          // Stop polling immediately on completion
+          if (intervalId) { clearInterval(intervalId); intervalId = null; }
+
+          // Detect "already scanned": completed on first poll, never saw in-progress
+          const wasAlreadyScanned = !hasSeenInProgressRef.current;
+          if (wasAlreadyScanned) {
+            setAlreadyScanned(true);
+            setScanProgress(100);
+          }
+
           setScanComplete(true);
           if (!completionShownRef.current) {
             completionShownRef.current = true;
             setShowCompletionModal(true);
           }
 
-          // Best-effort: fetch results and stash in context so "View Results" works immediately.
+          // Best-effort: fetch results so "View Results" works immediately.
           try {
             const results = await realScanService.getRealScanResults(scanId);
-            if (results) {
+            if (!cancelled && results) {
               setScanResults(results);
             }
-          } catch (e) {
-            // Results might not be ready yet (404) — keep polling.
+          } catch (_e) {
+            // Results might not be ready yet — no further polling needed.
           }
         }
       } catch (e) {
-        // Check if error is related to API key
+        if (cancelled) return;
         if (e.message?.includes("401") || e.message?.includes("API key") || e.message?.includes("Connection is down")) {
           setError("Connection is down try back in a while");
+          if (intervalId) { clearInterval(intervalId); intervalId = null; }
         }
       }
     };
@@ -252,18 +279,28 @@ const ScanProgressPage = () => {
     };
   }, [scanId, setError, setScanResults]);
 
-  // Reset userExited when scanId changes or on mount
+  // Reset state when scanId changes or on mount
   // This ensures that when navigating to a new scan, the game always shows immediately
   useEffect(() => {
     if (scanId) {
       setUserExited(false);
-      // Also reset scanComplete when starting a new scan
       setScanComplete(false);
+      setAlreadyScanned(false);
       setUserChoseKeepPlaying(false);
       completionShownRef.current = false;
+      hasSeenInProgressRef.current = false;
     }
   }, [scanId]);
   
+  // Stable callback for game stats — avoids re-creating the function on every render
+  // which would cause the RocketGame effect to restart the RAF loop.
+  const handleStatsUpdate = useCallback((stats) => {
+    setGameStats(stats);
+    if (stats.gameOver !== undefined) {
+      setGameOver(stats.gameOver);
+    }
+  }, []);
+
   // Always show game when scanId exists in URL (unless user explicitly exited)
   // This is the primary condition - if scanId exists, show the game
   const shouldShowGame = scanId ? !userExited : false;
@@ -426,7 +463,11 @@ const ScanProgressPage = () => {
           <div className="retro-header-overlay">
             <h1 className="retro-title">
               <span className="retro-text">
-                {scanComplete ? "SCAN COMPLETE" : "Scan in progress — game mode."}
+                {scanComplete
+                  ? (alreadyScanned
+                      ? "RESULTS READY — Previously Scanned"
+                      : "SCAN COMPLETE")
+                  : "Scan in progress — game mode."}
               </span>
             </h1>
             {/* Exit button appears when scan is complete, but hidden if user chose to keep playing */}
@@ -449,12 +490,7 @@ const ScanProgressPage = () => {
             <RocketGameErrorBoundary>
               <RocketGameWrapper 
                 scanComplete={scanComplete}
-                onStatsUpdate={(stats) => {
-                  setGameStats(stats);
-                  if (stats.gameOver !== undefined) {
-                    setGameOver(stats.gameOver);
-                  }
-                }}
+                onStatsUpdate={handleStatsUpdate}
               />
             </RocketGameErrorBoundary>
           </div>
@@ -465,13 +501,13 @@ const ScanProgressPage = () => {
             extensionName={extensionName || `Extension ${scanId?.substring(0, 8)}...`}
             extensionId={scanId}
             scanStage={scanStage}
-            scanProgress={scanProgress}
+            scanProgress={alreadyScanned ? 100 : scanProgress}
             gameStats={gameStats}
             onViewFindings={handleViewResults}
-            onCancelScan={() => navigate("/scan")}
             isMobile={isMobile}
             gameOver={gameOver}
             scanComplete={scanComplete}
+            alreadyScanned={alreadyScanned}
           />
 
           {/* Error Modal - doesn't close game */}
@@ -501,10 +537,12 @@ const ScanProgressPage = () => {
             <DialogContent className="completion-modal-content">
               <DialogHeader>
                 <DialogTitle className="completion-modal-title">
-                  ✅ Scan Complete!
+                  {alreadyScanned ? "Results Available" : "Scan Complete!"}
                 </DialogTitle>
                 <DialogDescription className="completion-modal-description">
-                  Your extension scan has finished successfully. You can continue playing the game or view the results now.
+                  {alreadyScanned
+                    ? "This extension was previously scanned. Your report is ready to view."
+                    : "Your extension scan has finished successfully. You can continue playing the game or view the results now."}
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>

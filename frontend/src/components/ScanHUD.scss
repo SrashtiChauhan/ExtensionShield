@@ -408,6 +408,11 @@
   border-radius: 3px;
   transition: width 0.3s ease;
   box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+
+  &.already-scanned {
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  }
 }
 
 .scan-hud-progress-info {
@@ -471,15 +476,42 @@
 .scan-hud-action-btn {
   width: 100%;
   font-size: 0.8125rem;
-  
-  &.scan-hud-cancel-btn {
-    color: rgba(239, 68, 68, 0.9);
-    
+
+  &.scan-hud-view-results-btn {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #22c55e;
+
     &:hover {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+      background: rgba(34, 197, 94, 0.25);
+      border-color: rgba(34, 197, 94, 0.6);
     }
   }
+}
+
+.scan-hud-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: rgba(34, 197, 94, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scan-hud-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px rgba(34, 197, 94, 0.6); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px rgba(34, 197, 94, 0.2); }
 }
 
 /* Responsive adjustments */

@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./RocketGame.scss";
 
+// Hoisted constants to avoid per-frame allocation
+const TARGET_COLORS = ["#ff6b35", "#ffa500", "#ffd700", "#ff4444", "#ff8c00"];
+
 /**
  * Rocket Game - Minimal Working Version
  */
@@ -11,6 +14,8 @@ const RocketGame = ({
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const keysRef = useRef(new Set());
+  // Cache gradient so we don't re-create it every frame
+  const bgCacheRef = useRef({ gradient: null, height: 0 });
   
   const [ui, setUi] = useState({ 
     score: 0, 
@@ -232,7 +237,7 @@ const RocketGame = ({
         // Spawn targets - circular obstacles with different sizes
         g.nextTargetSpawn -= dt;
         if (g.nextTargetSpawn <= 0) {
-          const colors = ["#ff6b35", "#ffa500", "#ffd700", "#ff4444", "#ff8c00"]; // Orange, yellow, red variants
+          const colors = TARGET_COLORS;
           
           // Create different obstacle sizes: small (30%), medium (50%), large (20%)
           const rand = Math.random();
@@ -349,12 +354,17 @@ const RocketGame = ({
       // Drawing
       ctx.clearRect(0, 0, w, h);
 
-      // Background
-      const bg = ctx.createLinearGradient(0, 0, 0, h);
-      bg.addColorStop(0, "#0a0f1a");
-      bg.addColorStop(0.5, "#1a1f2e");
-      bg.addColorStop(1, "#0f1419");
-      ctx.fillStyle = bg;
+      // Background — cache gradient to avoid per-frame allocation
+      const bgCache = bgCacheRef.current;
+      if (!bgCache.gradient || bgCache.height !== h) {
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, "#0a0f1a");
+        grad.addColorStop(0.5, "#1a1f2e");
+        grad.addColorStop(1, "#0f1419");
+        bgCache.gradient = grad;
+        bgCache.height = h;
+      }
+      ctx.fillStyle = bgCache.gradient;
       ctx.fillRect(0, 0, w, h);
 
       // Stars
@@ -487,13 +497,41 @@ const RocketGame = ({
 
       // Game over
       if (g.gameOver) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
         ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = "#ef4444";
-        ctx.font = "48px monospace";
+
         ctx.textAlign = "center";
-        ctx.fillText("Game Over!", w / 2, h / 2);
+
+        // "GAME OVER" title
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "bold 48px monospace";
+        ctx.fillText("GAME OVER", w / 2, h / 2 - 30);
+
+        // Score
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.font = "20px monospace";
+        ctx.fillText(`Score: ${Math.floor(g.score)}`, w / 2, h / 2 + 10);
+
+        // Restart prompt - pulsing opacity
+        const pulse = 0.5 + 0.5 * Math.sin(ts / 400);
+        ctx.fillStyle = `rgba(59, 130, 246, ${0.5 + pulse * 0.5})`;
+        ctx.font = "18px monospace";
+        ctx.fillText("Press ENTER to play again", w / 2, h / 2 + 55);
+
         ctx.textAlign = "left";
+
+        // Restart on Enter
+        if (keys.has("enter")) {
+          g.gameOver = false;
+          g.score = 0;
+          g.bullets = [];
+          g.targets = [];
+          g.coins = [];
+          g.nextTargetSpawn = 1;
+          g.rocket.x = 100;
+          g.rocket.y = h / 2;
+          keys.delete("enter");
+        }
       }
 
       // Update UI
