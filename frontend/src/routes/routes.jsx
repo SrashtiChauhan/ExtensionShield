@@ -140,8 +140,8 @@ export const routes = [
     path: "/research/case-studies/honey",
     element: <HoneyCaseStudyPage />,
     seo: {
-      title: "Honey Extension Scam Case Study | ExtensionShield",
-      description: "In-depth analysis of how PayPal's Honey extension hijacked affiliate links and deceived 17 million users.",
+      title: "Honey Extension Case Study | ExtensionShield",
+      description: "Reported analysis of PayPal's Honey extension: alleged affiliate link hijacking, shopping tracking, and disputed savings claims.",
       canonical: "/research/case-studies/honey"
     },
     priority: 0.7,

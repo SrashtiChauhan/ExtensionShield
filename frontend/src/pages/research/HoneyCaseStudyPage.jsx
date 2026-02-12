@@ -7,15 +7,15 @@ const HoneyCaseStudyPage = () => {
   return (
     <>
       <Helmet>
-        <title>Honey Extension Scam Case Study | ExtensionShield</title>
-        <meta name="description" content="In-depth analysis of how PayPal's Honey extension hijacked affiliate links, tracked shopping behavior, and deceived 17 million users." />
+        <title>Honey Extension Case Study | ExtensionShield</title>
+        <meta name="description" content="In-depth analysis of reported practices by PayPal's Honey extension: alleged affiliate link hijacking, shopping behavior tracking, and disputed user savings." />
         <link rel="canonical" href="https://extensionshield.com/research/case-studies/honey" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": "The Honey Extension Scam: A Case Study",
-            "description": "How PayPal's Honey extension hijacked affiliate links and deceived 17 million users",
+            "headline": "Honey Extension Case Study",
+            "description": "Reported analysis of PayPal's Honey extension: alleged affiliate link hijacking and disputed user savings",
             "author": {
               "@type": "Organization",
               "name": "ExtensionShield"
@@ -51,8 +51,8 @@ const HoneyCaseStudyPage = () => {
               <span className="category-badge">Affiliate Fraud</span>
               <span className="date-badge">Exposed December 2024</span>
             </div>
-            <h1>The Honey Extension Scam</h1>
-            <p className="honey-subtitle">17 Million Users. $4 Billion Acquisition. One Big Lie.</p>
+            <h1>Honey Extension Case Study</h1>
+            <p className="honey-subtitle">17M+ users reported. $4B acquisition.</p>
           </header>
 
           {/* Stats */}
@@ -66,8 +66,8 @@ const HoneyCaseStudyPage = () => {
               <span className="stat-label">PayPal Paid</span>
             </div>
             <div className="stat danger">
-              <span className="stat-value">$0</span>
-              <span className="stat-label">Real Savings</span>
+              <span className="stat-value">—</span>
+              <span className="stat-label">Savings Not Guaranteed</span>
             </div>
           </div>
 
@@ -89,32 +89,32 @@ const HoneyCaseStudyPage = () => {
                   <div className="finding-icon">🔗</div>
                   <h3>Affiliate Link Hijacking</h3>
                   <p>
-                    Silently overwrote creator affiliate codes with Honey's own. Content creators 
-                    who recommended products got nothing—Honey took their commissions.
+                    Investigators found silent overwriting of creator affiliate codes. Content creators 
+                    reported lost commissions.
                   </p>
                 </div>
                 <div className="finding-card">
                   <div className="finding-icon">👁️</div>
                   <h3>Shopping Surveillance</h3>
                   <p>
-                    Tracked every page view, cart addition, and purchase. This data was sold to 
-                    retailers who used it for price discrimination.
+                    Investigators reported tracking of page views, cart additions, and purchases. 
+                    Data was reportedly shared with retailers.
                   </p>
                 </div>
                 <div className="finding-card">
                   <div className="finding-icon">🎭</div>
                   <h3>Fake "Best" Coupons</h3>
                   <p>
-                    The dramatic "searching for coupons" animation was theater. Honey often showed 
-                    worse deals than publicly available codes.
+                    Users reported finding better deals publicly. The coupon-search animation was 
+                    questioned by investigators.
                   </p>
                 </div>
                 <div className="finding-card">
                   <div className="finding-icon">💰</div>
                   <h3>Retailer Kickbacks</h3>
                   <p>
-                    Retailers paid Honey to suppress better deals. You got "Honey's best price" 
-                    rather than the actual best price.
+                    Investigators reported retailer payments to prioritize certain deals. Users 
+                    disputed whether they received the best available price.
                   </p>
                 </div>
               </div>
@@ -124,9 +124,8 @@ const HoneyCaseStudyPage = () => {
               <h2>The Aftermath</h2>
               <p>
                 After MegaLag's exposé in December 2024, Honey faced widespread backlash. Content 
-                creators discovered years of stolen commissions. Users realized their "savings" 
-                were often illusory. Yet Honey continues to operate, backed by PayPal's $4 billion 
-                investment.
+                creators reported years of lost commissions. Users reported that savings were 
+                not guaranteed. Honey continues to operate, backed by PayPal's acquisition.
               </p>
             </section>
 
@@ -155,8 +154,8 @@ const HoneyCaseStudyPage = () => {
 
           {/* CTA */}
           <div className="honey-cta">
-            <h3>Protect Yourself</h3>
-            <p>Scan any extension before installing. Know what you're really adding to your browser.</p>
+            <h3>Check Before You Install</h3>
+            <p>Scan any extension before installing. ExtensionShield helps flag risk indicators—not a guarantee of protection.</p>
             <Link to="/scan" className="cta-button">
               Scan an Extension
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

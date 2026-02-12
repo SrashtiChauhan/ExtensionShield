@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useScan } from "../context/ScanContext";
 import { useAuth } from "../context/AuthContext";
 import SEOHead from "../components/SEOHead";
-import TypewriterNumber from "../components/TypewriterNumber";
-import databaseService from "../services/databaseService";
 import "./HomePage.scss";
 
 // Static configuration - defined outside component to prevent recreation
@@ -25,6 +23,18 @@ const SCAN_STATUS_MESSAGES = [
   "Verifying API endpoints...",
 ];
 
+// Real extension listings (Chrome Web Store style)
+const EXTENSION_CARDS = [
+  { id: "session-buddy", name: "Session Buddy – Tab & Bookmark Manager", stars: "★★★★★", rating: "4.7", users: "1,000,000 users", badge: "Featured", iconClass: "tabs", logoUrl: "https://logo.clearbit.com/sessionbuddy.com", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg> },
+  { id: "hover-zoom", name: "Hover Zoom+", stars: "★★★★★", rating: "4.0", users: "300,000 users", badge: "Featured", iconClass: "zoom", logoUrl: null, iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg> },
+  { id: "stylus", name: "Stylus", stars: "★★★★★", rating: "4.5", users: "900,000 users", badge: "Featured", iconClass: "stylus", logoUrl: "https://logo.clearbit.com/github.com", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /></svg> },
+  { id: "adblock", name: "Adblock Plus – free ad blocker", stars: "★★★★★", rating: "4.4", users: "41,000,000 users", badge: "Featured", iconClass: "shield", logoUrl: "https://logo.clearbit.com/adblockplus.org", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> },
+  { id: "honey", name: "PayPal Honey: Automated Coupons & Cash Back", stars: "★★★★★", rating: "4.6", users: "14,000,000 users", badge: "Featured", iconClass: "honey", logoUrl: "https://logo.clearbit.com/joinhoney.com", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L20 7v10l-8 5-8-5V7l8-5z" /><path d="M12 8v8M10 11h4" /></svg> },
+  { id: "grammarly", name: "Grammarly: AI Writing Assistant and Grammar Checker App", stars: "★★★★★", rating: "4.5", users: "43,000,000 users", badge: "Featured", iconClass: "grammarly", logoUrl: "https://logo.clearbit.com/grammarly.com", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M10 9h4M10 13h4M10 17h2" /></svg> },
+  { id: "hola", name: "Hola VPN – Your Website Unblocker", stars: "★★★★★", rating: "4.8", users: "5,000,000 users", badge: "Store listing", iconClass: "vpn", logoUrl: "https://logo.clearbit.com/hola.org", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg> },
+  { id: "vdh", name: "Video DownloadHelper", stars: "★★★★★", rating: "4.4", users: "5,000,000 users", badge: "Featured", iconClass: "download", logoUrl: "https://logo.clearbit.com/videodownloadhelper.net", iconSvg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="5 3 19 12 5 21 5 3" /><line x1="19" y1="5" x2="19" y2="19" /></svg> },
+];
+
 const HomePage = () => {
   const navigate = useNavigate();
   const { startScan, setUrl, error: scanError } = useScan();
@@ -35,21 +45,10 @@ const HomePage = () => {
   const [currentThreat, setCurrentThreat] = useState(0);
   const [badgePositions, setBadgePositions] = useState([]);
   const [revealedSections, setRevealedSections] = useState({});
-  const [scanCount, setScanCount] = useState(0); // Start at 0 - honest default
+  const [extensionSlideIndex, setExtensionSlideIndex] = useState(0);
   const containerRef = useRef(null);
   const animationRef = useRef(null);
   const badgesRef = useRef([]);
-
-  // Fetch extensions scanned count from API
-  useEffect(() => {
-    let cancelled = false;
-    databaseService.getStatistics().then((data) => {
-      if (!cancelled && data && typeof data.total_scans === "number") {
-        setScanCount(data.total_scans);
-      }
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   // Scroll reveal observer
   useEffect(() => {
@@ -546,14 +545,8 @@ const HomePage = () => {
         {/* Stats Bar - Separate for flexible positioning */}
         <div className={`stats-bar ${isVisible ? 'visible' : ''}`}>
           <div className="stat-item">
-            <span className="stat-value counter">
-              {scanCount > 0 ? (
-                <TypewriterNumber value={scanCount} suffix="+" charDelayMs={70} />
-              ) : (
-                "NEW"
-              )}
-            </span>
-            <span className="stat-label">Extensions Scanned</span>
+            <span className="stat-value">Free</span>
+            <span className="stat-label">For Individuals</span>
           </div>
           <div className="stat-divider" />
           <div className="stat-item">
@@ -577,7 +570,7 @@ const HomePage = () => {
 
         {/* Scroll Cue */}
         <button className={`scroll-cue ${isVisible ? 'visible' : ''}`} onClick={scrollToProof}>
-          <span>See how scams happen</span>
+          <span>See how extensions can turn risky</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 5v14M5 12l7 7 7-7" />
           </svg>
@@ -641,111 +634,85 @@ const HomePage = () => {
           </div>
 
           <p className="bridge-footer">
-            Most scams don't start malicious — they become malicious after they're trusted.
+            Many extensions don't start malicious — they become risky after they're trusted.
           </p>
         </div>
       </section>
 
-      {/* Trust Deception Showcase */}
+      {/* Real Extension Listings - Below Extensions Flow */}
       <section 
         id="deception" 
         className={`deception-section reveal-section ${revealedSections['deception'] ? 'revealed' : ''}`}
       >
         <div className="deception-container">
-          <div className="deception-cards">
-            {/* Card 1 - PDF Helper */}
-            <div className="deception-card">
-              <div className="card-trust-layer">
-                <div className="ext-icon pdf">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <path d="M14 2v6h6" />
-                    <path d="M10 9h4M10 13h4M10 17h2" />
-                  </svg>
+          <p className="deception-disclaimer">Real Chrome Web Store listings</p>
+          
+          <div className="deception-carousel-wrapper">
+            <button
+              type="button"
+              className="deception-carousel-btn deception-carousel-prev"
+              onClick={() => setExtensionSlideIndex((i) => (i <= 0 ? 2 : i - 1))}
+              aria-label="View previous extensions"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div className={`deception-cards-grid ${EXTENSION_CARDS.slice(extensionSlideIndex * 3, extensionSlideIndex * 3 + 3).length === 2 ? 'two-cards' : ''}`}>
+              {EXTENSION_CARDS.slice(extensionSlideIndex * 3, extensionSlideIndex * 3 + 3).map((ext) => (
+                <div key={ext.id} className="deception-card">
+                  <div className="card-trust-layer">
+                    <div className={`ext-icon ${ext.iconClass}`}>
+                      {ext.logoUrl ? (
+                        <>
+                          <img 
+                            src={ext.logoUrl} 
+                            alt="" 
+                            className="ext-logo-img"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              const parent = e.target.closest(".ext-icon");
+                              const fallback = parent?.querySelector(".ext-logo-fallback");
+                              if (fallback) fallback.classList.add("show");
+                            }}
+                          />
+                          <span className="ext-logo-fallback">{ext.iconSvg}</span>
+                        </>
+                      ) : (
+                        <span className="ext-logo-fallback show">{ext.iconSvg}</span>
+                      )}
+                    </div>
+                    <h4 className="ext-name">{ext.name}</h4>
+                    <div className="ext-rating">
+                      <div className="stars">{ext.stars}</div>
+                      <span className="rating-score">{ext.rating}</span>
+                    </div>
+                    <div className="ext-users">{ext.users}</div>
+                    <div className="ext-verified">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Badge: {ext.badge}</span>
+                    </div>
+                  </div>
                 </div>
-                <h4 className="ext-name">PDF Helper Pro</h4>
-                <div className="ext-rating">
-                  <div className="stars">★★★★★</div>
-                  <span className="rating-score">4.9</span>
-                </div>
-                <div className="ext-users">2M+ users</div>
-                <div className="ext-verified">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Verified</span>
-                </div>
-              </div>
-              <div className="card-truth-layer">
-                <div className="threat-indicator">
-                  <span className="threat-dot" />
-                  <span className="threat-label">DATA THEFT</span>
-                </div>
-              </div>
+              ))}
             </div>
-
-            {/* Card 2 - Tab Manager */}
-            <div className="deception-card">
-              <div className="card-trust-layer">
-                <div className="ext-icon tabs">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <path d="M3 9h18M9 21V9" />
-                  </svg>
-                </div>
-                <h4 className="ext-name">Tab Manager</h4>
-                <div className="ext-rating">
-                  <div className="stars">★★★★★</div>
-                  <span className="rating-score">4.8</span>
-                </div>
-                <div className="ext-users">800K users</div>
-                <div className="ext-verified">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Verified</span>
-                </div>
-              </div>
-              <div className="card-truth-layer">
-                <div className="threat-indicator">
-                  <span className="threat-dot" />
-                  <span className="threat-label">AD INJECTION</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3 - Price Saver */}
-            <div className="deception-card">
-              <div className="card-trust-layer">
-                <div className="ext-icon price">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </div>
-                <h4 className="ext-name">Price Saver</h4>
-                <div className="ext-rating">
-                  <div className="stars">★★★★★</div>
-                  <span className="rating-score">4.7</span>
-                </div>
-                <div className="ext-users">5M+ users</div>
-                <div className="ext-verified">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Verified</span>
-                </div>
-              </div>
-              <div className="card-truth-layer">
-                <div className="threat-indicator">
-                  <span className="threat-dot" />
-                  <span className="threat-label">HIJACKING</span>
-                </div>
-              </div>
-            </div>
+            
+            <button
+              type="button"
+              className="deception-carousel-btn deception-carousel-next"
+              onClick={() => setExtensionSlideIndex((i) => (i >= 2 ? 0 : i + 1))}
+              aria-label="View next extensions"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
 
           <p className="deception-footer">
-            These all passed review. <span className="danger">None are safe.</span>
+            These all passed store review. Store approval is not a guarantee of safety.
           </p>
         </div>
       </section>
@@ -757,8 +724,8 @@ const HomePage = () => {
           <div className="case-study-header">
             <span className="case-study-badge">CASE STUDY</span>
             <h2 className="case-study-title">
-              The Honey Extension Scam
-              <span className="subtitle">17 Million Users. $4 Billion Acquisition. One Big Lie.</span>
+              Honey Extension Case Study
+              <span className="subtitle">17M+ users reported. $4B acquisition.</span>
             </h2>
           </div>
 
@@ -815,15 +782,15 @@ const HomePage = () => {
               <div className="honey-stats">
                 <div className="honey-stat">
                   <span className="stat-number">17M+</span>
-                  <span className="stat-desc">Active Users</span>
+                  <span className="stat-desc">Reported Users</span>
                 </div>
                 <div className="honey-stat">
                   <span className="stat-number">$4B</span>
-                  <span className="stat-desc">PayPal Paid</span>
+                  <span className="stat-desc">Acquisition</span>
                 </div>
                 <div className="honey-stat">
-                  <span className="stat-number danger">$0</span>
-                  <span className="stat-desc">Real Savings</span>
+                  <span className="stat-number danger">—</span>
+                  <span className="stat-desc">Savings Not Guaranteed</span>
                 </div>
               </div>
             </div>
@@ -832,7 +799,7 @@ const HomePage = () => {
             <div className="scam-details">
               <div className="scam-intro">
                 <p>
-                  Promised savings. Delivered <strong>stolen commissions</strong> and <strong>worse deals</strong>.
+                  Promised savings. Investigators reported <strong>commission diversion</strong> and <strong>alleged worse deals</strong>.
                 </p>
               </div>
 
@@ -846,7 +813,7 @@ const HomePage = () => {
                   </div>
                   <div className="point-content">
                     <h4>Affiliate Link Hijacking</h4>
-                    <p>Silently overwrote creator affiliate codes. Creators got nothing.</p>
+                    <p>Investigators found silent overwriting of creator affiliate codes. Creators reported lost commissions.</p>
                   </div>
                 </div>
 
@@ -859,7 +826,7 @@ const HomePage = () => {
                   </div>
                   <div className="point-content">
                     <h4>Shopping Surveillance</h4>
-                    <p>Tracked every view, cart, and purchase. Sold data to retailers.</p>
+                    <p>Investigators reported tracking of views, carts, and purchases. Data reportedly shared with retailers.</p>
                   </div>
                 </div>
 
@@ -870,8 +837,8 @@ const HomePage = () => {
                     </svg>
                   </div>
                   <div className="point-content">
-                    <h4>Fake "Best" Coupons</h4>
-                    <p>Showed worse deals than publicly available. The animation? Theater.</p>
+                    <h4>Disputed "Best" Coupons</h4>
+                    <p>Users reported finding better deals publicly. The coupon animation was questioned by investigators.</p>
                   </div>
                 </div>
 
@@ -884,7 +851,7 @@ const HomePage = () => {
                   </div>
                   <div className="point-content">
                     <h4>Retailer Kickbacks</h4>
-                    <p>Paid to suppress better deals. You got Honey's best price, not yours.</p>
+                    <p>Investigators reported payments to prioritize certain deals. Users disputed whether they received the best available price.</p>
                   </div>
                 </div>
               </div>
@@ -909,7 +876,7 @@ const HomePage = () => {
       <section className="pricing-section">
         <div className="pricing-header">
           <h2>Simple, Transparent Pricing</h2>
-          <p>Scanning is free for individuals. Cached lookups are instant, and deep scans are capped daily to keep compute sustainable.</p>
+          <p>Scanning is free for individuals. We reuse results for extensions we've seen before (instant), and run fresh full analysis only when needed.</p>
         </div>
 
         <div className="pricing-grid">
@@ -918,14 +885,14 @@ const HomePage = () => {
             <div className="popular-badge">BETA</div>
             <div className="pricing-card-header">
               <h3>Community</h3>
-              <p>Help us test — free during beta</p>
+              <p>Free during beta — help us test</p>
             </div>
             <div className="pricing-amount">
               <span className="price">$0</span>
               <span className="credits">Beta Launch</span>
             </div>
             <div className="scan-credit-note">
-              Deep scans are only used when we encounter a new extension version/build hash; cached results are instant.
+              Full analysis runs only when we haven't seen this exact extension version before; repeat scans use cached results (instant).
             </div>
             <ul className="pricing-features">
               <li>
@@ -938,7 +905,7 @@ const HomePage = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>2 deep scans per day per user account (new build hash only)</span>
+                <span>2 full scans per day per account (new versions only)</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -960,14 +927,14 @@ const HomePage = () => {
           <div className="pricing-card enterprise">
             <div className="pricing-card-header">
               <h3>Enterprise</h3>
-              <p>Contact Sales</p>
+              <p>Teams & governance</p>
             </div>
             <div className="pricing-amount">
               <span className="price">Contact</span>
               <span className="price-period">Sales</span>
             </div>
             <div className="scan-credit-note">
-              For teams that need monitoring, governance, and audit-ready exports.
+              For teams that need monitoring, governance, and audit-ready exports. Helps flag risk signals—not a guarantee.
             </div>
             <ul className="pricing-features">
               <li>
@@ -1023,10 +990,10 @@ const HomePage = () => {
 
             {/* Text Section */}
             <div className="karma-text-section">
-              <h4>Have thoughts? Share with the community.</h4>
+              <h4>Share your feedback with the community.</h4>
               <p>
-                Help others by sharing extension insights, reporting issues, or recommending safe alternatives.
-                Your contributions build trust and keep the ecosystem safer.
+                Help others by sharing extension insights, reporting issues, or recommending alternatives you trust.
+                Your contributions help build a more transparent ecosystem.
               </p>
               <div className="karma-actions">
                 <div className="karma-action-item">

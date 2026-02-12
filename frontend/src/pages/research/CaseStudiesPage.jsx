@@ -8,12 +8,12 @@ const CaseStudiesPage = () => {
   const caseStudies = [
     {
       id: "honey",
-      title: "The Honey Extension Scam",
-      subtitle: "17 Million Users. $4 Billion Acquisition. One Big Lie.",
+      title: "Honey Extension Case Study",
+      subtitle: "17M+ users reported. $4B acquisition.",
       date: "December 2024",
       category: "Affiliate Fraud",
       severity: "HIGH",
-      description: "How PayPal's Honey extension hijacked affiliate links, tracked shopping behavior, and showed users worse deals than publicly available.",
+      description: "Reported analysis: alleged affiliate link hijacking, shopping behavior tracking, and disputed savings claims.",
       featured: true,
     },
     {
