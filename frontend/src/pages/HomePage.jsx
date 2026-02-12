@@ -515,6 +515,21 @@ const HomePage = () => {
               </button>
             </div>
           </div>
+          <a
+            href="https://app.tango.us/app/workflow/Scan-Google-Translate-Extension-with-ExtensionShield-c1e43d157b434aedbaff4176df94d55d"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-demo-link"
+            title="Copy extension URL → paste here (step-by-step)"
+          >
+            <span className="hero-demo-icon" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+              </svg>
+            </span>
+            <span>Watch demo</span>
+          </a>
         </div>
 
         {/* Stats Bar - Separate for flexible positioning */}

@@ -90,23 +90,149 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  text-align: left;
 }
 
 /* Glass Cards */
 .privacy-policy-page .glass-card {
-  background: var(--atlas-bg-card, rgba(16, 24, 40, 0.8));
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.1));
+  background: var(--privacy-card-bg, rgba(30, 41, 59, 0.85));
+  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.12));
   border-radius: 16px;
   padding: 2rem;
   backdrop-filter: blur(20px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
+  text-align: left;
+  font-family: var(--font-sans);
 
   &:hover {
     border-color: var(--atlas-border-accent, rgba(34, 197, 94, 0.3));
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   }
+}
+
+/* Accordion: header row + expand/collapse on right */
+.privacy-policy-page .glass-card.accordion-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.privacy-policy-page .accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1.25rem 2rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  gap: 1rem;
+
+  &:hover {
+    background: rgba(148, 163, 184, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--atlas-accent, #22c55e);
+    outline-offset: 2px;
+  }
+}
+
+.privacy-policy-page .accordion-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.privacy-policy-page .accordion-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--atlas-text-secondary, #94a3b8);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  .accordion-header:hover & {
+    color: var(--atlas-accent, #22c55e);
+  }
+}
+
+.privacy-policy-page .accordion-chevron {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.25s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.privacy-policy-page .accordion-toggle-label {
+  font-family: var(--font-sans);
+}
+
+/* Collapsed: zero height, no space. Required for expand/collapse; keep in DOM for a11y. */
+.privacy-policy-page .accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+
+  &:not(.open) {
+    visibility: hidden;
+    pointer-events: none;
+    min-height: 0;
+    height: 0;
+    max-height: 0;
+  }
+
+  &.open {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    pointer-events: auto;
+    min-height: unset;
+    height: unset;
+    max-height: unset;
+  }
+
+  &:not(.open) .accordion-body-inner {
+    visibility: hidden;
+    overflow: hidden;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  &.open .accordion-body-inner {
+    visibility: visible;
+  }
+}
+
+/* Single inner wrapper; padding only when open (via .open parent) */
+.privacy-policy-page .accordion-body-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.privacy-policy-page .accordion-body:not(.open) .accordion-body-inner {
+  padding: 0;
+}
+
+.privacy-policy-page .accordion-item .section-title {
+  margin: 0;
 }
 
 .privacy-policy-page .contact-card {
@@ -114,14 +240,7 @@
   border-color: rgba(34, 197, 94, 0.2);
 }
 
-/* Section Headers */
-.privacy-policy-page .section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
+/* Section icon (in header) */
 .privacy-policy-page .section-icon {
   width: 1.5rem;
   height: 1.5rem;
@@ -136,6 +255,17 @@
   margin: 0;
   line-height: 1.3;
   letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+}
+
+/* Section Headers (standalone) */
+.privacy-policy-page .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 /* Section Content */
@@ -151,12 +281,26 @@
   gap: 0.75rem;
 }
 
+/* Creative subsection: icon + label (no numbers), left-accent bar */
 .privacy-policy-page .subsection-title {
-  font-size: 1.125rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   color: var(--atlas-text-primary, #f8fafc);
   margin: 0;
   line-height: 1.4;
+  font-family: var(--font-sans);
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--atlas-accent, #22c55e);
+}
+
+.privacy-policy-page .subsection-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--atlas-accent, #22c55e);
+  flex-shrink: 0;
 }
 
 .privacy-policy-page .section-text {
@@ -180,22 +324,35 @@
   }
 }
 
+/* Bullet list – matches site: accent marker, spacing, typography */
 .privacy-policy-page .section-list {
-  list-style: disc;
-  list-style-position: outside;
-  padding-left: 1.5rem;
+  list-style: none;
+  padding-left: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
   color: var(--atlas-text-secondary, #94a3b8);
   font-size: 1rem;
   line-height: 1.7;
   font-weight: 400;
-  
+  font-family: var(--font-sans);
+
   li {
-    padding-left: 0.5rem;
-    
+    position: relative;
+    padding-left: 1.25rem;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 0.35rem;
+      height: 0.35rem;
+      border-radius: 50%;
+      background: var(--atlas-accent, #22c55e);
+    }
+
     strong {
       color: var(--atlas-text-primary, #f8fafc);
       font-weight: 600;
@@ -257,6 +414,18 @@
   .privacy-policy-page .glass-card {
     padding: 1.5rem;
   }
+
+  .privacy-policy-page .accordion-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .privacy-policy-page .accordion-body-inner {
+    padding: 0 1.5rem 1.25rem 1.5rem;
+  }
+
+  .privacy-policy-page .accordion-toggle-label {
+    display: none;
+  }
   
   .privacy-policy-page .section-title {
     font-size: 1.25rem;
@@ -272,7 +441,6 @@
   
   .privacy-policy-page .section-list {
     font-size: 0.9375rem;
-    padding-left: 1.25rem;
   }
 }
 
