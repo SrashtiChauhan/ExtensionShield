@@ -51,7 +51,7 @@ EXTENSION_STORAGE_PATH = "/app/extensions_storage"
 # Not used since we serve static files via FastAPI
 disabled = true
 
-# Trigger redeployment - Updated: 2025-02-04 21:40 UTC, 2025-02-11 17:15 UTC
+# Trigger redeployment prod - Updated: 2025-02-04 21:40 UTC, 2025-02-11 17:15 UTC
 
 # =============================================================================
 # CLI Deployment Shortcuts
