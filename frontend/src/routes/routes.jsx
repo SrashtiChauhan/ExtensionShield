@@ -53,7 +53,7 @@ export const routes = [
     path: "/",
     element: <HomePage />,
     seo: {
-      title: "ExtensionShield - Chrome Extension Security Scanner",
+      title: "Chrome Extension Scanner",
       description: "Analyze Chrome extensions for hidden threats, malware, and privacy risks. Free security scanning powered by AI and static analysis.",
       canonical: "/"
     },

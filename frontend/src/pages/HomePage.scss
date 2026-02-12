@@ -225,12 +225,11 @@
   .hero-subtitle {
     font-size: 1.0625rem;
     color: var(--atlas-text-secondary);
-    line-height: 1.7;
+    line-height: 1.6;
     margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    justify-content: center;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .honey-logo-small {
@@ -2126,12 +2125,14 @@
     padding: 0 1rem;
 
     .hero-title {
-      font-size: 1.75rem;
+      font-size: clamp(1.5rem, 5vw, 1.75rem);
       margin-bottom: 0.5rem;
     }
 
     .hero-subtitle {
-      display: none; // Hide subtitle on mobile for cleaner look
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      padding: 0 0.25rem;
     }
   }
 

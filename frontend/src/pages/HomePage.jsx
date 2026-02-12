@@ -298,7 +298,7 @@ const HomePage = () => {
     "name": "ExtensionShield",
     "url": "https://extensionshield.com",
     "logo": "https://extensionshield.com/logo.png",
-    "description": "Open source Chrome extension security scanner",
+    "description": "Chrome extension scanner — safety reports in seconds.",
     "sameAs": [
       "https://github.com/Stanzin7/ExtensionShield"
     ]
@@ -315,7 +315,7 @@ const HomePage = () => {
       "price": "0",
       "priceCurrency": "USD"
     },
-    "description": "Free Chrome extension security scanner that analyzes extensions for malware, privacy risks, and compliance issues.",
+    "description": "Chrome extension scanner. Paste a Web Store URL or extension ID and get a safety report in seconds — malware, privacy, and compliance.",
     "url": "https://extensionshield.com/scan"
   };
 
@@ -369,8 +369,8 @@ const HomePage = () => {
   return (
     <>
       <SEOHead
-        title="ExtensionShield - Chrome Extension Security Scanner"
-        description="Analyze Chrome extensions for hidden threats, malware, and privacy risks. Free security scanning powered by AI and static analysis."
+        title="Chrome Extension Scanner"
+        description="Paste a Chrome Web Store URL or extension ID and get a safety report in seconds. Free Chrome extension scanner for malware, privacy, and compliance."
         pathname="/"
         ogType="website"
         schema={[organizationSchema, softwareAppSchema, faqSchema]}
@@ -400,35 +400,10 @@ const HomePage = () => {
         {/* Hero Headline - Moves to top on mobile */}
         <div className={`hero-headline ${isVisible ? 'visible' : ''}`}>
           <h1 className="hero-title">
-            Find <span className="highlight">hidden threats</span> in Chrome extensions
+            Chrome Extension Scanner
           </h1>
           <p className="hero-subtitle">
-            <span className="honey-logo-small">
-              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d="M50 5L93.3 27.5V72.5L50 95L6.7 72.5V27.5L50 5Z" 
-                  fill="url(#honeyGradientSmall)" 
-                  stroke="url(#honeyStrokeSmall)"
-                  strokeWidth="1.5"
-                />
-                <path d="M50 30L62 38V54L50 62L38 54V38L50 30Z" fill="rgba(255,255,255,0.15)" />
-                <path d="M35 45L47 53V69L35 77L23 69V53L35 45Z" fill="rgba(255,255,255,0.1)" />
-                <path d="M65 45L77 53V69L65 77L53 69V53L65 45Z" fill="rgba(255,255,255,0.1)" />
-                <text x="50" y="58" textAnchor="middle" fill="white" fontSize="28" fontWeight="bold" fontFamily="Arial">h</text>
-                <defs>
-                  <linearGradient id="honeyGradientSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FF9500" />
-                    <stop offset="50%" stopColor="#FF6B00" />
-                    <stop offset="100%" stopColor="#E85D04" />
-                  </linearGradient>
-                  <linearGradient id="honeyStrokeSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FFB347" />
-                    <stop offset="100%" stopColor="#FF8C00" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </span>
-            Honey fooled 17M users. Don't trust reviews—trust the code.
+            Paste Chrome Web Store URL or Extension ID — get a safety report in seconds.
           </p>
         </div>
 
