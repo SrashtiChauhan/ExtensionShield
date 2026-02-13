@@ -6,6 +6,7 @@ const HomePage = React.lazy(() => import("../pages/HomePage"));
 const ScannerPage = React.lazy(() => import("../pages/scanner/ScannerPage"));
 const ScanProgressPage = React.lazy(() => import("../pages/scanner/ScanProgressPage"));
 const ScanResultsPageV2 = React.lazy(() => import("../pages/scanner/ScanResultsPageV2"));
+const ScanResultsDashboardPage = React.lazy(() => import("../pages/scanner/ScanResultsDashboardPage"));
 const ScanHistoryPage = React.lazy(() => import("../pages/ScanHistoryPage"));
 const EnterprisePage = React.lazy(() => import("../pages/EnterprisePage"));
 const SettingsPage = React.lazy(() => import("../pages/SettingsPage"));
@@ -91,6 +92,10 @@ export const routes = [
   {
     path: "/scan/results/:scanId",
     element: <ScanResultsPageV2 />
+  },
+  {
+    path: "/scan/results/dashboard",
+    element: <ScanResultsDashboardPage />
   },
 
   // ============ EXTENSION ROUTES (CANONICAL) ============

@@ -3,11 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import {
-  RiskDial,
-  ReportScoreCard,
-  FactorBars,
+  DonutScore,
+  ResultsSidebarTile,
   EvidenceDrawer,
-  PermissionsPanel,
   SummaryPanel,
   LayerModal,
 } from "../../components/report";
@@ -278,6 +276,46 @@ const ScanResultsPageV2 = () => {
     });
   };
 
+  // Derive risk/feature labels for extension card (Obfuscation, Broad host access, Trackers)
+  const getRiskLabels = () => {
+    const labels = [];
+    const allFactors = [
+      ...(factorsByLayer?.security || []),
+      ...(factorsByLayer?.privacy || []),
+    ];
+    const obfuscatedFiles = scanResults?.entropy_analysis?.obfuscated_files ?? 
+      scanResults?.entropyAnalysis?.obfuscated_files ?? 0;
+    const hasObfuscation = obfuscatedFiles > 0 || 
+      allFactors.some(f => (f.name || '').toLowerCase().includes('obfuscat'));
+    const hasTrackers = allFactors.some(f => 
+      (f.name || '').toLowerCase().includes('tracker') || 
+      (f.name || '').toLowerCase().includes('third')
+    );
+    const broadHost = permissions?.broadHostPatterns?.length > 0 || 
+      (Array.isArray(scanResults?.manifest?.permissions) && scanResults.manifest.permissions.some(p => 
+        typeof p === 'string' && (p.includes('<all_urls>') || p.includes('*://*/*'))
+      ));
+    if (hasObfuscation) labels.push({ label: 'Obfuscation', icon: '▶' });
+    if (broadHost) labels.push({ label: 'Broad host access', icon: '◉' });
+    if (hasTrackers) labels.push({ label: 'Trackers', icon: '◐' });
+    return labels;
+  };
+
+  const riskLabels = getRiskLabels();
+
+  // Top 3 findings for Quick Summary preview (one line each)
+  const topThreeFindings = [
+    ...dedupeFindings(allSecurityFindings),
+    ...dedupeFindings(allPrivacyFindings),
+    ...dedupeFindings(allGovernanceFindings),
+  ]
+    .slice(0, 3)
+    .map(f => ({ title: f.title, summary: f.summary }));
+
+  const securityFindingsCount = dedupeFindings(allSecurityFindings).length;
+  const privacyFindingsCount = dedupeFindings(allPrivacyFindings).length;
+  const governanceFindingsCount = dedupeFindings(allGovernanceFindings).length;
+
   // Brief transition: scanResults loaded but viewModel not yet set
   if (!viewModel && scanResults && !normalizationError) {
     return (
@@ -320,150 +358,162 @@ const ScanResultsPageV2 = () => {
     );
   }
 
+  const overallBand = scores?.overall?.band || scores?.security?.band || 'NA';
+  const overallScore = scores?.overall?.score ?? scores?.security?.score ?? 0;
+
   return (
-    <div className="results-v2">
-      {/* Navigation Bar */}
+    <div className="results-v2 results-v2-dashboard">
+      {/* Navigation Bar - Match screenshot: New scan, Share, Save */}
       <nav className="results-v2-nav">
         <Link to="/scan" className="nav-back">
           ← Back
         </Link>
         <div className="nav-actions">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => navigate("/scan")}
-          >
-            New Scan
+          <Button variant="default" size="sm" onClick={() => navigate("/scan")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+            New scan
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigator.clipboard?.writeText(window.location.href)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+            Share
+          </Button>
+          <Button variant="outline" size="sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+              <polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" />
+            </svg>
+            Save
           </Button>
         </div>
       </nav>
 
-      {/* Hero Section - Risk Dial Centered */}
-      <header className="results-v2-hero">
-        {/* Extension Name with Icon - Above Dial */}
-        <div className="hero-extension-info">
-          <div className="hero-header">
-            {showHeroIcon && heroIconUrl && (
-              <img
-                src={heroIconUrl}
-                alt={`${meta?.name || "Extension"} icon`}
-                className="hero-icon"
-                loading="lazy"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = EXTENSION_ICON_PLACEHOLDER;
-                }}
-              />
-            )}
-            <h1 className="hero-title">{meta?.name || "Extension Analysis"}</h1>
-          </div>
-        </div>
-
-        {/* Risk Dial - Centered Focal Point */}
-        <div className="hero-dial-container">
-          <RiskDial 
-            score={scores?.overall?.score ?? scores?.security?.score ?? 0} 
-            band={scores?.overall?.band || scores?.security?.band || 'NA'}
-            label="SAFETY SCORE"
-            decision={scores?.decision}
-            size={320}
-          />
-        </div>
-
-        {/* Extension Metadata - Below Dial */}
-        <div className="hero-metadata">
-          {meta?.users && (
-            <span className="meta-item">
-              <span className="meta-icon">👥</span>
-              {meta.users.toLocaleString()} users
-            </span>
-          )}
-          {meta?.rating && (
-            <span className="meta-item">
-              <span className="meta-icon">⭐</span>
-              {meta.rating.toFixed(1)} rating
-            </span>
-          )}
-          {scanResults?.developer && (
-            <span className="meta-item">
-              <span className="meta-icon">👤</span>
-              {scanResults.developer}
-            </span>
-          )}
-          {meta?.scanTimestamp && (
-            <span className="meta-item meta-item-muted">
-              Scanned {new Date(meta.scanTimestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-            </span>
-          )}
-        </div>
-      </header>
-
       {/* Status Messages */}
       {error && (
-        <StatusMessage
-          type="error"
-          message={error}
-          onDismiss={() => setError("")}
-        />
+        <StatusMessage type="error" message={error} onDismiss={() => setError("")} />
       )}
 
-      {/* Main Content */}
+      {/* Main 2-column Layout: Left (Extension + Quick Summary) | Right (Score + Tiles) */}
       <main className="results-v2-main">
-        {/* Score Cards Row - Clickable tiles */}
-        <section className="scores-section">
-          <ReportScoreCard 
-            title="Security"
-            score={scores?.security?.score}
-            band={scores?.security?.band || 'NA'}
-            confidence={scores?.security?.confidence}
-            contributors={factorsByLayer?.security?.slice(0, 2) || []}
-            onClick={() => scores?.security?.score != null && openLayerModal('security')}
-          />
-          {scores?.privacy?.score != null ? (
-            <ReportScoreCard 
+        <div className="results-v2-grid">
+          {/* Left Column: Extension Card + Quick Summary with Top 3 findings */}
+          <div className="results-v2-left">
+            {/* Extension Details Card - Score donut inside, to the right */}
+            <div className="extension-card">
+              <div className="extension-card-inner">
+                <div className="extension-card-left">
+                  <div className="extension-card-header">
+                    {showHeroIcon && heroIconUrl && (
+                      <img
+                        src={heroIconUrl}
+                        alt=""
+                        className="extension-card-icon"
+                        loading="lazy"
+                        onError={(e) => { e.target.onerror = null; e.target.src = EXTENSION_ICON_PLACEHOLDER; }}
+                      />
+                    )}
+                    <h1 className="extension-card-title">{meta?.name || "Extension Analysis"}</h1>
+                  </div>
+                  <div className="extension-card-details">
+                    <span className="ext-detail">
+                      {showHeroIcon && heroIconUrl && (
+                        <img src={heroIconUrl} alt="" className="ext-detail-icon" onError={(e) => { e.target.style.display = 'none'; }} />
+                      )}
+                      {meta?.name || "Extension"}
+                    </span>
+                    {meta?.users && (
+                      <>
+                        <span className="ext-divider" />
+                        <span className="ext-detail">
+                          <span className="ext-detail-icon">👥</span>
+                          {meta.users.toLocaleString()} users
+                        </span>
+                      </>
+                    )}
+                    {meta?.rating != null && (
+                      <>
+                        <span className="ext-divider" />
+                        <span className="ext-detail">
+                          <span className="ext-detail-icon">⭐</span>
+                          {meta.rating.toFixed(1)} rating
+                        </span>
+                      </>
+                    )}
+                    {meta?.scanTimestamp && (
+                      <>
+                        <span className="ext-divider" />
+                        <span className="ext-detail ext-detail-muted">
+                          <span className="ext-detail-icon">📅</span>
+                          Last scanned {new Date(meta.scanTimestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  {riskLabels.length > 0 && (
+                    <div className="extension-risk-pills">
+                      {riskLabels.map((r, i) => (
+                        <span key={i} className="risk-pill">
+                          <span className="risk-pill-icon">{r.icon}</span>
+                          {r.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="extension-card-score">
+                  <DonutScore
+                    score={overallScore}
+                    band={overallBand}
+                    size={300}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Summary + Top 3 findings */}
+            <SummaryPanel
+              scores={scores}
+              factorsByLayer={factorsByLayer}
+              rawScanResult={scanResults}
+              keyFindings={keyFindings}
+              onViewEvidence={openEvidenceDrawer}
+              topFindings={topThreeFindings}
+              onViewRiskyPermissions={() => openLayerModal('security')}
+              onViewNetworkDomains={() => openLayerModal('privacy')}
+            />
+          </div>
+
+          {/* Right Column: Security/Privacy/Governance cards */}
+          <div className="results-v2-right">
+            <div className="results-v2-sidebar">
+            <ResultsSidebarTile
+              title="Security"
+              score={scores?.security?.score}
+              band={scores?.security?.band || 'NA'}
+              findingsCount={securityFindingsCount}
+              onClick={() => openLayerModal('security')}
+            />
+            <ResultsSidebarTile
               title="Privacy"
-              score={scores.privacy.score}
-              band={scores.privacy.band || 'NA'}
-              confidence={scores.privacy.confidence}
-              contributors={factorsByLayer?.privacy?.slice(0, 2) || []}
+              score={scores?.privacy?.score ?? null}
+              band={scores?.privacy?.band || 'NA'}
+              findingsCount={privacyFindingsCount}
               onClick={() => openLayerModal('privacy')}
             />
-          ) : (
-            <ReportScoreCard 
-              title="Privacy"
-              score={null}
-              band="NA"
-              icon="🔒"
-            />
-          )}
-          {scores?.governance?.score != null ? (
-            <ReportScoreCard 
+            <ResultsSidebarTile
               title="Governance"
-              score={scores.governance.score}
-              band={scores.governance.band || 'NA'}
-              confidence={scores.governance.confidence}
-              contributors={factorsByLayer?.governance?.slice(0, 2) || []}
+              score={scores?.governance?.score ?? null}
+              band={scores?.governance?.band || 'NA'}
+              findingsCount={governanceFindingsCount}
               onClick={() => openLayerModal('governance')}
             />
-          ) : (
-            <ReportScoreCard 
-              title="Governance"
-              score={null}
-              band="NA"
-              icon="📋"
-            />
-          )}
-        </section>
-
-        {/* Summary Panel - Single merged summary with key findings */}
-        <SummaryPanel 
-          scores={scores}
-          factorsByLayer={factorsByLayer}
-          rawScanResult={scanResults}
-          keyFindings={keyFindings}
-          onViewEvidence={openEvidenceDrawer}
-        />
-
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Evidence Drawer - Global, mounted once */}
