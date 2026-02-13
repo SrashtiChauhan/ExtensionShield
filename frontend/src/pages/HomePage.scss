@@ -2014,12 +2014,14 @@
   .hero-desktop-content .hero-grid {
     width: 100%;
     max-width: 100%;
+    min-width: 0; /* allow flex child to shrink so content stays within viewport */
     padding: 2rem 1rem;
   }
 
   .hero-desktop-content .hero-right {
     width: 100%;
     max-width: 100%;
+    min-width: 0; /* allow flex/grid child to shrink so carousel stays within viewport */
     margin: 0 auto;
   }
 
@@ -2363,12 +2365,12 @@
 
 @media (max-width: 480px) {
   .hero-section {
-    padding: calc(var(--atlas-header-height) + 0.75rem) 0.75rem 1.5rem;
+    padding: calc(var(--atlas-header-height) + 0.75rem) 1rem 1.5rem;
     padding-top: 5rem;
   }
 
   .hero-grid {
-    padding: 3rem 0.75rem 3rem;
+    padding: 3rem 1rem 3rem;
     gap: 1.5rem;
   }
 
@@ -2387,7 +2389,7 @@
 
   .stats-bar {
     padding: 0.75rem;
-    margin: 0 0.75rem;
+    margin: 0 1rem;
   }
 
   .stat-value {
@@ -2401,12 +2403,12 @@
 
 @media (max-width: 360px) {
   .hero-section {
-    padding: calc(var(--atlas-header-height) + 0.5rem) 0.5rem 1rem;
+    padding: calc(var(--atlas-header-height) + 0.5rem) 1rem 1rem;
     padding-top: 5rem;
   }
 
   .hero-grid {
-    padding: 2rem 0.5rem 2rem;
+    padding: 2rem 1rem 2rem;
   }
 
   .hero-left .hero-title {

@@ -21,15 +21,24 @@
   transform: rotateY(0deg) !important;
 }
 
-/* Minimal layout: horizontal strip of icons (tablet/mobile) */
+/* Minimal layout: horizontal strip of icons (tablet/mobile)
+   Reference: 682px — centered container, equal padding, nothing chopped.
+   Same behavior at all lower viewports. */
 .hero-orbital-carousel--minimal {
   max-width: 100%;
+  width: 100%;
+  min-width: 0; /* allow flex child to shrink below content size; prevents horizontal overflow */
   gap: 1.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow: hidden; /* clip to container; strip scrolls internally */
 }
 
 .hero-orbital-minimal-hint {
   display: block;
   width: 100%;
+  align-self: stretch;
   text-align: center;
   font-size: 0.625rem;
   font-weight: 600;
@@ -37,6 +46,7 @@
   letter-spacing: 0.12em;
   color: var(--atlas-text-muted);
   opacity: 0.85;
+  flex-shrink: 0;
 }
 
 .hero-orbital-mini-strip {
@@ -45,8 +55,13 @@
   gap: 1rem;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.75rem 1rem;
-  margin: 0 -1rem;
+  padding: 0.75rem 0;
+  margin: 0 16px; /* equal 16px left/right so container is centered (matches reference) */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* allow flex child to shrink so no horizontal page overflow */
+  box-sizing: border-box;
+  justify-content: center;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
