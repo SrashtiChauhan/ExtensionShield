@@ -68,7 +68,7 @@ class TestGetScanResultsUpgrade:
     Given a legacy DB row with scoring_v2 but no report_view_model,
     the API should return a payload that includes report_view_model.consumer_insights.
     """
-    ext_id = "abcdefghijklmnopqrstuvwxzyabcdef"  # 32-char extension id
+    ext_id = "abcdefghijklmnopabcdefghijklmnop"  # 32-char extension id (valid a-p charset)
 
     # Ensure memory cache does not short-circuit the DB path
     scan_results.pop(ext_id, None)

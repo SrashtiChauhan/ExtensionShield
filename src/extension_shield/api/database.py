@@ -7,6 +7,7 @@ Handles persistent storage of scan results, statistics, and history.
 """
 
 import os
+import re
 import sqlite3
 import json
 import uuid
@@ -20,6 +21,24 @@ from extension_shield.core.config import get_settings
 from extension_shield.utils.json_encoder import safe_json_dumps
 
 logger = logging.getLogger(__name__)
+
+
+def _generate_slug(name: str) -> str:
+    """Generate a URL-friendly slug from extension name. Must match frontend slug.js."""
+    if not name:
+        return ""
+    slug = name.lower()
+    slug = re.sub(r"[-–—_/\\|]+", "-", slug)
+    slug = re.sub(r"[^a-z0-9\s-]", "", slug)
+    slug = re.sub(r"\s+", "-", slug)
+    slug = re.sub(r"-+", "-", slug)
+    slug = slug.strip("-")
+    return slug
+
+
+def _is_extension_id(s: str) -> bool:
+    """Check if string is a Chrome extension ID (32 lowercase letters a-p)."""
+    return bool(s and len(s) == 32 and all(c in "abcdefghijklmnop" for c in s))
 
 
 class Database:
@@ -134,6 +153,14 @@ class Database:
             except Exception:
                 # Column already exists, ignore
                 pass
+            try:
+                cursor.execute("ALTER TABLE scan_results ADD COLUMN slug TEXT")
+            except Exception:
+                pass
+            try:
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_results_slug ON scan_results(slug)")
+            except Exception:
+                pass
 
             # Statistics table for aggregated metrics
             cursor.execute(
@@ -229,20 +256,23 @@ class Database:
                 if result.get("virustotal_analysis"):
                     summary_data["virustotal_analysis"] = result.get("virustotal_analysis")
 
+                slug = _generate_slug(extension_name) if extension_name else ""
+
                 cursor.execute(
                     """
                     INSERT OR REPLACE INTO scan_results (
-                        extension_id, extension_name, url, timestamp, status,
+                        extension_id, extension_name, slug, url, timestamp, status,
                         security_score, risk_level, total_findings, total_files,
                         high_risk_count, medium_risk_count, low_risk_count,
                         metadata, manifest, permissions_analysis, sast_results,
                         webstore_analysis, summary, extracted_path, extracted_files,
                         icon_path, icon_base64, icon_media_type, error, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         extension_id,
                         extension_name,
+                        slug,
                         result.get("url"),
                         result.get("timestamp"),
                         result.get("status"),
@@ -424,22 +454,21 @@ class Database:
             print(f"Error getting user scan history: {e}")
             return []
 
-    def get_scan_result(self, extension_id: str) -> Optional[Dict[str, Any]]:
-        """Get scan result by extension ID."""
+    def get_scan_result(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """Get scan result by extension ID or slug. Identifier can be 32-char extension ID or name slug."""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    SELECT * FROM scan_results WHERE extension_id = ?
-                """,
-                    (extension_id,),
-                )
-
+                if _is_extension_id(identifier):
+                    cursor.execute("SELECT * FROM scan_results WHERE extension_id = ?", (identifier,))
+                else:
+                    cursor.execute(
+                        """SELECT * FROM scan_results WHERE slug = ? ORDER BY timestamp DESC LIMIT 1""",
+                        (identifier,),
+                    )
                 row = cursor.fetchone()
                 if not row:
                     return None
-
                 return self._row_to_dict(row)
         except Exception as e:
             print(f"Error getting scan result: {e}")
@@ -555,11 +584,12 @@ class Database:
                     cursor.execute(
                         """
                         SELECT 
-                            extension_id, extension_name, timestamp,
+                            extension_id, extension_name, slug, timestamp,
                             security_score, risk_level, total_findings,
                             total_files, metadata, 
                             sast_results, permissions_analysis, manifest, 
-                            webstore_analysis, summary
+                            webstore_analysis, summary,
+                            icon_base64, icon_media_type
                         FROM scan_results
                         WHERE status = 'completed'
                           AND (extension_name LIKE ? OR extension_id LIKE ?)
@@ -572,11 +602,12 @@ class Database:
                     cursor.execute(
                         """
                         SELECT 
-                            extension_id, extension_name, timestamp,
+                            extension_id, extension_name, slug, timestamp,
                             security_score, risk_level, total_findings,
                             total_files, metadata, 
                             sast_results, permissions_analysis, manifest, 
-                            webstore_analysis, summary
+                            webstore_analysis, summary,
+                            icon_base64, icon_media_type
                         FROM scan_results
                         WHERE status = 'completed'
                         ORDER BY timestamp DESC
@@ -873,9 +904,11 @@ class SupabaseDatabase:
             if result.get("virustotal_analysis"):
                 summary_data["virustotal_analysis"] = result.get("virustotal_analysis")
             
+            slug = _generate_slug(extension_name) if extension_name else ""
             row = {
                 "extension_id": extension_id,
                 "extension_name": extension_name,
+                "slug": slug,
                 "url": result.get("url"),
                 "scanned_at": scanned_at,  # Last scan time (always updated)
                 "first_scanned_at": first_scanned_at,
@@ -1042,15 +1075,26 @@ class SupabaseDatabase:
             print(f"Error getting user scan history (Supabase): {e}")
             return []
 
-    def get_scan_result(self, extension_id: str) -> Optional[Dict[str, Any]]:
+    def get_scan_result(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """Get scan result by extension ID or slug. Identifier can be 32-char extension ID or name slug."""
         try:
-            resp = (
-                self.client.table(self.table_scan_results)
-                .select("*")
-                .eq("extension_id", extension_id)
-                .limit(1)
-                .execute()
-            )
+            if _is_extension_id(identifier):
+                resp = (
+                    self.client.table(self.table_scan_results)
+                    .select("*")
+                    .eq("extension_id", identifier)
+                    .limit(1)
+                    .execute()
+                )
+            else:
+                resp = (
+                    self.client.table(self.table_scan_results)
+                    .select("*")
+                    .eq("slug", identifier)
+                    .order("scanned_at", desc=True)
+                    .limit(1)
+                    .execute()
+                )
             data = getattr(resp, "data", None) or []
             if not data:
                 return None
@@ -1129,7 +1173,7 @@ class SupabaseDatabase:
         try:
             q = (
                 self.client.table(self.table_scan_results)
-                .select("extension_id, extension_name, scanned_at, created_at, updated_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary")
+                .select("extension_id, extension_name, slug, scanned_at, created_at, updated_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary, icon_base64, icon_media_type")
                 .eq("status", "completed")
                 .order("scanned_at", desc=True)
             )

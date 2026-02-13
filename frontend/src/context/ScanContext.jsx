@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
 import { normalizeExtensionId } from "../utils/extensionId";
+import { getScanResultsRoute } from "../utils/slug";
 import { useAuth } from "./AuthContext";
 
 const ScanContext = createContext(null);
@@ -335,7 +336,7 @@ export const ScanProvider = ({ children }) => {
   }, [navigate, waitForScanCompletion, loadScanHistory, loadDashboardStats, isAuthenticated, openSignInModal]);
 
   // Load scan from history (single API: realScanService.getRealScanResults)
-  const loadScanFromHistory = useCallback(async (extId) => {
+  const loadScanFromHistory = useCallback(async (extId, extensionName) => {
     try {
       const data = await realScanService.getRealScanResults(extId);
       if (!data) {
@@ -345,7 +346,8 @@ export const ScanProvider = ({ children }) => {
       setScanResults(data);
       setCurrentExtensionId(extId);
       setError("");
-      navigate(`/scan/results/${extId}`);
+      const route = getScanResultsRoute(extId, extensionName || data?.extension_name);
+      navigate(route);
     } catch (err) {
       setError("Failed to load scan results from history.");
     }

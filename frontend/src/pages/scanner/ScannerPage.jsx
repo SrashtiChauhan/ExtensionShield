@@ -11,6 +11,7 @@ import {
 } from "../../utils/signalMapper";
 import { enrichScans } from "../../utils/scanEnrichment";
 import { EXTENSION_ICON_PLACEHOLDER, getExtensionIconUrl } from "../../utils/constants";
+import { getScanResultsRoute } from "../../utils/slug";
 import SEOHead from "../../components/SEOHead";
 import "./ScannerPage.scss";
 
@@ -463,8 +464,9 @@ const ScannerPage = () => {
   }, [allScans, sortConfig]);
 
   // View existing scan report - no auth required (only scanning new extensions requires login)
-  const handleViewReport = (extId) => {
-    navigate(`/scan/results/${extId}`);
+  const handleViewReport = (scan) => {
+    const route = getScanResultsRoute(scan.extension_id, scan.extension_name);
+    navigate(route);
   };
 
   const handleMonitor = (extId) => {
@@ -472,11 +474,12 @@ const ScannerPage = () => {
     navigate("/enterprise");
   };
 
-  const handleCopyLink = async (extId) => {
-    const link = `${window.location.origin}/scan/results/${extId}`;
+  const handleCopyLink = async (scan) => {
+    const route = getScanResultsRoute(scan.extension_id, scan.extension_name);
+    const link = `${window.location.origin}${route}`;
     try {
       await navigator.clipboard.writeText(link);
-      setCopiedId(extId);
+      setCopiedId(scan.extension_id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       // console.error("Failed to copy:", err); // prod: no console
@@ -744,7 +747,7 @@ const ScannerPage = () => {
                             </span>
                             <button
                               className="view-report-btn"
-                              onClick={() => handleViewReport(scan.extension_id)}
+                              onClick={() => handleViewReport(scan)}
                             >
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -756,9 +759,9 @@ const ScannerPage = () => {
                           <RowActions
                             scan={scan}
                             showActions={hoveredRow === scan.extension_id}
-                            onViewReport={() => handleViewReport(scan.extension_id)}
+                            onViewReport={() => handleViewReport(scan)}
                             onMonitor={() => handleMonitor(scan.extension_id)}
-                            onCopyLink={() => handleCopyLink(scan.extension_id)}
+                            onCopyLink={() => handleCopyLink(scan)}
                           />
                           {copiedId === scan.extension_id && (
                             <span className="copied-toast">Copied!</span>

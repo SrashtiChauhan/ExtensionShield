@@ -37,7 +37,7 @@ from extension_shield.core.report_generator import ReportGenerator
 
 from extension_shield.workflow.graph import build_graph
 from extension_shield.workflow.state import WorkflowState, WorkflowStatus
-from extension_shield.api.database import db, SupabaseDatabase
+from extension_shield.api.database import db, SupabaseDatabase, _is_extension_id
 from extension_shield.api.supabase_auth import get_current_user_id as _get_current_user_id
 from extension_shield.core.config import get_settings
 from extension_shield.api.csp_middleware import CSPMiddleware
@@ -2562,29 +2562,32 @@ async def get_scan_status(extension_id: str) -> ScanStatusResponse:
     )
 
 
-@app.get("/api/scan/results/{extension_id}")
-async def get_scan_results(extension_id: str, http_request: Request):
+@app.get("/api/scan/results/{identifier}")
+async def get_scan_results(identifier: str, http_request: Request):
     """
     Get the results of a completed scan.
 
     Args:
-        extension_id: Chrome extension ID
+        identifier: Chrome extension ID (32 chars a-p) or extension name slug (e.g. "session-buddy")
 
     Returns:
         Complete scan results
     """
-    logger.info("[DEBUG get_scan_results] extension_id=%s", extension_id)
-    
+    logger.info("[DEBUG get_scan_results] identifier=%s", identifier)
+
+    # Resolve identifier to extension_id for memory/file lookups
+    extension_id = identifier if _is_extension_id(identifier) else None
+
     # Authorization: logged-in users may view any completed scan.
     # Only block if an *in-progress* scan belongs to a *different* user.
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
-    if user_id:
+    if user_id and extension_id:
         scan_owner = scan_user_ids.get(extension_id)
         if scan_owner and scan_owner != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
-    
-    # Try memory first
-    if extension_id in scan_results:
+
+    # Try memory first (only when identifier is extension_id)
+    if extension_id and extension_id in scan_results:
         logger.info("[DEBUG get_scan_results] Using memory cache path")
         payload = scan_results[extension_id]
         # Upgrade legacy payload and ensure consumer_insights
@@ -2596,10 +2599,11 @@ async def get_scan_results(extension_id: str, http_request: Request):
         _log_get_scan_results_return_shape("memory", payload)
         return payload
 
-    # Try loading from database
+    # Try loading from database (accepts extension_id or slug)
     logger.info("[DEBUG get_scan_results] Trying database path")
-    results = db.get_scan_result(extension_id)
+    results = db.get_scan_result(identifier)
     if results:
+        extension_id = results.get("extension_id") or extension_id
         logger.info("[DEBUG get_scan_results] Database row exists: %s", bool(results))
         # Ensure consistent field naming for frontend
         formatted_results: Dict[str, Any] = {
@@ -2647,9 +2651,11 @@ async def get_scan_results(extension_id: str, http_request: Request):
         _log_get_scan_results_return_shape("db", payload)
         return payload
     else:
-        logger.warning("[DEBUG get_scan_results] Database row does NOT exist for extension_id=%s", extension_id)
+        logger.warning("[DEBUG get_scan_results] Database row does NOT exist for identifier=%s", identifier)
 
-    # Try loading from file (fallback)
+    # Try loading from file (fallback; only when identifier is extension_id)
+    if not extension_id:
+        raise HTTPException(status_code=404, detail="Scan results not found")
     logger.info("[DEBUG get_scan_results] Trying file path")
     result_file = RESULTS_DIR / f"{extension_id}_results.json"
     if result_file.exists():
@@ -2676,7 +2682,7 @@ async def get_scan_results(extension_id: str, http_request: Request):
     else:
         logger.warning("[DEBUG get_scan_results] File does NOT exist: %s", result_file)
 
-    logger.error("[DEBUG get_scan_results] No results found in memory, DB, or file for extension_id=%s", extension_id)
+    logger.error("[DEBUG get_scan_results] No results found in memory, DB, or file for identifier=%s", identifier)
     raise HTTPException(status_code=404, detail="Scan results not found")
 
 

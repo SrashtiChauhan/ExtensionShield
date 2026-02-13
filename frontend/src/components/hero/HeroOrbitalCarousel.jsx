@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import extensionCacheService from "../../services/extensionCacheService";
-import { EXTENSION_ICON_PLACEHOLDER } from "../../utils/constants";
-import { HERO_SNAPSHOT, getHeroIconUrl } from "../../data/heroSnapshot";
+import { EXTENSION_ICON_PLACEHOLDER, getExtensionIconUrl } from "../../utils/constants";
+import { HERO_SNAPSHOT } from "../../data/heroSnapshot";
+import { getScanResultsRoute } from "../../utils/slug";
 import "./HeroOrbitalCarousel.scss";
 
 const VIEWPORT_COMPACT = 1024;
@@ -35,19 +36,35 @@ function mapSignal(signal, fallbackLabel = "—") {
 }
 
 function simplifyScan(scan) {
-  const security = mapSignal(scan?.signals?.security_signal, "Security");
-  const privacy = mapSignal(scan?.signals?.privacy_signal, "Privacy");
-  const governance = mapSignal(scan?.signals?.governance_signal, "Governance");
+  // Handle both DB format (signals.security_signal) and static snapshot format (security directly)
+  const security = scan?.security?.level 
+    ? scan.security 
+    : mapSignal(scan?.signals?.security_signal, "Security");
+  const privacy = scan?.privacy?.level 
+    ? scan.privacy 
+    : mapSignal(scan?.signals?.privacy_signal, "Privacy");
+  const governance = scan?.governance?.level 
+    ? scan.governance 
+    : mapSignal(scan?.signals?.governance_signal, "Governance");
 
   return {
     extensionId: scan?.extension_id || scan?.id || scan?.extensionId,
+    extension_id: scan?.extension_id || scan?.extensionId,
     name: scan?.name || scan?.extension_name || scan?.metadata?.name || "Extension",
+    extension_name: scan?.extension_name || scan?.name || scan?.extensionId,
+    slug: scan?.slug,
+    icon_base64: scan?.icon_base64,
+    icon_media_type: scan?.icon_media_type || "image/png",
+    isStatic: scan?.isStatic || false, // Preserve static flag
     security,
     privacy,
     governance,
-    lastAnalyzed: scan?.last_scanned_at
-      ? new Date(scan.last_scanned_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      : "Recently",
+    lastAnalyzed: scan?.lastAnalyzed // Static snapshot already has formatted time
+      || (scan?.last_scanned_at
+        ? new Date(scan.last_scanned_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : scan?.timestamp
+          ? new Date(scan.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          : "Recently"),
   };
 }
 
@@ -57,19 +74,47 @@ function getOverallStatus(scan) {
   return "safe";
 }
 
+/**
+ * Checks if extensionId looks like a real Chrome extension ID (32 lowercase a-p).
+ */
+function isRealExtensionId(id) {
+  return id && id.length === 32 && /^[a-p]+$/.test(id);
+}
+
+/**
+ * Get icon source for a scan. Strategy:
+ * 1. icon_base64 from DB → instant data URL
+ * 2. Real extension ID (32-char) → check cache, else API URL
+ * 3. Static snapshot (slug-like ID) → placeholder (no network, instant render)
+ */
+function getIconSrc(scan) {
+  // 1. DB provides icon_base64 → use data URL (instant, no network)
+  if (scan?.icon_base64) {
+    const mediaType = scan.icon_media_type || "image/png";
+    return `data:${mediaType};base64,${scan.icon_base64}`;
+  }
+  
+  const extensionId = scan?.extensionId || scan?.extension_id;
+  
+  // 2. Real extension ID (from DB) → check cache or use API
+  if (extensionId && isRealExtensionId(extensionId)) {
+    const cached = extensionCacheService.getIconUrl(extensionId);
+    if (cached && cached !== EXTENSION_ICON_PLACEHOLDER) return cached;
+    return getExtensionIconUrl(extensionId);
+  }
+  
+  // 3. Static snapshot item (slug-like ID) → placeholder (instant, no network request)
+  return EXTENSION_ICON_PLACEHOLDER;
+}
+
 function FocusCard({ scan, isVisible }) {
-  const extensionId = scan?.extensionId;
-  const staticIconUrl = extensionId ? getHeroIconUrl(extensionId) : "";
-  const apiIconUrl = extensionId ? extensionCacheService.getIconUrl(extensionId) : EXTENSION_ICON_PLACEHOLDER;
-  const detailsHref = extensionId ? `/scan/results/${encodeURIComponent(extensionId)}` : null;
+  const extensionId = scan?.extensionId || scan?.extension_id;
+  const iconSrc = getIconSrc(scan);
+  const detailsHref = extensionId ? getScanResultsRoute(extensionId, scan?.name || scan?.extension_name) : null;
 
   const handleIconError = (e) => {
     e.target.onerror = null;
-    if (e.target.src === staticIconUrl) {
-      e.target.src = apiIconUrl;
-    } else {
-      e.target.src = EXTENSION_ICON_PLACEHOLDER;
-    }
+    e.target.src = EXTENSION_ICON_PLACEHOLDER;
   };
 
   return (
@@ -84,7 +129,7 @@ function FocusCard({ scan, isVisible }) {
     >
       <div className="hero-orbital-focus-icon-wrap">
         <div className="hero-orbital-focus-icon">
-          <img src={staticIconUrl || apiIconUrl} alt="" onError={handleIconError} />
+          <img src={iconSrc} alt="" onError={handleIconError} />
         </div>
         <div className="hero-orbital-focus-title-row">
           <p className="hero-orbital-focus-label">{scan?.name || "Extension"}</p>
@@ -169,17 +214,11 @@ function computeDepth(ringAngleDeg, index, cardCount, tiltDeg, maxOpacity = 1) {
 }
 
 function OrbitIcon({ scan, depth, isSelected, isHovered, interactive = true, compact = false, onClick, onHoverStart, onHoverEnd }) {
-  const extensionId = scan?.extensionId || scan?.extension_id;
-  const staticIconUrl = extensionId ? getHeroIconUrl(extensionId) : "";
-  const apiIconUrl = extensionId ? extensionCacheService.getIconUrl(extensionId) : EXTENSION_ICON_PLACEHOLDER;
+  const iconSrc = getIconSrc(scan);
 
   const handleIconError = (e) => {
     e.target.onerror = null;
-    if (e.target.src === staticIconUrl) {
-      e.target.src = apiIconUrl;
-    } else {
-      e.target.src = EXTENSION_ICON_PLACEHOLDER;
-    }
+    e.target.src = EXTENSION_ICON_PLACEHOLDER;
   };
   const scale = depth?.scale ?? 1;
   const opacity = depth?.opacity ?? 1;
@@ -205,7 +244,7 @@ function OrbitIcon({ scan, depth, isSelected, isHovered, interactive = true, com
   const content = (
     <>
       <div className={`hero-orbit-icon__ring ${isSelected ? "hero-orbit-icon__ring--active" : ""}`}>
-        <img src={staticIconUrl || apiIconUrl} alt="" onError={handleIconError} />
+        <img src={iconSrc} alt="" onError={handleIconError} />
       </div>
       {interactive && isHovered && opacity >= 0.6 && (
         <div className="hero-orbit-icon__tooltip">
@@ -373,25 +412,57 @@ export default function HeroOrbitalCarousel() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Hero uses static snapshot for instant load (no API wait). Icons from /hero-icons/*.png.
-  // Optional: prefill extension cache for other pages by fetching in background (does not block hero).
+  /**
+   * Hybrid hero data strategy:
+   * 1. HERO_SNAPSHOT renders instantly (placeholder icons, no network)
+   * 2. Check sessionStorage cache first (persists across page navigations)
+   * 3. If no cache, fetch from API in background (slow ~5-20s due to Supabase)
+   * 4. Cache result for fast subsequent loads
+   */
   useEffect(() => {
     let cancelled = false;
+    const CACHE_KEY = "hero_carousel_scans";
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
     (async () => {
       try {
+        // 1. Check sessionStorage cache first (instant)
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try {
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_TTL && data?.length > 0) {
+              const simplified = data.map(simplifyScan).filter((s) => s.extensionId).slice(0, MAX_SCANS);
+              if (simplified.length > 0 && !cancelled) {
+                setScans(simplified);
+                extensionCacheService.set(simplified, () => setIconCacheVersion((v) => v + 1));
+                return; // Cache hit - no need to fetch
+              }
+            }
+          } catch {
+            // Invalid cache, continue to fetch
+          }
+        }
+
+        // 2. No valid cache - fetch from API (background, may be slow)
         const { default: databaseService } = await import("../../services/databaseService");
-        const { enrichScans } = await import("../../utils/scanEnrichment");
         const recent = await databaseService.getRecentScans(MAX_SCANS);
         if (cancelled || !recent?.length) return;
-        const enriched = await enrichScans(recent);
-        const simplified = enriched.map(simplifyScan).filter((s) => s.extensionId).slice(0, MAX_SCANS);
-        if (!cancelled && simplified.length > 0) {
-          extensionCacheService.set(simplified, () => setIconCacheVersion((v) => v + 1));
-        }
+
+        // 3. Cache the response for fast subsequent loads
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data: recent, timestamp: Date.now() }));
+
+        // 4. Update state
+        const simplified = recent.map(simplifyScan).filter((s) => s.extensionId).slice(0, MAX_SCANS);
+        if (cancelled || simplified.length === 0) return;
+
+        setScans(simplified);
+        extensionCacheService.set(simplified, () => setIconCacheVersion((v) => v + 1));
       } catch {
-        // Hero already shows snapshot; cache prefill is best-effort
+        // Hero keeps HERO_SNAPSHOT on error
       }
     })();
+
     return () => { cancelled = true; };
   }, []);
 

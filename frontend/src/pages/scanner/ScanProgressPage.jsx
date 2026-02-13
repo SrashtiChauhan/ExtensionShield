@@ -5,6 +5,7 @@ import RocketGame from "../../components/RocketGame";
 import { useScan } from "../../context/ScanContext";
 import { EXTENSION_ICON_PLACEHOLDER, getExtensionIconUrl } from "../../utils/constants";
 import realScanService from "../../services/realScanService";
+import { getScanResultsRoute } from "../../utils/slug";
 import ScanHUD from "../../components/ScanHUD";
 import { normalizeExtensionId } from "../../utils/extensionId";
 import { logger } from "../../utils/logger";
@@ -397,11 +398,10 @@ const ScanProgressPage = () => {
   const handleViewResults = () => {
     setUserExited(true);
     setShowCompletionModal(false);
-    if (scanResults?.extension_id) {
-      navigate(`/scan/results/${scanResults.extension_id}`, { replace: true });
-    } else {
-      navigate(`/scan/results/${scanId}`, { replace: true });
-    }
+    const extId = scanResults?.extension_id || scanId;
+    const extName = scanResults?.extension_name;
+    const route = getScanResultsRoute(extId, extName);
+    if (route) navigate(route, { replace: true });
   };
 
   // Handle error modal dismissal

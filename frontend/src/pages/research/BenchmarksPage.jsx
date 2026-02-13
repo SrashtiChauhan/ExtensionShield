@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { TrendChart, SourcesBox } from "../../components/benchmarks";
+import { getScanResultsRoute } from "../../utils/slug";
 import "./BenchmarksPage.scss";
 
 const BenchmarksPage = () => {
@@ -419,7 +420,7 @@ const BenchmarksPage = () => {
                   <p className="recommendation-reason">{rec.reason}</p>
                   <div className="recommendation-actions">
                     <a 
-                      href={rec.reportUrl || (rec.extensionId ? `/scan/results/${rec.extensionId}` : "#")} 
+                      href={rec.reportUrl || (rec.extensionId ? getScanResultsRoute(rec.extensionId, rec.name) : "#")} 
                       className="recommendation-link primary"
                     >
                       View report →

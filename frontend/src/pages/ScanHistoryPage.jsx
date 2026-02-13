@@ -8,6 +8,7 @@ import {
 } from "../utils/signalMapper";
 import { enrichScans } from "../utils/scanEnrichment";
 import { EXTENSION_ICON_PLACEHOLDER, getExtensionIconUrl } from "../utils/constants";
+import { getScanResultsRoute } from "../utils/slug";
 import SEOHead from "../components/SEOHead";
 import "./ScanHistoryPage.scss";
 
@@ -365,15 +366,17 @@ const ScanHistoryPage = () => {
   const totalPages = Math.ceil(filteredScans.length / rowsPerPage);
 
   // View existing scan report - no auth required (only scanning new extensions requires login)
-  const handleViewReport = (extId) => {
-    navigate(`/scan/results/${extId}`);
+  const handleViewReport = (scan) => {
+    const route = getScanResultsRoute(scan.extension_id, scan.extension_name);
+    navigate(route);
   };
 
-  const handleCopyLink = async (extId) => {
-    const link = `${window.location.origin}/scan/results/${extId}`;
+  const handleCopyLink = async (scan) => {
+    const route = getScanResultsRoute(scan.extension_id, scan.extension_name);
+    const link = `${window.location.origin}${route}`;
     try {
       await navigator.clipboard.writeText(link);
-      setCopiedId(extId);
+      setCopiedId(scan.extension_id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       // console.error("Failed to copy:", err); // prod: no console
@@ -617,7 +620,7 @@ const ScanHistoryPage = () => {
                           </span>
                           <button
                             className="view-report-btn"
-                            onClick={() => handleViewReport(scan.extension_id)}
+                            onClick={() => handleViewReport(scan)}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -627,7 +630,7 @@ const ScanHistoryPage = () => {
                           </button>
                           <button
                             className="copy-link-btn"
-                            onClick={() => handleCopyLink(scan.extension_id)}
+                            onClick={() => handleCopyLink(scan)}
                             title="Copy share link"
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
