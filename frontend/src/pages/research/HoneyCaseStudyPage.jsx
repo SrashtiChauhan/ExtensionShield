@@ -24,10 +24,6 @@ const HoneyCaseStudyPage = () => {
       />
 
       <div className="honey-case-study-page">
-        <div className="honey-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <div className="honey-content">
           {/* Breadcrumb */}
           <nav className="breadcrumb">

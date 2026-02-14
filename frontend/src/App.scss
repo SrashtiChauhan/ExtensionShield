@@ -41,7 +41,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background: var(--atlas-bg-primary) !important;
+  background: transparent;
   color: var(--atlas-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -49,11 +49,11 @@ body {
 }
 
 /* ============================================================================
-   APP CONTAINER
+   APP CONTAINER - transparent so AppBackground shows through
    ============================================================================ */
 .atlas-app {
   min-height: 100vh;
-  background: var(--atlas-bg-primary);
+  background: transparent;
   color: var(--atlas-text-primary);
   position: relative;
   overflow-x: hidden;
@@ -61,8 +61,35 @@ body {
   flex-direction: column;
 }
 
+/* Per-route accent overlays (AppBackground uses these) */
+.atlas-app[data-route="home"] {
+  --accentHue: 270;
+  --overlayOpacity: 0.15;
+  --starsOpacity: 0.8;
+}
+.atlas-app[data-route="scan"] {
+  --accentHue: 270;
+  --overlayOpacity: 0.12;
+  --starsOpacity: 0.7;
+}
+.atlas-app[data-route="research"] {
+  --accentHue: 270;
+  --overlayOpacity: 0.12;
+  --starsOpacity: 0.7;
+}
+.atlas-app[data-route="resources"] {
+  --accentHue: 270;
+  --overlayOpacity: 0.1;
+  --starsOpacity: 0.65;
+}
+.atlas-app[data-route="default"] {
+  --accentHue: 270;
+  --overlayOpacity: 0.1;
+  --starsOpacity: 0.6;
+}
+
 /* ============================================================================
-   HEADER STYLES
+   HEADER - transparent / subtle glass to blend with AppBackground (no seam)
    ============================================================================ */
 .atlas-header {
   position: fixed;
@@ -71,8 +98,11 @@ body {
   right: 0;
   z-index: 1000;
   height: var(--atlas-header-height);
-  /* Always reserve border so no flash when toggling; only color transitions */
+  background-color: transparent;
   border-bottom: 1px solid transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   transition:
     background-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     border-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -83,15 +113,17 @@ body {
     background-color: transparent;
     border-bottom-color: transparent;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow: none;
   }
 
+  /* On scroll: very subtle glass (same underlying background, no seam) */
   &.solid {
-    background-color: rgba(13, 20, 36, 0.95);
+    background-color: rgba(13, 20, 36, 0.04);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom-color: var(--atlas-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-bottom-color: rgba(148, 163, 184, 0.06);
+    box-shadow: none;
   }
 }
 
@@ -135,11 +167,22 @@ body {
 
   &:hover {
     opacity: 0.9;
-    
-    .header-logo-img {
+
+    .header-logo-shield {
       transform: scale(1.05);
     }
   }
+}
+
+/* Green shield logo (ShieldLogo component) – single source of truth for brand icon */
+.header-logo-shield {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
 .header-logo-img {
@@ -813,6 +856,8 @@ body {
    MAIN CONTENT
    ============================================================================ */
 .atlas-main {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;

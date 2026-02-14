@@ -411,6 +411,7 @@ const ScanResultsPageV2 = () => {
           <div className="results-v2-left">
             {/* Extension Details Card - Score donut inside, to the right */}
             <div className="extension-card">
+              <ResultFeedback scanId={scanId} />
               <div className="extension-card-inner">
                 <div className="extension-card-left">
                   <div className="extension-card-header">
@@ -479,8 +480,6 @@ const ScanResultsPageV2 = () => {
                   />
                 </div>
               </div>
-              {/* Per-scan feedback */}
-              <ResultFeedback scanId={scanId} />
             </div>
 
             {/* Quick Summary + Top 3 findings */}

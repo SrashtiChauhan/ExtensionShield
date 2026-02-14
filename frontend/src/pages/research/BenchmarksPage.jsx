@@ -99,11 +99,6 @@ const BenchmarksPage = () => {
       />
 
       <div className="benchmarks-page">
-        <div className="benchmarks-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         <div className="benchmarks-content">
           {/* Hero Section */}
           <header className="benchmarks-header">

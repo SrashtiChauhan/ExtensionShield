@@ -15,11 +15,6 @@ const ContributePage = () => {
       />
 
       <div className="contribute-page">
-        <div className="contribute-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         <div className="contribute-content">
           <header className="contribute-header">
             <h1>Everyone Can Contribute</h1>

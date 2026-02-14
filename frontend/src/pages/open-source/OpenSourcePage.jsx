@@ -14,10 +14,6 @@ const OpenSourcePage = () => {
       />
 
       <div className="open-source-page">
-        <div className="open-source-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <RainfallDroplets />
 
         <div className="open-source-content">

@@ -43,13 +43,6 @@ const CommunityLandingPage = () => {
       />
 
       <div className="community-landing-page">
-        {/* Animated background */}
-        <div className="community-landing-bg" aria-hidden>
-          <div className="community-bg-gradient" />
-          <div className="community-bg-mesh" />
-          <div className="community-bg-grid" />
-        </div>
-
         <RainfallDroplets />
 
         <div className="community-landing-content">

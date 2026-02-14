@@ -86,12 +86,6 @@ const ReportsPage = () => {
         noindex
       />
       <div className="reports-page">
-      {/* Background Effects */}
-      <div className="reports-bg-effects">
-        <div className="reports-bg-gradient reports-gradient-1" />
-        <div className="reports-bg-gradient reports-gradient-2" />
-      </div>
-
       {/* Content */}
       <div className="reports-content">
         {/* Header */}

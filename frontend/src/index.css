@@ -141,6 +141,21 @@
 }
 
 /* ============================================================================
+   OPTIONAL: Lighter dark background (same hue, less heavy)
+   Use data-theme="dark-lighter" on <html> to enable. WCAG AA preserved.
+   ============================================================================ */
+[data-theme="dark-lighter"] {
+  --atlas-bg-primary: #131b2e;
+  --atlas-bg-secondary: #161f33;
+  --color-background: 222 42% 12%;
+  --color-surface: 222 42% 14%;
+  --color-surface-elevated: 222 42% 16%;
+  --color-surface-hover: 222 42% 18%;
+  --color-card: 222 42% 14%;
+  --color-input: 222 42% 12%;
+}
+
+/* ============================================================================
    LIGHT MODE THEME
    ============================================================================ */
 .light {
@@ -356,11 +371,11 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0d1424 !important;
+  background: var(--atlas-bg-primary, #0d1424);
 }
 
 body {
-  background: #0d1424 !important;
+  background: transparent;
   color: hsl(var(--color-foreground)) !important;
   font-family: var(--font-sans);
   font-size: 16px;
@@ -370,7 +385,7 @@ body {
 }
 
 #root {
-  background: #0d1424 !important;
+  background: transparent;
 }
 
 /* ============================================================================
@@ -383,14 +398,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: var(--atlas-bg-secondary);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.22);
   border-radius: 5px;
-  border: 2px solid #111827;
+  border: 2px solid var(--atlas-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb:hover {

@@ -15,11 +15,6 @@ const ResearchPage = () => {
       />
 
       <div className="research-page">
-        <div className="research-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         <div className="research-content">
           <header className="research-header">
             <span className="research-badge">Research Hub</span>

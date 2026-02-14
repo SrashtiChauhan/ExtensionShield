@@ -241,15 +241,6 @@ const HomePage = () => {
           className="hero-section"
           aria-label="Chrome Extension Scanner"
         >
-          {/* Background Effects - cosmic star texture */}
-          <div className="hero-bg">
-            <div className="bg-gradient" />
-            <div className="bg-grid" />
-            <div className="bg-stars" aria-hidden="true" />
-            <div className="bg-glow glow-1" />
-            <div className="bg-glow glow-2" />
-          </div>
-
           {/* Mobile/tablet: scanner not supported — show idea + "Check on desktop" */}
           <div className="hero-mobile-message">
             <p className="hero-tagline">Chrome Extension Scanner</p>

@@ -25,7 +25,7 @@
    ============================================================================ */
 .home-page {
   min-height: 100vh;
-  background: var(--atlas-bg-primary);
+  background: transparent;
   color: var(--atlas-text-primary);
   overflow-x: hidden;
   font-family: var(--font-sans);
@@ -1899,7 +1899,7 @@
 .home-footer {
   padding: 2.5rem 2rem;
   border-top: 1px solid var(--atlas-border);
-  background: var(--atlas-bg-primary);
+  background: transparent;
 }
 
 .footer-content {
@@ -1977,9 +1977,14 @@
     display: none !important;
   }
 
-  .hero-desktop-content .stats-bar,
-  .hero-desktop-content .scroll-cue {
+  .hero-desktop-content .stats-bar {
     display: none !important;
+  }
+
+  /* Keep scroll cue visible below tablet with same bounce animation */
+  .hero-desktop-content .scroll-cue {
+    display: flex !important;
+    margin-top: 1rem;
   }
 
   .hero-desktop-content .hero-grid {
@@ -2134,10 +2139,12 @@
     order: 4;
     padding: 0.5rem 1rem;
     font-size: 0.8125rem;
-    
+    margin-top: 0.5rem;
+
     svg {
       width: 18px;
       height: 18px;
+      animation: bounceDown 2s ease-in-out infinite;
     }
   }
 
@@ -2361,6 +2368,17 @@
   .stats-bar {
     padding: 0.75rem;
     margin: 0 1rem;
+  }
+
+  .scroll-cue {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      animation: bounceDown 2s ease-in-out infinite;
+    }
   }
 
   .stat-value {

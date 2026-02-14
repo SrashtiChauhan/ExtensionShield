@@ -13,10 +13,6 @@ const CommunityPage = () => {
       />
 
       <div className="community-page">
-        <div className="community-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <div className="community-content">
           <header className="community-header">
             <h1>Join the Community</h1>

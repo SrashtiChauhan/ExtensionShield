@@ -9,6 +9,7 @@ import { topNavItems, megaMenuConfig, userMenuItems } from "./nav/navigation";
 import SignInModal from "./components/SignInModal";
 import ShieldLogo from "./components/ShieldLogo";
 import Footer from "./components/Footer";
+import AppBackground from "./components/AppBackground";
 import { trackPageView } from "./services/telemetryService";
 import "./App.scss";
 
@@ -445,11 +446,9 @@ function AppHeader() {
     <header className={`atlas-header ${headerClass}`}>
       <div className="header-container">
         <NavLink to="/" className="header-logo" onClick={() => setMobileMenuOpen(false)}>
-          <img
-            src="/logo.png"
-            alt="ExtensionShield Logo"
-            className="header-logo-img"
-          />
+          <div className="header-logo-shield" aria-hidden="true">
+            <ShieldLogo size={48} />
+          </div>
           <span className="logo-text">ExtensionShield</span>
         </NavLink>
 
@@ -557,10 +556,23 @@ function TelemetryTracker() {
   return null;
 }
 
+// Derive route segment for background CSS variables
+function getRouteSegment(pathname) {
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/scan")) return "scan";
+  if (pathname.startsWith("/research")) return "research";
+  if (pathname.startsWith("/open-source") || pathname.startsWith("/contribute") || pathname.startsWith("/glossary") || pathname.startsWith("/gsoc") || pathname.startsWith("/community") || pathname.startsWith("/about")) return "resources";
+  return "default";
+}
+
 // App Content Component
 function AppContent() {
+  const location = useLocation();
+  const routeSegment = getRouteSegment(location.pathname);
+
   return (
-    <div className="atlas-app">
+    <div className="atlas-app" data-route={routeSegment}>
+      <AppBackground />
       <AppHeader />
       <SignInModal />
       <TelemetryTracker />

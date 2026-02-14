@@ -24,10 +24,6 @@ const BlogPage = () => {
       />
 
       <div className="blog-page">
-        <div className="blog-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <div className="blog-content">
           <header className="blog-header">
             <h1>Blog</h1>

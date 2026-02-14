@@ -14,11 +14,6 @@ const MethodologyPage = () => {
       />
 
       <div className="methodology-page">
-        <div className="methodology-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         <div className="methodology-content">
           {/* Breadcrumb */}
           <nav className="breadcrumb">

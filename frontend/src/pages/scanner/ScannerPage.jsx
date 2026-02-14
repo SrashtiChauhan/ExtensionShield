@@ -559,12 +559,6 @@ const ScannerPage = () => {
       />
       <div className="scanner-page">
         <section className="scanner-hero">
-        {/* Background */}
-        <div className="scanner-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         {/* Main Content */}
         <div className="scanner-content">
           {/* Header */}

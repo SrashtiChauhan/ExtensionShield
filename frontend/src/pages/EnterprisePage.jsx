@@ -101,13 +101,6 @@ const EnterprisePage = () => {
         schema={faqSchema}
       />
       <div className="enterprise-page">
-      <div className="enterprise-bg">
-        <div className="bg-gradient" />
-        <div className="bg-grid" />
-        <div className="bg-glow glow-1" />
-        <div className="bg-glow glow-2" />
-      </div>
-
       <div className="enterprise-container">
         <div className="enterprise-header">
           <button className="enterprise-back" onClick={() => navigate(-1)}>
@@ -140,28 +133,26 @@ const EnterprisePage = () => {
             <div className="form-grid">
               <div className="field">
                 <label>Name</label>
-                <input value={form.name} onChange={onChange("name")} placeholder="Jane Doe" autoComplete="name" />
+                <input value={form.name} onChange={onChange("name")} autoComplete="name" />
               </div>
               <div className="field">
                 <label>Work email</label>
                 <input
                   value={form.email}
                   onChange={onChange("email")}
-                  placeholder="jane@company.com"
                   autoComplete="email"
                   inputMode="email"
                 />
               </div>
               <div className="field full">
                 <label>Company</label>
-                <input value={form.company} onChange={onChange("company")} placeholder="Company, Inc." autoComplete="organization" />
+                <input value={form.company} onChange={onChange("company")} autoComplete="organization" />
               </div>
               <div className="field full">
                 <label>Notes (optional)</label>
                 <textarea
                   value={form.notes}
                   onChange={onChange("notes")}
-                  placeholder="Number of endpoints/users, any compliance needs, what you want to monitor…"
                   rows={4}
                 />
               </div>

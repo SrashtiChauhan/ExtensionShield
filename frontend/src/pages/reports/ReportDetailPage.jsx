@@ -101,11 +101,6 @@ const ReportViewModelDetail = ({ report, rawScanResult, extensionId, onExportPdf
 
   return (
     <div className="report-detail-page">
-      <div className="report-bg-effects">
-        <div className="report-bg-gradient report-gradient-1" />
-        <div className="report-bg-gradient report-gradient-2" />
-      </div>
-
       <div className="report-content">
         <div className="report-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link to="/reports" className="back-link">← Back to Reports</Link>
@@ -725,10 +720,6 @@ const ReportDetailPage = () => {
       <>
         {noindexHead}
         <div className="report-detail-page">
-          <div className="report-bg-effects">
-            <div className="report-bg-gradient report-gradient-1" />
-            <div className="report-bg-gradient report-gradient-2" />
-          </div>
           <div className="report-content">
             <div className="loading-container">
               <div className="loading-spinner"></div>
@@ -761,10 +752,6 @@ const ReportDetailPage = () => {
       <>
         {noindexHead}
         <div className="report-detail-page">
-          <div className="report-bg-effects">
-            <div className="report-bg-gradient report-gradient-1" />
-            <div className="report-bg-gradient report-gradient-2" />
-          </div>
           <div className="report-content">
             <div className="error-container">
               <div className="error-icon">⚠️</div>
@@ -784,10 +771,6 @@ const ReportDetailPage = () => {
       <>
         {noindexHead}
         <div className="report-detail-page">
-          <div className="report-bg-effects">
-            <div className="report-bg-gradient report-gradient-1" />
-            <div className="report-bg-gradient report-gradient-2" />
-          </div>
           <div className="report-content">
             <div className="report-nav">
               <Link to="/reports" className="back-link">← Back to Reports</Link>
@@ -830,12 +813,6 @@ const ReportDetailPage = () => {
     <>
       {noindexHead}
       <div className="report-detail-page">
-        {/* Background Effects */}
-        <div className="report-bg-effects">
-          <div className="report-bg-gradient report-gradient-1" />
-          <div className="report-bg-gradient report-gradient-2" />
-        </div>
-
         {/* Content */}
         <div className="report-content">
           {/* Navigation */}

@@ -46,10 +46,6 @@ const CaseStudiesPage = () => {
       />
 
       <div className="case-studies-page">
-        <div className="case-studies-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <div className="case-studies-content">
           {/* Breadcrumb */}
           <nav className="breadcrumb">

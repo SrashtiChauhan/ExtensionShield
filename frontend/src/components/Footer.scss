@@ -3,75 +3,107 @@
    ============================================================================ */
 
 .app-footer {
-  padding: 2.5rem 2rem;
-  border-top: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.12));
+  padding: 4rem 2rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
   background: var(--atlas-bg-primary, #0d1424);
   margin-top: auto;
+  position: relative;
+  z-index: 1;
 }
 
-.footer-content {
+.app-footer .footer-content {
   max-width: 600px;
   margin: 0 auto;
   text-align: center;
 }
 
-.footer-brand {
+/* Footer brand: same styles and hover as header .header-logo */
+.app-footer .footer-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+
+    .footer-logo-shield {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.app-footer .footer-logo-shield {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
-  margin-bottom: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
-.footer-logo-img {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-}
-
-.brand-extensionshield {
-  font-size: 0.9375rem;
-  font-weight: 700;
+/* Same font and size as header .logo-text */
+.app-footer .footer-logo-text {
+  font-size: 1.125rem;
+  font-weight: 600;
   color: var(--atlas-text-primary, #f8fafc);
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--atlas-text-primary, #f8fafc) 0%, var(--atlas-text-secondary, #94a3b8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.2s ease;
 }
 
-.footer-disclaimer,
-.footer-brand-clarification {
-  font-size: 0.8125rem;
+.app-footer .footer-disclaimer,
+.app-footer .footer-brand-clarification {
+  font-size: 0.875rem;
   color: var(--atlas-text-muted, #94a3b8);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   opacity: 0.9;
 }
 
-.footer-links {
+.app-footer .footer-links {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.75rem;
+  margin-top: 2.25rem;
   flex-wrap: wrap;
+}
 
-  a {
-    font-size: 0.8125rem;
-    color: var(--atlas-text-secondary, #94a3b8);
-    text-decoration: none;
-    transition: color 0.2s ease;
+.app-footer .footer-links a {
+  font-size: 0.875rem;
+  color: var(--atlas-text-secondary, #94a3b8);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
 
-    &:hover {
-      color: var(--atlas-accent, #22c55e);
-    }
-  }
+.app-footer .footer-links a:hover {
+  color: var(--atlas-accent, #22c55e);
 }
 
 /* Responsive */
 @media (max-width: 640px) {
   .app-footer {
-    padding: 2rem 1.5rem;
+    padding: 3rem 1.5rem;
   }
 
-  .footer-links {
+  .app-footer .footer-brand .footer-logo-shield .shield-logo {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .app-footer .footer-logo-text {
+    font-size: 1rem;
+  }
+
+  .app-footer .footer-links {
     gap: 1rem;
     flex-direction: column;
   }
@@ -79,30 +111,35 @@
 
 @media (max-width: 480px) {
   .app-footer {
-    padding: 1.5rem 1rem;
+    padding: 2.5rem 1rem;
   }
 
-  .footer-brand {
-    margin-bottom: 0.75rem;
-  }
-
-  .brand-extensionshield {
-    font-size: 0.875rem;
-  }
-
-  .footer-disclaimer,
-  .footer-brand-clarification {
-    font-size: 0.75rem;
+  .app-footer .footer-brand {
     margin-bottom: 1rem;
   }
 
-  .footer-links {
-    margin-top: 1.5rem;
-    gap: 0.75rem;
+  .app-footer .footer-brand .footer-logo-shield .shield-logo {
+    width: 32px !important;
+    height: 32px !important;
+  }
 
-    a {
-      font-size: 0.75rem;
-    }
+  .app-footer .footer-logo-text {
+    font-size: 0.9375rem;
+  }
+
+  .app-footer .footer-disclaimer,
+  .app-footer .footer-brand-clarification {
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .app-footer .footer-links {
+    margin-top: 1.75rem;
+    gap: 0.75rem;
+  }
+
+  .app-footer .footer-links a {
+    font-size: 0.8125rem;
   }
 }
 

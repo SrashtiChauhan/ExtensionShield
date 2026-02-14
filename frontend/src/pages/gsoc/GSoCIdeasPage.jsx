@@ -86,10 +86,6 @@ const GSoCIdeasPage = () => {
       />
 
       <div className="gsoc-ideas-page">
-        <div className="gsoc-bg">
-          <div className="bg-gradient" />
-        </div>
-
         <div className="gsoc-content">
           <header className="gsoc-header">
             <div className="gsoc-badge">

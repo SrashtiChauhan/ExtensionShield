@@ -1,0 +1,60 @@
+/* ============================================================================
+   AppBackground - Global page background (all routes)
+   Deep navy base + subtle purple ambient + grid + star/noise layer.
+   Per-route: --accentHue, --overlayOpacity, --starsOpacity
+   ============================================================================ */
+
+.app-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Deep navy base (same as body fallback) */
+.app-bg-base {
+  position: absolute;
+  inset: 0;
+  background: var(--atlas-bg-primary, #0d1424);
+}
+
+/* Purple ambient + green accent */
+.app-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, hsla(var(--accentHue, var(--accent-hue, 270)), 70%, 60%, var(--overlayOpacity, var(--overlay-opacity, 0.15))) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, hsla(142, 70%, 50%, calc(var(--overlayOpacity, var(--overlay-opacity, 0.15)) * 0.6)) 0%, transparent 55%);
+}
+
+/* Subtle grid */
+.app-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+}
+
+/* Star / noise texture */
+.app-bg-stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.15), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.08), transparent),
+    radial-gradient(2px 2px at 50px 160px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.12), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.06), transparent),
+    radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200px 200px;
+  opacity: var(--starsOpacity, var(--stars-opacity, 0.8));
+  animation: appBgStarTwinkle 12s ease-in-out infinite;
+}
+
+@keyframes appBgStarTwinkle {
+  0%, 100% { opacity: var(--starsOpacity, var(--stars-opacity, 0.8)); }
+  50% { opacity: calc(var(--starsOpacity, var(--stars-opacity, 0.8)) * 1.2); }
+}

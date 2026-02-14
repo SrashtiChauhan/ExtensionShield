@@ -82,11 +82,6 @@ const GlossaryPage = () => {
         schema={breadcrumbSchema}
       />
       <div className="glossary-page">
-        <div className="glossary-bg">
-          <div className="bg-gradient" />
-          <div className="bg-grid" />
-        </div>
-
         <div className="glossary-content">
           <header className="glossary-header">
             <h1>Browser Extension Security Glossary</h1>

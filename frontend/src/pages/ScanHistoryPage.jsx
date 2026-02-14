@@ -418,13 +418,7 @@ const ScanHistoryPage = () => {
         ogType="website"
       />
       <div className="history-page">
-        {/* Background Effects */}
-        <div className="history-bg">
-        <div className="bg-gradient" />
-        <div className="bg-grid" />
-      </div>
-
-      <div className="history-content">
+        <div className="history-content">
         {/* Header */}
         <div className="history-header">
           <h1>Scan History</h1>

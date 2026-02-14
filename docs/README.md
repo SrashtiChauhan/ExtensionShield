@@ -71,6 +71,14 @@ This directory contains comprehensive documentation for the ExtensionShield proj
   - Run `npm run ci:check` in `frontend/` to match Security Audit + SEO Smoke Test
   - Commands for build, audit, and SEO tests
 
+### Design & theme
+
+- **[design/color-palette.md](./design/color-palette.md)** – Color palette and theme
+  - Green theme and extension logo (ShieldLogo)
+  - Whether we introduce many colors (controlled palette)
+  - Current background and optional lighter dark (`data-theme="dark-lighter"`)
+  - Concept palettes and accessibility notes
+
 ### Database & API
 
 - **[DATABASE_README.md](./DATABASE_README.md)** - Database schema, SQLite ↔ Postgres mapping, API routes
