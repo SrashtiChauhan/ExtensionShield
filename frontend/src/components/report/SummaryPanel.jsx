@@ -3,21 +3,15 @@ import './SummaryPanel.scss';
 import { normalizeHighlights } from '../../utils/normalizeScanResult';
 
 /**
- * SummaryPanel - Simplified consumer-friendly summary
- * 
- * NEW FORMAT (unified_summary):
- * - headline: One sentence takeaway
- * - tldr: 2-3 sentences explaining the situation
- * - concerns: Top 3 specific concerns
- * - recommendation: One actionable sentence
- * 
- * LEGACY FORMAT (consumer_summary):
- * - verdict + reasons + access + action
- * 
- * Falls back gracefully through multiple data sources.
- * 
- * topFindings: Array of { title, summary } - Top 3 findings for instant proof (one line each)
- * onViewRiskyPermissions, onViewNetworkDomains: Optional click handlers for action buttons
+ * SummaryPanel – consumer-friendly scan summary.
+ *
+ * Supports two report shapes:
+ * - unified_summary: headline, tldr, concerns, recommendation
+ * - consumer_summary: verdict, reasons, access, action
+ *
+ * Falls back through highlights and engine findings when needed.
+ *
+ * topFindings: top 3 findings (title/summary). onViewRiskyPermissions, onViewNetworkDomains: optional action handlers.
  */
 
 // Factor names from scoring engine that are not actionable by themselves (no user-facing finding)
@@ -45,13 +39,9 @@ const SummaryPanel = ({
   // Show TOP 3 FINDINGS only when we have at least one actionable finding (not just factor labels)
   const actionableTopFindings = (topFindings || []).filter(isActionableFinding).slice(0, 3);
 
-  // Priority 1: New unified_summary format (simpler, LLM-powered)
   const unifiedSummary = rawScanResult?.report_view_model?.unified_summary;
-  
-  // Priority 2: Legacy consumer_summary format
   const consumerSummary = rawScanResult?.report_view_model?.consumer_summary;
-  
-  // Priority 3: Fallback to highlights (keyPoints from LLM; keyFindings from SAST/engine preferred for concerns)
+  // Fallback: highlights (keyPoints) and SAST/engine keyFindings for concerns
   const { oneLiner, keyPoints } = normalizeHighlights(rawScanResult);
 
   // SAST/engine keyFindings – use for Quick Summary concerns when they add value
@@ -83,7 +73,6 @@ const SummaryPanel = ({
     );
   };
 
-  // Placeholder Quick Summary when no summary data (match design: description tags + action buttons)
   if (showPlaceholder) {
     return (
       <section className="summary-panel summary-panel--unified">
@@ -122,7 +111,6 @@ const SummaryPanel = ({
     return null;
   }
 
-  // NEW: Unified summary – single cohesive narrative (no fragmented AI-looking sections)
   if (hasUnifiedSummary) {
     const { headline, narrative, tldr, concerns = [], recommendation } = unifiedSummary;
 
@@ -148,14 +136,12 @@ const SummaryPanel = ({
             </div>
           )}
 
-          {/* Unified narrative – single flowing text (capabilities + concerns + recommendation) */}
           {hasNarrative && (
             <div className="summary-narrative-wrapper">
               <p className="summary-narrative">{narrative}</p>
             </div>
           )}
 
-          {/* Legacy: separate sections when narrative not available */}
           {showLegacySections && tldr && (
             <div className="summary-tldr-wrapper">
               <p className="summary-tldr">{tldr}</p>
@@ -186,7 +172,6 @@ const SummaryPanel = ({
             </div>
           )}
 
-          {/* Action buttons + Top 3 findings (dashboard layout) */}
           {(onViewRiskyPermissions || onViewNetworkDomains) && (
             <div className="summary-action-buttons">
               {onViewRiskyPermissions && (
@@ -218,7 +203,6 @@ const SummaryPanel = ({
     );
   }
 
-  // Legacy consumer_summary layout
   if (hasConsumerSummary) {
     const { verdict, reasons = [], access, action } = consumerSummary;
 
@@ -315,7 +299,6 @@ const SummaryPanel = ({
     );
   }
 
-  // Legacy highlights layout – prefer SAST/engine keyFindings over LLM keyPoints
   const concernsToShow = engineConcerns.length > 0 ? engineConcerns : keyPoints;
 
   return (
@@ -336,7 +319,7 @@ const SummaryPanel = ({
           </div>
         )}
 
-        {/* Key Concerns – from SAST/engine when available, else LLM keyPoints */}
+        {/* Key Concerns – from SAST/engine when available, else report highlights */}
         {concernsToShow.length > 0 && (
           <div className="summary-section key-reasons">
             <h3 className="section-subtitle">

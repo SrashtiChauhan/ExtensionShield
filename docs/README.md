@@ -4,6 +4,15 @@ This directory contains comprehensive documentation for the ExtensionShield proj
 
 ## 📚 Documentation Index
 
+### Software & Architecture
+
+- **[SOFTWARE_DOCUMENTATION.md](./SOFTWARE_DOCUMENTATION.md)** - **Full software documentation** ⭐
+  - How ExtensionShield is built end-to-end
+  - Technology stack (uv, FastAPI, React, Vite, Supabase, Docker)
+  - Project structure and key components
+  - Build tools, development workflow, deployment
+  - Environment configuration
+
 ### Authentication & Security
 
 - **[AUTHENTICATION.md](./AUTHENTICATION.md)** - Complete authentication guide

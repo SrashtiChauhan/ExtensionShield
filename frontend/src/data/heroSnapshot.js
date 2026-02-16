@@ -1,5 +1,5 @@
 /**
- * Auto-generated Hero snapshot with embedded icons.
+ * Hero snapshot with embedded icons (see scripts that build this file).
  * Generated: 2026-02-13T21:56:20.555Z
  * 
  * This file provides instant first-paint for the hero carousel.

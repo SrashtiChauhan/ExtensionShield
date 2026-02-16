@@ -339,9 +339,9 @@ const ScanProgressPage = () => {
         if (errorMsg.includes("401") || errorMsg.includes("API key") || errorMsg.includes("Invalid API key") || errorMsg.includes("Connection is down")) {
           errorMsg = "Connection is down try back in a while";
         } else if (errorMsg.includes("quota") || errorMsg.includes("token_quota") || (errorMsg.includes("403") && errorMsg.includes("token"))) {
-          errorMsg = "LLM service quota exceeded. Your token limit has been reached. Please check your provider limits or add a fallback provider.";
+          errorMsg = "Scan analysis quota exceeded. Check your provider limits or try again later.";
         } else if (errorMsg.includes("Connection refused") || errorMsg.includes("Errno 61") || errorMsg.includes("LLM service")) {
-          errorMsg = "LLM service unavailable. Please check your LLM provider configuration.";
+          errorMsg = "Scan analysis service unavailable. Check your provider configuration.";
         } else if (errorMsg.includes("JSON") || errorMsg.includes("parse")) {
           errorMsg = "Failed to parse server response. The scan may still be running.";
         } else if (errorMsg.includes("fetch") || errorMsg.includes("network") || errorMsg.includes("Failed to fetch")) {
@@ -372,9 +372,9 @@ const ScanProgressPage = () => {
         if (errorMsg.includes("401") || errorMsg.includes("API key") || errorMsg.includes("Invalid API key") || errorMsg.includes("Authentication") || errorMsg.includes("sk-proj") || errorMsg.includes("Connection is down")) {
           errorMsg = "Connection is down try back in a while";
         } else if (errorMsg.includes("quota") || errorMsg.includes("token_quota") || (errorMsg.includes("403") && errorMsg.includes("token"))) {
-          errorMsg = "LLM service quota exceeded. Your token limit has been reached. Please check your provider limits or add a fallback provider.";
+          errorMsg = "Scan analysis quota exceeded. Check your provider limits or try again later.";
         } else if (errorMsg.includes("Connection refused") || errorMsg.includes("Errno 61") || errorMsg.includes("LLM service")) {
-          errorMsg = "LLM service unavailable. Please check your LLM provider configuration.";
+          errorMsg = "Scan analysis service unavailable. Check your provider configuration.";
         } else if (errorMsg.includes("JSON") || errorMsg.includes("parse")) {
           errorMsg = "Failed to parse server response. The scan may still be running.";
         } else if (errorMsg.includes("fetch") || errorMsg.includes("network") || errorMsg.includes("Failed to fetch")) {

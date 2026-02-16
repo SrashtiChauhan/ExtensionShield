@@ -104,7 +104,7 @@ export const routes = [
     element: <ScanResultsDashboardPage />
   },
 
-  // ============ LEGACY: /extension/:id redirects to scan results ============
+  // /extension/:id → scan results (backward compatibility)
   {
     path: "/extension/:extensionId",
     element: <RedirectExtensionToScanResults />
@@ -315,7 +315,7 @@ export const routes = [
     changefreq: "monthly"
   },
 
-  // ============ LEGACY REDIRECTS ============
+  // Old URL redirects
   {
     path: "/scanner",
     element: <Navigate to="/scan" replace />

@@ -1,23 +1,23 @@
-import { normalizeHighlights } from '../src/utils/normalizeScanResult';
+import { normalizeHighlights } from './normalizeScanResult';
 import { describe, it, expect } from 'vitest';
 
 describe('normalizeHighlights', () => {
-  it('should prioritize LLM why_this_score over others', () => {
+  it('should prioritize highlights.why_this_score over key_points and summary', () => {
     const raw = {
       report_view_model: {
-        scorecard: { one_liner: 'LLM One Liner' },
+        scorecard: { one_liner: 'Score one liner' },
         highlights: {
-          why_this_score: ['LLM Bullet 1', 'LLM Bullet 2'],
-          key_points: ['Legacy Bullet']
+          why_this_score: ['Bullet 1', 'Bullet 2'],
+          key_points: ['Other bullet']
         }
       },
       summary: {
-        key_findings: ['Legacy Summary Bullet']
+        key_findings: ['Summary bullet']
       }
     };
     const result = normalizeHighlights(raw as any);
-    expect(result.oneLiner).toBe('LLM One Liner');
-    expect(result.keyPoints).toEqual(['LLM Bullet 1', 'LLM Bullet 2']);
+    expect(result.oneLiner).toBe('Score one liner');
+    expect(result.keyPoints).toEqual(['Bullet 1', 'Bullet 2']);
   });
 
   it('should filter out empty strings in bullets', () => {

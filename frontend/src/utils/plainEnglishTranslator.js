@@ -1,7 +1,6 @@
 /**
- * plainEnglishTranslator - Translates technical reasons into consumer-friendly bullets
- * 
- * Deterministic mapping - no AI/LLM. Uses pattern matching on technical terms.
+ * plainEnglishTranslator – maps technical reasons to short, readable bullets.
+ * Deterministic pattern matching only (no external APIs).
  */
 
 /**

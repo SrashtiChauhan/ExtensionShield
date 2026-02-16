@@ -55,12 +55,12 @@ export interface NormalizedHighlights {
  * normalizeHighlights - Extracts one-liner, key points, and what-to-watch with proper priority
  * 
  * Priority for Key Points:
- * 1. report_view_model.highlights.why_this_score (LLM) filtered for non-empty
- * 2. report_view_model.highlights.key_points if exists
+ * 1. report_view_model.highlights.why_this_score (non-empty)
+ * 2. report_view_model.highlights.key_points if present
  * 3. deterministic fallback from backend highlights
- * 
+ *
  * Priority for What to watch:
- * 1. report_view_model.highlights.what_to_watch (LLM) filtered for non-empty
+ * 1. report_view_model.highlights.what_to_watch (non-empty)
  * 2. deterministic fallback from backend highlights
  */
 export function normalizeHighlights(raw: RawScanResult | null | undefined): NormalizedHighlights {

@@ -1,15 +1,6 @@
 /**
- * Navigation Configuration
- * 
- * This file contains all navigation structure for the app:
- * - Top navigation items
- * - Mega menu structure
- * - Footer links
- */
-
-/**
- * Top Navigation Items
- * Note: Logo routes to "/" so "Home" is redundant
+ * Navigation: top nav, mega menu, footer.
+ * Logo links to "/", so a separate Home item is omitted.
  */
 export const topNavItems = [
   {

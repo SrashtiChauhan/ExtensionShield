@@ -112,13 +112,13 @@ export const ScanProvider = ({ children }) => {
           if (status.error_code === 401 || status.error?.includes("API key") || status.error?.includes("Invalid API key") || status.error?.includes("Authentication") || status.error?.includes("sk-proj")) {
             throw new Error("Connection is down try back in a while");
           }
-          // Check for connection refused errors (503) - LLM service issues
+          // 503 / connection refused – analysis service unavailable
           if (status.error_code === 503 || status.error?.includes("Connection refused") || status.error?.includes("Errno 61") || status.error?.includes("LLM service")) {
-            throw new Error("LLM service unavailable. Please check your LLM provider configuration.");
+            throw new Error("Scan analysis service unavailable. Check your provider configuration.");
           }
           // Check for quota errors (403) - token/quota exceeded
           if (status.error_code === 403 || status.error?.includes("quota") || status.error?.includes("token_quota")) {
-            throw new Error(status.error || "LLM service quota exceeded. Please check your provider limits or add a fallback provider.");
+            throw new Error(status.error || "Scan analysis quota exceeded. Check your provider limits or try again later.");
           }
           throw new Error(status.error || "Scan failed on the server.");
         }
@@ -240,9 +240,9 @@ export const ScanProvider = ({ children }) => {
       } else if (err.message?.includes("API key") || err.message?.includes("Invalid API key") || err.message?.includes("Authentication") || err.message?.includes("401")) {
         errorMessage = "Connection is down try back in a while";
       } else if (err.message?.includes("Connection refused") || err.message?.includes("Errno 61") || err.message?.includes("LLM service")) {
-        errorMessage = "LLM service unavailable. Please check your LLM provider configuration (LLM_FALLBACK_CHAIN).";
+        errorMessage = "Scan analysis service unavailable. Check your provider configuration.";
       } else if (err.message?.includes("quota") || err.message?.includes("token_quota") || err.message?.includes("403")) {
-        errorMessage = err.message || "LLM service quota exceeded. Please check your provider limits or add a fallback provider.";
+        errorMessage = err.message || "Scan analysis quota exceeded. Check your provider limits or try again later.";
       }
       setError(errorMessage);
       setScanStage(null);

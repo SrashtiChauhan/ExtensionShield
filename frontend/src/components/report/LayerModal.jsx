@@ -131,7 +131,6 @@ const LayerModal = ({
   const bc = bandColor(band);
   const bl = bandLabel(band);
 
-  // LLM plain-language one-liner (e.g. "High governance risk: violates Chrome Web Store policies")
   const ld = layerDetails?.[layer] || {};
   const oneLiner = ld.one_liner || '';
 

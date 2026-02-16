@@ -165,12 +165,10 @@ export function calculateAllSignals(scanResult) {
   };
 }
 
-// ============================================================================
-// Legacy signal calculation functions (for backward compatibility)
-// ============================================================================
+// Backward-compatible signal calculation (used when scoring_v2 is not present).
 
 /**
- * Calculate code signal from SAST and entropy analysis (LEGACY)
+ * Code signal from SAST and entropy analysis.
  */
 function calculateCodeSignal(scanResult) {
   const sastResults = scanResult?.sast_results || scanResult?.sastResults || {};
@@ -236,7 +234,7 @@ function calculateCodeSignal(scanResult) {
 }
 
 /**
- * Calculate permissions signal from permissions analysis (LEGACY)
+ * Permissions signal from permissions analysis.
  */
 function calculatePermsSignal(scanResult) {
   const permsAnalysis = scanResult?.permissions_analysis || scanResult?.permissionsAnalysis || {};
@@ -292,7 +290,7 @@ function calculatePermsSignal(scanResult) {
 }
 
 /**
- * Calculate intel signal from VirusTotal and threat intelligence (LEGACY)
+ * Intel signal from VirusTotal and threat intelligence.
  */
 function calculateIntelSignal(scanResult) {
   const vtAnalysis = scanResult?.virustotal_analysis || scanResult?.virustotalAnalysis || {};

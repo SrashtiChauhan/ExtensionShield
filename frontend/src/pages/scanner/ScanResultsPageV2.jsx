@@ -541,7 +541,7 @@ const ScanResultsPageV2 = () => {
         onGetFileContent={getFileContent}
       />
 
-      {/* Layer Modals - pass layerDetails from report_view_model for LLM-generated insights */}
+      {/* Layer modals use report_view_model.layer_details for per-layer insights */}
       {layerModal.layer === 'security' && (
         <LayerModal
           open={layerModal.open}
