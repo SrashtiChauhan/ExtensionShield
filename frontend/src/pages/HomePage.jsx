@@ -536,8 +536,6 @@ const HomePage = () => {
                 {/* Animated color rings */}
                 <div className="honey-ring honey-ring-1" />
                 <div className="honey-ring honey-ring-2" />
-                <div className="honey-ring honey-ring-3" />
-                <div className="honey-ring honey-ring-4" />
                 
                 {/* Honey Logo - Hexagon with honeycomb pattern */}
                 <div className="honey-logo">
