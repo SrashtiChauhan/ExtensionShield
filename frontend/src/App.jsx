@@ -532,15 +532,6 @@ function AppHeader() {
 
         <div className="header-actions header-actions-mobile">
           <ThemeToggle />
-          {isLoading ? (
-            <AuthLoadingDots />
-          ) : isAuthenticated && user ? (
-            <UserMenu />
-          ) : (
-            <button type="button" className="action-signin" onClick={openSignInModal}>
-              Sign In
-            </button>
-          )}
         </div>
 
         <button
@@ -591,6 +582,17 @@ function AppHeader() {
               );
             })}
           </nav>
+          <div className="mobile-menu-actions">
+            {isLoading ? (
+              <AuthLoadingDots />
+            ) : isAuthenticated && user ? (
+              <UserMenu />
+            ) : (
+              <button type="button" className="action-signin mobile-signin" onClick={() => { openSignInModal(); setMobileMenuOpen(false); }}>
+                Sign In
+              </button>
+            )}
+          </div>
         </div>,
         document.body
       )}
