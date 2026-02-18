@@ -112,20 +112,6 @@ test.describe('Visual regression – homepage and sections', () => {
     await expect(page).toHaveScreenshot('homepage-light.png', { maxDiffPixelRatio: 0.02 });
   });
 
-  test('Homepage pricing section – dark and light', async ({ page }) => {
-    await page.goto('/');
-    await waitForRouteReady(page, '/');
-    const pricing = page.locator('section.pricing-section').first();
-    await pricing.waitFor({ state: 'visible', timeout: 10000 });
-    await pricing.scrollIntoViewIfNeeded();
-
-    await setTheme(page, 'dark');
-    await expect(pricing).toHaveScreenshot('homepage-pricing-dark.png');
-
-    await setTheme(page, 'light');
-    await expect(pricing).toHaveScreenshot('homepage-pricing-light.png');
-  });
-
   test('Homepage case study section – dark and light', async ({ page }) => {
     await page.goto('/');
     await waitForRouteReady(page, '/');

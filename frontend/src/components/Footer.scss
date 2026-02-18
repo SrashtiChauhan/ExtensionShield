@@ -3,7 +3,7 @@
    ============================================================================ */
 
 .app-footer {
-  padding: 4rem 2rem;
+  padding: clamp(2.5rem, 5vw, 4rem) var(--layout-padding-x, 2rem);
   border-top: 1px solid rgba(148, 163, 184, 0.25);
   background: var(--atlas-bg-primary, #0d1424);
   margin-top: auto;

@@ -7,6 +7,7 @@ import databaseService from "../services/databaseService";
 import SEOHead from "../components/SEOHead";
 import { HeroOrbitalCarousel } from "../components/hero";
 import DemoModal from "../components/DemoModal";
+import OpenCoreEnginesSection from "../components/home/OpenCoreEnginesSection";
 import "./HomePage.scss";
 
 // Real extension listings (Chrome Web Store style). logoUrl set to null to avoid
@@ -287,21 +288,23 @@ const HomePage = () => {
                 {scanError && <p className="scan-error-hint">{scanError}</p>}
               </div>
 
-              <button
-                type="button"
-                ref={demoTriggerRef}
-                className="hero-demo-link"
-                title="Copy extension URL → paste here (step-by-step)"
-                onClick={() => setDemoModalOpen(true)}
-              >
-                <span className="hero-demo-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
-                  </svg>
-                </span>
-                <span>Watch demo</span>
-              </button>
+              <div className="hero-cta-row">
+                <button
+                  type="button"
+                  ref={demoTriggerRef}
+                  className="hero-demo-link"
+                  title="Copy extension URL → paste here (step-by-step)"
+                  onClick={() => setDemoModalOpen(true)}
+                >
+                  <span className="hero-demo-icon" aria-hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+                    </svg>
+                  </span>
+                  <span>Watch demo</span>
+                </button>
+              </div>
             </motion.div>
 
             {/* Right Panel - 3D orbital carousel with focus report card */}
@@ -375,7 +378,17 @@ const HomePage = () => {
           />
         </section>
 
-      {/* Bridge Section - How trusted extensions turn risky */}
+      {/* Open-core engines / How we score – trust section (anchor: #how-we-score) */}
+      <OpenCoreEnginesSection />
+
+      {/* =======================================================================
+          CARD 1 – Section id=proof: "How trusted extensions turn risky"
+          - Title: How trusted extensions turn risky
+          - Step 1: Earn trust — 5 stars, millions of installs, verified badge.
+          - Step 2: Ship an update — Malicious code slips in with a seemingly harmless update.
+          - Step 3: Abuse permissions — Data theft, injected ads, hijacked links.
+          - Footer: Many extensions don't start malicious — they become risky after they're trusted.
+          ======================================================================= */}
       <section 
         id="proof" 
         className={`bridge-section reveal-section ${revealedSections['proof'] ? 'revealed' : ''}`}
@@ -383,7 +396,6 @@ const HomePage = () => {
         <div className="bridge-gradient-top" />
         <div className="bridge-container">
           <h2 className="bridge-title">How trusted extensions turn risky</h2>
-          
           <div className="bridge-steps">
             <div className="bridge-step">
               <div className="step-number">1</div>
@@ -430,21 +442,26 @@ const HomePage = () => {
               <p>Data theft, injected ads, hijacked links.</p>
             </div>
           </div>
-
           <p className="bridge-footer">
             Many extensions don't start malicious — they become risky after they're trusted.
           </p>
         </div>
       </section>
 
-      {/* Real Extension Listings - Below Extensions Flow */}
+      {/* =======================================================================
+          CARD 2 – Section id=deception: "Examples from the Chrome Web Store"
+          - Disclaimer: Examples from the Chrome Web Store
+          - Carousel of store-style extension cards (e.g. Session Buddy, Hover Zoom+, Stylus)
+            each with: name, stars, rating, users, Store badge: Featured
+          - Footer: Approved store listings aren't a guarantee of safety.
+                    Ratings and installs can change over time.
+          ======================================================================= */}
       <section 
         id="deception" 
         className={`deception-section reveal-section ${revealedSections['deception'] ? 'revealed' : ''}`}
       >
         <div className="deception-container">
           <p className="deception-disclaimer">Examples from the Chrome Web Store</p>
-          
           <div className="deception-carousel-wrapper">
             <button
               type="button"
@@ -508,7 +525,6 @@ const HomePage = () => {
               </svg>
             </button>
           </div>
-
           <div className="deception-footer-block">
             <p className="deception-footer">Approved store listings aren't a guarantee of safety.</p>
             <p className="deception-footer">Ratings and installs can change over time.</p>
@@ -663,160 +679,6 @@ const HomePage = () => {
                 <div className="verdict">
                   <span className="verdict-label">VERDICT</span>
                   <span className="verdict-value">DECEPTIVE PRACTICES</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="pricing-section">
-        <div className="pricing-header">
-          <h2>Free to scan. We only charge for API services.</h2>
-          <p>Scanning extensions is free for everyone. We charge only when you use our APIs to integrate ExtensionShield into your own apps or workflows.</p>
-        </div>
-
-        <div className="pricing-grid">
-          {/* Community Plan — free for consumers */}
-          <div className="pricing-card surface-card popular">
-            <div className="popular-badge">BETA</div>
-            <div className="pricing-card-header">
-              <h3>Community</h3>
-              <p>Free for consumers — scan any extension</p>
-            </div>
-            <div className="pricing-amount">
-              <span className="price">$0</span>
-              <span className="credits">Free to scan</span>
-            </div>
-            <div className="scan-credit-note">
-              Full analysis runs when we haven't seen this extension version before; repeat scans use cached results (instant).
-            </div>
-            <ul className="pricing-features">
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Re-view past scans anytime — free</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>2 full scans per day per account</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Full security report</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Security and privacy checks included</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>We only charge for API usage</span>
-              </li>
-            </ul>
-            <button className="pricing-btn popular-btn" onClick={() => navigate("/scan")}>Start Free</button>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div className="pricing-card surface-card enterprise">
-            <div className="pricing-card-header">
-              <h3>Enterprise</h3>
-              <p>Teams & governance</p>
-            </div>
-            <div className="pricing-amount">
-              <span className="price">Contact</span>
-              <span className="price-period">Sales</span>
-            </div>
-            <div className="scan-credit-note">
-              For teams that need monitoring, governance, and audit-ready exports. Helps flag risk signals—not a guarantee.
-            </div>
-            <ul className="pricing-features">
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Monitoring & auto-rescan on updates</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Alerting when risk changes</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Policy packs + audit exports</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Org allow/block list governance</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>SSO/RBAC <span className="coming-soon-tag">Coming soon</span></span>
-              </li>
-            </ul>
-            <button className="pricing-btn enterprise-btn" onClick={() => navigate("/enterprise")}>Request Enterprise Pilot</button>
-          </div>
-        </div>
-
-        {/* Community Contribution */}
-        <div className="karma-panel">
-          <div className="karma-content">
-            {/* Icon Section */}
-            <div className="karma-icon-section">
-              <div className="karma-icon-wrapper">
-                <div className="karma-ring karma-ring-1" />
-                <div className="karma-ring karma-ring-2" />
-                <div className="karma-icon-main">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Text Section */}
-            <div className="karma-text-section">
-              <h4>Share your feedback with the community.</h4>
-              <p>
-                Help others by sharing extension insights, reporting issues, or recommending alternatives you trust.
-                Your contributions help build a more transparent ecosystem.
-              </p>
-              <div className="karma-actions">
-                <div className="karma-action-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Verify findings</span>
-                </div>
-                <div className="karma-action-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <span>Report issues</span>
-                </div>
-                <div className="karma-action-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                  </svg>
-                  <span>Recommend safe alternatives</span>
                 </div>
               </div>
             </div>

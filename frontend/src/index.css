@@ -555,10 +555,10 @@ html.light {
   color: var(--color__white);
 }
 
-/* Light mode: all accent (green) filled buttons – white text for consistency */
+/* Light mode: all accent (green) filled buttons – white text for consistency (exclude icon-only search btn) */
 .light .cta-button,
 .light .action-signin,
-.light .search-btn,
+.light .search-btn:not(.search-btn-icon),
 .light .submit-btn,
 .light .login-overlay-btn,
 .light .empty-action-btn,
@@ -569,7 +569,7 @@ html.light {
 }
 .light .cta-button:hover,
 .light .action-signin:hover,
-.light .search-btn:hover,
+.light .search-btn:hover:not(.search-btn-icon),
 .light .submit-btn:hover,
 .light .login-overlay-btn:hover,
 .light .empty-action-btn:hover,

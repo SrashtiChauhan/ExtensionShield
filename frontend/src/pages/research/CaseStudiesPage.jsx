@@ -1,96 +1,144 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import SEOHead from "../../components/SEOHead";
+import { caseStudies, CASE_STUDIES_PER_PAGE } from "../../data/caseStudiesData";
 import "./CaseStudiesPage.scss";
 
+const CASE_STUDIES_BASE = "https://extensionshield.com";
+
+const caseStudiesItemListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Chrome Extension Security Case Studies",
+  "description": "Real-world case studies of malicious and deceptive Chrome extensions for security teams and enterprises.",
+  "numberOfItems": caseStudies.length,
+  "itemListElement": caseStudies.filter((s) => !s.comingSoon && s.path).map((s, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "url": `${CASE_STUDIES_BASE}${s.path}`,
+    "name": s.title,
+  })),
+};
+
 const CaseStudiesPage = () => {
-  const caseStudies = [
-    {
-      id: "honey",
-      title: "Honey Extension Case Study",
-      subtitle: "17M+ users reported. $4B acquisition.",
-      date: "December 2024",
-      category: "Affiliate Fraud",
-      severity: "HIGH",
-      description: "Reported analysis: alleged affiliate link hijacking, shopping behavior tracking, and disputed savings claims.",
-      featured: true,
-    },
-    {
-      id: "pdf-converters",
-      title: "PDF Converter Extensions",
-      subtitle: "The Hidden Data Harvesting Network",
-      date: "Coming Soon",
-      category: "Data Exfiltration",
-      severity: "HIGH",
-      description: "Analysis of popular PDF converter extensions that harvest document contents and user data.",
-      comingSoon: true,
-    },
-    {
-      id: "ad-blockers",
-      title: "Fake Ad Blockers",
-      subtitle: "Wolves in Sheep's Clothing",
-      date: "Coming Soon",
-      category: "Malware",
-      severity: "CRITICAL",
-      description: "How malicious ad blocker clones inject ads instead of blocking them.",
-      comingSoon: true,
-    },
-  ];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+
+  const totalPages = Math.ceil(caseStudies.length / CASE_STUDIES_PER_PAGE);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const start = (safePage - 1) * CASE_STUDIES_PER_PAGE;
+  const paginatedStudies = useMemo(
+    () => caseStudies.slice(start, start + CASE_STUDIES_PER_PAGE),
+    [start]
+  );
+
+  const setPage = (page) => {
+    const next = Math.max(1, Math.min(page, totalPages));
+    if (next === 1) {
+      searchParams.delete("page");
+    } else {
+      searchParams.set("page", String(next));
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   return (
     <>
       <SEOHead
-        title="Extension Security Case Studies | ExtensionShield"
-        description="Real-world case studies of malicious Chrome extensions. Learn how Honey, PDF converters, and fake ad blockers deceive millions of users."
+        title="Chrome Extension Security Case Studies | Malicious Extensions Research | ExtensionShield"
+        description="Real-world case studies of malicious and deceptive Chrome extensions: Honey affiliate fraud, PDF converter data harvesting, fake ad blocker malware. For security teams, enterprises, and anyone evaluating extension risk. Learn patterns, tactics, and red flags."
         pathname="/research/case-studies"
+        schema={caseStudiesItemListSchema}
       />
 
       <div className="case-studies-page">
         <div className="case-studies-content">
-          {/* Breadcrumb */}
-          <nav className="breadcrumb">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
             <Link to="/research">Research</Link>
-            <span>/</span>
+            <span aria-hidden>/</span>
             <span>Case Studies</span>
           </nav>
 
           <header className="case-studies-header">
-            <h1>Case Studies</h1>
+            <h1>Chrome Extension Security Case Studies</h1>
             <p>
-              Real-world analysis of malicious and deceptive extensions. 
-              Learn the patterns, tactics, and red flags.
+              Real-world analysis of malicious and deceptive browser extensions. Learn the patterns, tactics, and red flags security researchers and enterprises use to evaluate extension risk—from affiliate fraud and data exfiltration to ad-injecting malware.
             </p>
           </header>
 
           <div className="case-studies-list">
-            {caseStudies.map((study) => (
-              <Link
-                key={study.id}
-                to={study.comingSoon ? "#" : `/research/case-studies/${study.id}`}
-                className={`case-study-card ${study.featured ? "featured" : ""} ${study.comingSoon ? "coming-soon" : ""}`}
-                onClick={(e) => study.comingSoon && e.preventDefault()}
-              >
-                <div className="case-study-meta">
-                  <span className={`severity-badge ${study.severity.toLowerCase()}`}>
-                    {study.severity}
-                  </span>
-                  <span className="category-badge">{study.category}</span>
-                  {study.comingSoon && <span className="coming-soon-badge">Coming Soon</span>}
-                </div>
-                <h3>{study.title}</h3>
-                <p className="subtitle">{study.subtitle}</p>
-                <p className="description">{study.description}</p>
-                {!study.comingSoon && (
-                  <span className="read-more">
-                    Read case study
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                )}
-              </Link>
-            ))}
+            {paginatedStudies.map((study) => {
+              const href = study.comingSoon ? undefined : study.path;
+              const isLink = Boolean(href);
+              const Wrapper = isLink ? Link : "div";
+              const wrapperProps = isLink ? { to: href } : {};
+
+              return (
+                <Wrapper
+                  key={study.id}
+                  {...wrapperProps}
+                  className={`case-study-card ${study.featured ? "featured" : ""} ${study.comingSoon ? "coming-soon" : ""}`}
+                  onClick={study.comingSoon ? (e) => e.preventDefault() : undefined}
+                >
+                  <div className="case-study-meta">
+                    <span className={`severity-badge ${(study.severity || "").toLowerCase()}`}>
+                      {study.severity}
+                    </span>
+                    <span className="category-badge">{study.category}</span>
+                    {study.comingSoon && <span className="coming-soon-badge">Coming Soon</span>}
+                  </div>
+                  <h3 className="case-study-title">{study.title}</h3>
+                  <p className="subtitle">{study.subtitle}</p>
+                  <p className="description">{study.description}</p>
+                  {!study.comingSoon && (
+                    <span className="read-more">
+                      Read case study
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  )}
+                </Wrapper>
+              );
+            })}
           </div>
+
+          {totalPages > 1 && (
+            <nav className="case-studies-pagination" aria-label="Case studies pagination">
+              <button
+                type="button"
+                className="pagination-btn"
+                disabled={safePage <= 1}
+                onClick={() => setPage(safePage - 1)}
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <div className="pagination-numbers">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`pagination-num ${p === safePage ? "active" : ""}`}
+                    onClick={() => setPage(p)}
+                    aria-label={`Page ${p}`}
+                    aria-current={p === safePage ? "page" : undefined}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="pagination-btn"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage(safePage + 1)}
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </div>
       </div>
     </>
@@ -98,4 +146,3 @@ const CaseStudiesPage = () => {
 };
 
 export default CaseStudiesPage;
-

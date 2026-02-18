@@ -13,6 +13,11 @@
   --atlas-header-height: 72px;
   /* Total offset (1rem top padding + header height) for content clearance */
   --atlas-header-offset: calc(var(--atlas-header-height) + 1rem);
+
+  /* Responsive layout: friendly on 32" desktop, Mac, laptop, and small devices */
+  --layout-max-width: 1440px;
+  --layout-padding-x: clamp(0.75rem, 5vw, 2.5rem);
+  --layout-padding-x-narrow: clamp(0.75rem, 4vw, 1.5rem);
 }
 
 /* ============================================================================
@@ -86,8 +91,8 @@ body {
   right: 0;
   z-index: 1100;
   padding-top: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--layout-padding-x);
+  padding-right: var(--layout-padding-x);
   min-height: calc(var(--atlas-header-height) + 1rem);
   display: flex;
   align-items: flex-start;
@@ -124,9 +129,9 @@ body {
 
 .header-container {
   width: 100%;
-  max-width: 1600px;
+  max-width: var(--layout-max-width);
   height: var(--atlas-header-height);
-  padding: 0 2rem;
+  padding: 0 clamp(0.5rem, 2vw, 1.5rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -888,11 +893,16 @@ body {
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
+  padding-left: var(--layout-padding-x);
+  padding-right: var(--layout-padding-x);
 }
 
 /* All page-level children stretch full width so centering is handled by inner max-width */
 .atlas-main > * {
   width: 100%;
+  max-width: var(--layout-max-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* For pages that need padding from header */
@@ -901,19 +911,31 @@ body {
 }
 
 /* ============================================================================
-   PAGE CONTAINER - Consistent padding for all pages
+   PAGE CONTAINER - Consistent padding for all pages (responsive)
    ============================================================================ */
 .page-container {
   width: 100%;
-  max-width: 1600px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding: 96px 64px !important;
+  padding: clamp(4rem, 8vh, 6rem) var(--layout-padding-x) !important;
   animation: pageEnter 0.4s ease-out;
+}
+
+@media (max-width: 1024px) {
+  .page-container {
+    padding: clamp(3rem, 6vh, 4rem) var(--layout-padding-x) !important;
+  }
 }
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 64px 24px !important;
+    padding: clamp(2.5rem, 5vh, 3rem) var(--layout-padding-x) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: 2rem var(--layout-padding-x) !important;
   }
 }
 

@@ -26,7 +26,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: calc(var(--atlas-header-height) + 2rem) 2rem 2rem;
+  padding: calc(var(--atlas-header-height) + 2rem) var(--layout-padding-x, 2rem) 2rem;
   padding-top: 5rem;
   overflow: hidden;
   gap: 0;
@@ -110,7 +110,7 @@
   gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
   width: 100%;
-  max-width: 1200px;
+  max-width: min(1200px, var(--layout-max-width, 1440px));
   padding: 10rem 0;
   margin: 0 auto;
   flex: 1;
@@ -415,17 +415,17 @@
     outline-offset: 2px;
   }
 
-  /* Magnifying glass search button: no background or border, hover only */
+  /* Magnifying glass search button – hover matches sign-in (filled accent, smooth transition) */
   &.search-btn-icon {
     min-width: 0;
     width: 48px;
     min-height: 48px;
     padding: 0.75rem;
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.2);
     color: var(--atlas-text-primary);
     border-radius: 10px;
-    transition: background-color 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 
     svg {
       width: 22px;
@@ -435,12 +435,13 @@
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(148, 163, 184, 0.35);
       box-shadow: none;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--atlas-text-primary);
+      outline: 2px solid var(--atlas-accent);
       outline-offset: 2px;
     }
   }
@@ -465,11 +466,18 @@
 }
 
 /* Watch demo button - opens in-page 3-step walkthrough modal */
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1rem;
+}
+
 .hero-demo-link {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  margin-top: 1rem;
   padding: 0;
   border: none;
   background: none;
@@ -1476,252 +1484,6 @@
 }
 
 /* ============================================================================
-   PRICING SECTION
-   ============================================================================ */
-.pricing-section {
-  padding: 5rem 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.pricing-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  
-  h2 {
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: var(--atlas-text-primary);
-  }
-  
-  p {
-    font-size: 1rem;
-    color: var(--atlas-text-muted);
-  }
-}
-
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  margin-bottom: 2.5rem;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.pricing-card {
-  /* Surface from .surface-card (index.css) */
-  position: relative;
-  padding: 2rem;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  }
-
-  &.popular {
-    border-color: var(--atlas-accent);
-    background: linear-gradient(180deg, rgba(34, 197, 94, 0.08) 0%, rgba(13, 20, 36, 0.6) 100%);
-    
-    &:hover {
-      border-color: var(--atlas-accent);
-      box-shadow: 0 12px 40px var(--atlas-accent-glow);
-    }
-  }
-
-  &.enterprise {
-    border-color: rgba(139, 92, 246, 0.35);
-    background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(13, 20, 36, 0.6) 100%);
-
-    &:hover {
-      border-color: rgba(139, 92, 246, 0.55);
-      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25);
-    }
-
-    .pricing-features li svg {
-      stroke: rgba(139, 92, 246, 0.9);
-    }
-  }
-}
-
-/* WCAG AA: white on bright green (#22c55e) fails; use darker green so contrast ≥4.5:1 */
-.popular-badge {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.375rem 1rem;
-  background: #15803d;
-  color: #fff;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.pricing-card-header {
-  margin-bottom: 1.5rem;
-  
-  h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    color: var(--atlas-text-primary);
-  }
-  
-  p {
-    font-size: 0.8125rem;
-    color: var(--atlas-text-muted);
-  }
-}
-
-.pricing-amount {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-  
-  .price {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--atlas-text-primary);
-    letter-spacing: -0.02em;
-  }
-  
-  .price-period {
-    font-size: 1rem;
-    color: var(--atlas-text-muted);
-    font-weight: 400;
-  }
-  
-  .credits {
-    font-size: 1rem;
-    color: var(--atlas-text-secondary);
-    font-weight: 500;
-  }
-}
-
-/* Enterprise pricing text sizing */
-.pricing-card.enterprise {
-  .pricing-amount {
-    .price {
-      font-size: 2rem;
-      letter-spacing: -0.01em;
-    }
-    .price-period {
-      font-size: 1rem;
-    }
-  }
-}
-
-.scan-credit-note {
-  font-size: 0.8125rem;
-  color: var(--atlas-text-secondary);
-  line-height: 1.55;
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
-  padding: 0.75rem;
-  background: rgba(34, 197, 94, 0.05);
-  border-left: 2px solid var(--atlas-accent);
-  border-radius: 4px;
-}
-
-/* Enterprise: purple theme + accessible text */
-.pricing-card.enterprise .scan-credit-note {
-  background: rgba(139, 92, 246, 0.08);
-  border-left-color: rgba(139, 92, 246, 0.5);
-  color: var(--atlas-text-secondary);
-}
-
-.pricing-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  
-  li {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-size: 0.875rem;
-    color: var(--atlas-text-secondary);
-    
-    svg {
-      width: 16px;
-      height: 16px;
-      stroke: var(--atlas-accent);
-      flex-shrink: 0;
-    }
-  }
-}
-
-.pricing-btn {
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  background: transparent;
-  color: var(--atlas-text-primary);
-  border: 1px solid var(--atlas-border);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  
-  &:hover {
-    border-color: var(--atlas-accent);
-    color: var(--atlas-accent);
-    background: rgba(34, 197, 94, 0.05);
-  }
-  
-  &.popular-btn {
-    background: var(--atlas-accent);
-    color: #fff;
-    border: none;
-    
-    &:hover {
-      box-shadow: 0 8px 24px var(--atlas-accent-glow);
-      transform: translateY(-2px);
-    }
-  }
-
-  &.enterprise-btn {
-    background: rgba(139, 92, 246, 0.95);
-    color: #fff;
-    border: none;
-
-    &:hover {
-      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
-      transform: translateY(-2px);
-    }
-  }
-}
-
-/* Pricing Info Box */
-
-.coming-soon-tag {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.125rem 0.5rem;
-  background: rgba(148, 163, 184, 0.12);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 999px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--atlas-text-muted);
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-/* ============================================================================
    KARMA PANEL - Community Contribution
    ============================================================================ */
 .karma-panel {
@@ -2380,26 +2142,6 @@
     align-items: flex-start;
   }
 
-  .pricing-section {
-    padding: 3rem 1rem 4rem;
-  }
-
-  .pricing-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-  
-  .pricing-card {
-    padding: 1.75rem;
-  }
-  
-  .pricing-card.popular {
-    order: -1;
-  }
-  
-  .pricing-amount .price {
-    font-size: 2rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -2496,9 +2238,16 @@
     }
   }
 
-  .search-btn.search-btn-icon:hover {
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-accent);
+  /* Search icon button: same hover as sign-in – filled green, white icon, accent-hover transition */
+  .search-btn.search-btn-icon {
+    border-color: var(--atlas-border);
+
+    &:hover {
+      background: var(--atlas-accent-hover);
+      border-color: var(--atlas-accent-hover);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--atlas-accent-glow);
+    }
   }
 
   /* Bridge section – step cards */

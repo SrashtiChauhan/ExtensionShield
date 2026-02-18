@@ -20,6 +20,8 @@ const ResearchPage = React.lazy(() => import("../pages/research/ResearchPage"));
 const MethodologyPage = React.lazy(() => import("../pages/research/MethodologyPage"));
 const CaseStudiesPage = React.lazy(() => import("../pages/research/CaseStudiesPage"));
 const HoneyCaseStudyPage = React.lazy(() => import("../pages/research/HoneyCaseStudyPage"));
+const PdfConvertersCaseStudyPage = React.lazy(() => import("../pages/research/PdfConvertersCaseStudyPage"));
+const FakeAdBlockersCaseStudyPage = React.lazy(() => import("../pages/research/FakeAdBlockersCaseStudyPage"));
 const BenchmarksPage = React.lazy(() => import("../pages/research/BenchmarksPage"));
 
 // GSoC / Open Source Pages
@@ -30,7 +32,6 @@ const BlogPage = React.lazy(() => import("../pages/gsoc/BlogPage"));
 const OpenSourcePage = React.lazy(() => import("../pages/open-source/OpenSourcePage"));
 const CommunityLandingPage = React.lazy(() => import("../pages/community/CommunityLandingPage"));
 const AboutUsPage = React.lazy(() => import("../pages/AboutUsPage"));
-const ApiServicePage = React.lazy(() => import("../pages/resources/ApiServicePage"));
 
 // Redirect /extension/:id to /scan/results/:id (extension route removed)
 const RedirectExtensionToScanResults = () => {
@@ -149,6 +150,28 @@ export const routes = [
     changefreq: "monthly"
   },
   {
+    path: "/research/case-studies/pdf-converters",
+    element: <PdfConvertersCaseStudyPage />,
+    seo: {
+      title: "PDF Converter Extensions Data Harvesting Case Study | ExtensionShield",
+      description: "Chrome extension security case study: malicious PDF converter extensions that harvest document contents and user data. Enterprise extension risk.",
+      canonical: "/research/case-studies/pdf-converters"
+    },
+    priority: 0.7,
+    changefreq: "monthly"
+  },
+  {
+    path: "/research/case-studies/fake-ad-blockers",
+    element: <FakeAdBlockersCaseStudyPage />,
+    seo: {
+      title: "Fake Ad Blocker Extensions Case Study | ExtensionShield",
+      description: "Chrome extension malware case study: fake ad blockers that inject ads. 20M–80M+ users affected. Extension security research for enterprises.",
+      canonical: "/research/case-studies/fake-ad-blockers"
+    },
+    priority: 0.7,
+    changefreq: "monthly"
+  },
+  {
     path: "/research/methodology",
     element: <MethodologyPage />,
     seo: {
@@ -181,19 +204,6 @@ export const routes = [
       canonical: "/enterprise"
     },
     priority: 0.8,
-    changefreq: "monthly"
-  },
-
-  // ============ RESOURCES (API, Open Source, etc.) ============
-  {
-    path: "/resources/api-service",
-    element: <ApiServicePage />,
-    seo: {
-      title: "API Service: Access & Payload Reference | ExtensionShield",
-      description: "ExtensionShield API as a service: how to access endpoints, request/response payload reference for QA and integration.",
-      canonical: "/resources/api-service"
-    },
-    priority: 0.7,
     changefreq: "monthly"
   },
 

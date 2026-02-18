@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../../components/SEOHead";
 import DonutScore from "../../components/report/DonutScore";
+import PipelineViz from "../../components/PipelineViz/PipelineViz";
 import { getBandFromScore } from "../../constants/riskBands";
 import "./MethodologyPage.scss";
 
@@ -29,6 +30,8 @@ const MethodologyPage = () => {
               Three independent security pipelines combine to create comprehensive governance.
             </p>
           </header>
+
+          <PipelineViz className="methodology-pipeline-viz" />
 
           {/* Aggregate Score - Showing End Result First */}
           <div className="aggregate-card">

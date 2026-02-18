@@ -86,6 +86,12 @@
     color: #fdba74;
     border: 1px solid rgba(249, 115, 22, 0.4);
   }
+  
+  &.critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
 }
 
 .category-badge {
