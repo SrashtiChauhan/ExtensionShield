@@ -93,6 +93,33 @@ const signInWithGitHub = async () => {
   // The redirect will happen automatically
 };
 
+/** Magic link: one email for both sign-up and sign-in. No password. */
+const signInWithMagicLink = async (email) => {
+  checkSupabaseConfig();
+  const redirectTo =
+    typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname || ""}` : undefined;
+  const { data, error } = await supabase.auth.signInWithOtp({
+    email: email.trim().toLowerCase(),
+    options: {
+      emailRedirectTo: redirectTo || undefined,
+    },
+  });
+  if (error) {
+    const msg = error.message || "Could not send magic link";
+    if (error.message?.toLowerCase().includes("sending magic link") || error.status === 500) {
+      throw new Error(
+        `${msg} Check Supabase SMTP and Auth logs (Authentication → Emails).`
+      );
+    }
+    throw new Error(msg);
+  }
+  return data;
+};
+
+/** Message shown after magic link email is sent */
+export const MAGIC_LINK_SENT_MESSAGE =
+  "Check your email — we sent you a sign-in link. Click the link to sign in (check spam if you don't see it).";
+
 const signInWithEmail = async (email, password) => {
   checkSupabaseConfig();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -105,9 +132,9 @@ const signInWithEmail = async (email, password) => {
   return data.user;
 };
 
-/** Message shown when sign-up succeeds but email confirmation is required */
+/** @deprecated Prefer magic link. Kept for backwards compatibility. */
 export const EMAIL_CONFIRM_REQUIRED_MESSAGE =
-  "Please check your email to confirm your account before signing in.";
+  "Please check your email to confirm your account before signing in. Click the link in the email to finish.";
 
 const signUpWithEmail = async (email, password, name) => {
   checkSupabaseConfig();
@@ -137,6 +164,7 @@ const signOut = async () => {
 const authService = {
   signInWithGoogle,
   signInWithGitHub,
+  signInWithMagicLink,
   signInWithEmail,
   signUpWithEmail,
   signOut,

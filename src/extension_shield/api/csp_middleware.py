@@ -68,11 +68,14 @@ def generate_csp_policy(is_dev: bool = False, report_only: bool = False) -> str:
         'https:',
     ]
     
-    # Connect source
+    # Connect source (Supabase auth + Google Tag Manager / Analytics)
     connect_src = [
         "'self'",
         'https://*.supabase.co',
         'https://*.supabase.io',
+        'https://www.googletagmanager.com',
+        'https://www.google-analytics.com',
+        'https://www.google.com',
     ]
     
     if is_dev:

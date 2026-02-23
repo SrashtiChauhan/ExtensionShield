@@ -32,7 +32,8 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
         flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: false, // We handle callbacks manually via AuthCallbackPage
+        // true = Supabase parses hash (#access_token=...) from email confirmation links and establishes session
+        detectSessionInUrl: true,
       },
     });
   } catch (error) {
@@ -43,7 +44,7 @@ if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
         flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
       },
     });
   }

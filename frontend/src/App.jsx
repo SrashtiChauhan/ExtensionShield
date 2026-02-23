@@ -300,7 +300,12 @@ function NavItemDropdown({ item, location }) {
               >
                 <div className="nav-dropdown-icon">{renderIcon(dropdownItem.icon)}</div>
                 <div className="nav-dropdown-content">
-                  <div className="nav-dropdown-label">{dropdownItem.label}</div>
+                  <div className="nav-dropdown-label-row">
+                    <div className="nav-dropdown-label">{dropdownItem.label}</div>
+                    {dropdownItem.badge && (
+                      <span className="nav-dropdown-badge" aria-hidden="true">{dropdownItem.badge}</span>
+                    )}
+                  </div>
                   <div className="nav-dropdown-desc">{dropdownItem.description}</div>
                 </div>
               </Element>

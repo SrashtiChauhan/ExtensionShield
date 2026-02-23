@@ -623,12 +623,36 @@ body {
   min-width: 0;
 }
 
+.nav-dropdown-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.125rem;
+}
+
 .nav-dropdown-label {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--atlas-text-primary);
-  margin-bottom: 0.125rem;
   line-height: 1.2;
+}
+
+.nav-dropdown-badge {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  color: var(--atlas-accent);
+  border: 1px solid var(--atlas-accent);
+  background: transparent;
+  opacity: 0.95;
+}
+
+.nav-dropdown-label-row + .nav-dropdown-desc {
+  margin-top: 0;
 }
 
 .nav-dropdown-desc {

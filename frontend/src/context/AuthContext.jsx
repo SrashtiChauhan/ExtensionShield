@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-import authService, { EMAIL_CONFIRM_REQUIRED_MESSAGE } from "../services/authService";
+import authService, { EMAIL_CONFIRM_REQUIRED_MESSAGE, MAGIC_LINK_SENT_MESSAGE } from "../services/authService";
 import { supabase } from "../services/supabaseClient";
 import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
@@ -350,6 +350,22 @@ export const AuthProvider = ({ children }) => {
     }
   }, [toUiUser]);
 
+  const signInWithMagicLink = useCallback(async (email) => {
+    setAuthError(null);
+    setAuthSuccessMessage(null);
+    setIsLoading(true);
+    try {
+      await authService.signInWithMagicLink(email);
+      setAuthSuccessMessage(MAGIC_LINK_SENT_MESSAGE);
+      return null;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const signUpWithEmail = useCallback(async (email, password, name) => {
     setAuthError(null);
     setAuthSuccessMessage(null);
@@ -441,6 +457,7 @@ export const AuthProvider = ({ children }) => {
     isSignInModalOpen,
     signInWithGoogle,
     signInWithGitHub,
+    signInWithMagicLink,
     signInWithEmail,
     signUpWithEmail,
     signOut,

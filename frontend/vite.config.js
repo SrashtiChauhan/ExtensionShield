@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // unsafe-inline for React
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: https:",
-        "connect-src 'self' https://*.supabase.co https://*.supabase.io http://localhost:* ws://localhost:* wss://localhost:*",
+        "connect-src 'self' https://*.supabase.co https://*.supabase.io http://localhost:* ws://localhost:* wss://localhost:* https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com",
         "frame-src 'self' https://*.supabase.co https://www.googletagmanager.com",
         // Vite creates workers from blob: URLs in dev
         "worker-src 'self' blob:",

@@ -41,7 +41,8 @@ export default function DevOpenCoreSection({ reducedMotion = false }) {
                 <span className="dev-open-core-title-line dev-open-core-title-line--main">Pro for developers.</span>
               </h2>
               <p className="dev-open-core-subhead">
-                Upload a private CRX/ZIP build (Pro) before release. We audit your files, flag vulnerabilities and risky patterns, and suggest fixes.
+                Upload a private CRX/ZIP build (Pro) before release.
+                We audit your files, flag vulnerabilities and risky patterns, and suggest fixes — with evidence.
               </p>
               <p className="dev-open-core-how-calc">
                 How we calculate: Security {SCORE_WEIGHTS.security}% · Privacy {SCORE_WEIGHTS.privacy}% · Governance {SCORE_WEIGHTS.compliance}%.{" "}
@@ -58,6 +59,10 @@ export default function DevOpenCoreSection({ reducedMotion = false }) {
               <div className="dev-open-core-cta-wrap">
                 <Link to="/scan/upload" className="dev-open-core-cta-btn">Upload CRX/ZIP (Pro)</Link>
               </div>
+              <p className="dev-open-core-enterprise-line">
+                For teams: Monitoring + policy + audit exports.{" "}
+                <Link to="/enterprise" className="dev-open-core-enterprise-link">Enterprise →</Link>
+              </p>
             </motion.div>
           </div>
 

@@ -19,20 +19,21 @@ export const topNavItems = [
     dropdownItems: [
       {
         icon: "🔍",
-        label: "Start Scan",
-        description: "Analyze any extension",
+        label: "Scan a Public Extension",
+        description: "Chrome Web Store URL or ID",
         path: "/scan"
       },
       {
         icon: "📦",
-        label: "Scan a Private Build (CRX/ZIP)",
-        description: "Developers (Pro)",
-        path: "/scan/upload"
+        label: "Upload CRX/ZIP (Pro)",
+        description: "Private pre-release audit",
+        path: "/scan/upload",
+        badge: "PRO"
       },
       {
         icon: "🕐",
         label: "Scan History",
-        description: "Browse past scans",
+        description: "Your past scans",
         path: "/scan/history"
       }
     ]

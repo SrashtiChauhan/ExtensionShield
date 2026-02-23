@@ -147,6 +147,25 @@
   opacity: 0.9;
 }
 
+.dev-open-core-enterprise-line {
+  font-size: 0.8125rem;
+  color: var(--atlas-text-muted);
+  line-height: 1.45;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.dev-open-core-enterprise-link {
+  font-weight: 500;
+  color: var(--atlas-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--atlas-accent-hover, #16a34a);
+  }
+}
+
 /* RIGHT: pipeline (enterprise-governance-visual) */
 .dev-open-core-right {
   position: relative;

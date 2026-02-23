@@ -1,6 +1,6 @@
 /**
  * Shared extension upload hook. Exposes the same upload flow used by the scan pipeline.
- * Use from FileUploadSection and HeroDevDropzone so both trigger the same handler.
+ * Used by PrivateBuildDropzone and any other component that triggers the same handler.
  */
 import { useScan } from "../context/ScanContext";
 

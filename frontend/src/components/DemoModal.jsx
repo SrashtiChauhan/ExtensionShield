@@ -175,6 +175,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
               className="demo-modal-store-link"
               aria-label="Open Chrome Web Store"
             >
+              <span className="demo-modal-store-link-text">Chrome Store</span>
               <ExternalLink size={18} strokeWidth={2} />
             </a>
           )}

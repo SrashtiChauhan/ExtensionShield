@@ -112,8 +112,9 @@ $success-green: #22c55e;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    border: 1px solid $modal-border;
-    color: $text-secondary;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.08);
     transition: all 0.25s ease;
 
     svg {
@@ -144,6 +145,8 @@ $success-green: #22c55e;
 
   .demo-nav-btn-inner {
     background: rgba(13, 20, 36, 0.5);
+    border-color: $modal-border;
+    color: $text-secondary;
   }
 
   &:hover .demo-nav-btn-inner {
@@ -294,13 +297,21 @@ $success-green: #22c55e;
   text-align: center;
 }
 
-// Chrome Web Store link icon (Step 1 only)
+// Chrome Web Store link (Step 1 only) – short label + icon
 .demo-modal-store-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
   color: $text-secondary;
   transition: color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  .demo-modal-store-link-text {
+    white-space: nowrap;
+  }
 
   &:hover {
     color: $accent-green;
