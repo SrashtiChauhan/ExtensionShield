@@ -26,13 +26,16 @@ if (!apiKey || apiKey === 're_xxxxxxxxx') {
 }
 
 const to = process.argv[2] || process.env.RESEND_TEST_TO || 'support@extensionshield.com';
+// Use verified domain sender so we can send to any email (set in .env: RESEND_FROM=noreply@extensionshield.com)
+const from = process.env.RESEND_FROM || 'ExtensionShield <onboarding@resend.dev>';
 console.log('Sending test email to:', to);
+console.log('From:', from);
 
 const resend = new Resend(apiKey);
 
 async function main() {
   const { data, error } = await resend.emails.send({
-    from: 'ExtensionShield <onboarding@resend.dev>',
+    from: from.includes('<') ? from : `ExtensionShield <${from}>`,
     to,
     subject: 'ExtensionShield – test email',
     html: `

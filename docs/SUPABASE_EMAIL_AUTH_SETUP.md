@@ -166,9 +166,31 @@ Until the domain is verified and the sender uses that domain, Resend will not de
 
 ---
 
+## Step-by-step debug: Resend vs Supabase
+
+**From project root, run:**
+```bash
+node scripts/debug-magic-link.mjs your@email.com http://localhost:5174/
+```
+
+| Step | What it checks | If it fails |
+|------|----------------|-------------|
+| **1. Resend** | Sends a test email using `RESEND_API_KEY` from root `.env`. | **Resend**: Missing key → add in root `.env`. "Only send to your own email" → API key is valid; verify a domain at resend.com/domains and use that sender in Supabase SMTP. |
+| **2. Supabase** | Calls magic link (OTP) using `VITE_SUPABASE_*` from `frontend/.env`. | **Supabase**: 500 = Supabase cannot send the email. Configure SMTP in Dashboard (Authentication → Emails → SMTP Settings) and use a **verified** sender address. Check Auth logs for the exact error. |
+
+Fix **Resend** first (Step 1), then **Supabase SMTP** (Step 2). SMTP is configured only in the Supabase Dashboard, not in `.env`.
+
+---
+
 ## Magic link returns 500 ("Error sending magic link email")
 
-If the app shows **"Error sending magic link email"** and the browser reports **500** on `auth/v1/otp`, Supabase is failing **while sending** the email. Fix the following in order:
+**Quick diagnostic (from `frontend/`):**
+```bash
+node scripts/check-magic-link.mjs your@email.com http://localhost:5174/
+```
+It verifies `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` and shows the exact error from Supabase.
+
+If the app shows **"Error sending magic link email"** and the browser or script reports **500** / "Error sending confirmation email", Supabase is failing **while sending** the email. Fix the following in order:
 
 ### 1. Redirect URL allow list
 
