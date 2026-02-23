@@ -37,11 +37,12 @@ export default function DevOpenCoreSection({ reducedMotion = false }) {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <h2 id="dev-open-core-heading" className="dev-open-core-title">
-                <span className="dev-open-core-title-line dev-open-core-title-line--main">Ship safer extensions.</span>
-                <span className="dev-open-core-title-line">Private builds are Pro.</span>
+                Ship safer Chrome extensions.
               </h2>
+              <h3 className="dev-open-core-h3">Private CRX/ZIP security audit (Pro)</h3>
               <p className="dev-open-core-subhead">
-                For developers and teams. Upload a private CRX/ZIP build before release for an evidence-backed security audit + fix suggestions.
+                For developers and teams. Upload a private CRX/ZIP build before release for an evidence-backed{" "}
+                <Link to="/scan/upload" className="dev-open-core-how-link">Chrome extension security audit</Link>, vulnerability scanning, and fix suggestions.
               </p>
               <p className="dev-open-core-how-calc">
                 How we calculate: Security {SCORE_WEIGHTS.security}% · Privacy {SCORE_WEIGHTS.privacy}% · Governance {SCORE_WEIGHTS.compliance}%.{" "}

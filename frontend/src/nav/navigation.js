@@ -19,7 +19,7 @@ export const topNavItems = [
     dropdownItems: [
       {
         icon: "🔍",
-        label: "Scan a Public Extension",
+        label: "Scan a Public Extension (URL or ID)",
         description: "Chrome Web Store URL or ID",
         path: "/scan"
       },
@@ -197,6 +197,7 @@ export const footerConfig = {
       heading: "Product",
       links: [
         { label: "Scan", path: "/scan" },
+        { label: "Upload CRX/ZIP (Pro)", path: "/scan/upload" },
         { label: "Is extension safe?", path: "/is-this-chrome-extension-safe" },
         { label: "Scan History", path: "/scan/history" }
       ]

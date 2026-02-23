@@ -78,8 +78,8 @@ export const routes = [
     path: "/",
     element: <HomePage />,
     seo: {
-      title: "Is This Chrome Extension Safe? Scanner | ExtensionShield",
-      description: "Chrome extension safety scanner: paste a Web Store link to see if it's safe—permissions, network domains, version changes, and a risk score with evidence.",
+      title: "ExtensionShield — Chrome Extension Security Scanner & CRX/ZIP Audit",
+      description: "Scan Chrome extensions by URL/ID for free. Upload private CRX/ZIP builds (Pro) for an evidence-backed security audit, vulnerability checks, and fix suggestions.",
       canonical: "/"
     },
     priority: 1.0,
@@ -102,8 +102,8 @@ export const routes = [
     path: "/scan/upload",
     element: <ScanUploadPage />,
     seo: {
-      title: "Upload & Scan Private Extension Build | ExtensionShield",
-      description: "Scan your private Chrome extension build (CRX/ZIP) before you ship. Permissions, network endpoints, risky patterns.",
+      title: "Upload CRX/ZIP — Chrome Extension Security Audit (Pro) | ExtensionShield",
+      description: "Upload a private CRX or ZIP to scan for risky permissions, vulnerabilities, suspicious network calls, and policy risks. Get evidence-linked findings and fix suggestions.",
       canonical: "/scan/upload"
     },
     priority: 0.8,

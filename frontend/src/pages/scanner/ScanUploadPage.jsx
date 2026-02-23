@@ -16,8 +16,8 @@ export default function ScanUploadPage() {
   return (
     <div className="scan-upload-page">
       <SEOHead
-        title="Upload & Scan Private Extension Build | ExtensionShield"
-        description="Scan your private Chrome extension build (CRX/ZIP) before you ship. Private by default."
+        title="Upload CRX/ZIP — Chrome Extension Security Audit (Pro) | ExtensionShield"
+        description="Upload a private CRX or ZIP to scan for risky permissions, vulnerabilities, suspicious network calls, and policy risks. Get evidence-linked findings and fix suggestions."
         pathname="/scan/upload"
       />
       <section className="scan-upload-hero" aria-label="Private build upload">
@@ -41,9 +41,9 @@ export default function ScanUploadPage() {
           </nav>
 
           <p className="scan-upload-kicker">PRIVATE BUILD</p>
-          <h1 className="scan-upload-headline">Scan your private extension build.</h1>
+          <h1 className="scan-upload-headline">Chrome extension security audit — scan CRX or ZIP</h1>
           <p className="scan-upload-subhead">
-            Catch risky permissions and endpoints before release.
+            Pre-release extension security: upload a private CRX/ZIP for vulnerability scanning, code review signals, and fix suggestions.
           </p>
 
           <div className="scan-upload-dropzone-wrap">

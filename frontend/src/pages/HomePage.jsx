@@ -104,23 +104,54 @@ const HomePage = () => {
     "name": "ExtensionShield",
     "applicationCategory": "SecurityApplication",
     "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Chrome extension scanner. Paste a Web Store URL or extension ID and get a safety report in seconds — malware, privacy, and compliance.",
+    "offers": [
+      { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free public extension scan by URL or ID" },
+      { "@type": "Offer", "description": "Pro: private CRX/ZIP security audit and vulnerability scan" }
+    ],
+    "description": "Chrome extension security scanner. Scan by URL/ID for free. Upload private CRX/ZIP (Pro) for pre-release security audit, vulnerability scanning, and fix suggestions.",
     "url": "https://extensionshield.com/scan"
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can I scan a private CRX/ZIP?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Pro users can upload a private CRX or ZIP build for a pre-release security audit. Sign in and go to Upload CRX/ZIP (Pro) from the Scan menu." }
+      },
+      {
+        "@type": "Question",
+        "name": "What does the audit check?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The audit checks security (SAST, malware/VirusTotal, obfuscation), privacy (permissions, data exfil, network calls), and governance (policy alignment, disclosure). You get evidence-linked findings and fix suggestions." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you store uploads?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Uploads are processed to generate the report. We do not retain your private build for longer than needed to complete the scan. Reports are private by default; you choose whether to share." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this help with Chrome Web Store policy risks?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The governance layer covers policy alignment, disclosure accuracy, and consistency—so you can address store policy risks before submission." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is public scanning free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Scanning a Chrome extension by Web Store URL or extension ID is free. Private CRX/ZIP upload and audit are available on Pro." }
+      }
+    ]
   };
 
   return (
     <>
       <SEOHead
-        title="Is This Chrome Extension Safe? Scanner | ExtensionShield"
-        description="Chrome extension safety scanner: paste a Web Store link to see if it's safe—permissions, network domains, version changes, and a risk score with evidence."
+        title="ExtensionShield — Chrome Extension Security Scanner & CRX/ZIP Audit"
+        description="Scan Chrome extensions by URL/ID for free. Upload private CRX/ZIP builds (Pro) for an evidence-backed security audit, vulnerability checks, and fix suggestions."
         pathname="/"
         ogType="website"
-        schema={[organizationSchema, softwareAppSchema]}
+        schema={[organizationSchema, softwareAppSchema, faqSchema]}
       />
       
       <div className="home-page">
