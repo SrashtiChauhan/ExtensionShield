@@ -141,8 +141,8 @@ const HomePage = () => {
       },
       {
         "@type": "Question",
-        "name": "Is public scanning free?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Scanning a Chrome extension by Web Store URL or extension ID is free. Private CRX/ZIP upload and audit are available on Pro." }
+        "name": "Is the Chrome extension scanner free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Our free extension scanner lets you scan any Chrome extension by Web Store URL or extension ID. Private CRX/ZIP upload and audit are available on Pro for developers." }
       }
     ]
   };
@@ -150,11 +150,12 @@ const HomePage = () => {
   return (
     <>
       <SEOHead
-        title="ExtensionShield — Chrome Extension Security Scanner & CRX/ZIP Audit"
-        description="Scan Chrome extensions by URL/ID for free. Upload private CRX/ZIP builds (Pro) for an evidence-backed security audit, vulnerability checks, and fix suggestions."
+        title="Free Chrome Extension Scanner & Security Audit | ExtensionShield"
+        description="Free Chrome extension scanner and security audit for developers. Scan any extension by URL—get risk score, permissions & malware check. Audit CRX/ZIP builds before release."
         pathname="/"
         ogType="website"
         schema={[organizationSchema, softwareAppSchema, faqSchema]}
+        keywords="free extension scanner, free extension audit, Chrome extension scanner, Chrome extension security, extension security audit, developer extension audit, scan Chrome extension"
       />
       
       <div className="home-page">

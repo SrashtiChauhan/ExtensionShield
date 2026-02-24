@@ -24,6 +24,7 @@ const SEOHead = ({
   twitterImage,
   noindex = false,
   schema,
+  keywords,
   children, // For additional meta tags
 }) => {
   const location = useLocation();
@@ -49,6 +50,7 @@ const SEOHead = ({
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={canonicalUrl} />
       
       {/* Open Graph tags */}

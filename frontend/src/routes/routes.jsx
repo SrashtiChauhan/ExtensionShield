@@ -78,8 +78,8 @@ export const routes = [
     path: "/",
     element: <HomePage />,
     seo: {
-      title: "ExtensionShield — Chrome Extension Security Scanner & CRX/ZIP Audit",
-      description: "Scan Chrome extensions by URL/ID for free. Upload private CRX/ZIP builds (Pro) for an evidence-backed security audit, vulnerability checks, and fix suggestions.",
+      title: "Free Chrome Extension Scanner & Security Audit | ExtensionShield",
+      description: "Free Chrome extension scanner and security audit for developers. Scan any extension by URL—get risk score, permissions & malware check. Audit CRX/ZIP builds before release.",
       canonical: "/"
     },
     priority: 1.0,
@@ -91,8 +91,8 @@ export const routes = [
     path: "/scan",
     element: <ScannerPage />,
     seo: {
-      title: "Scan Chrome Extension for Malware | Extension Risk Score & Permissions Checker",
-      description: "Scan chrome extension for malware, get chrome extension risk score, and use our chrome extension permissions checker. Audit chrome extension security and check if a Chrome extension is safe.",
+      title: "Free Chrome Extension Scanner — Risk Score & Security Audit | ExtensionShield",
+      description: "Free Chrome extension scanner and security audit. Scan any extension by URL or ID—get risk score, permissions check, malware scan. For developers: audit extensions before release.",
       canonical: "/scan"
     },
     priority: 0.9,
@@ -246,7 +246,7 @@ export const routes = [
     element: <ChromeExtensionSecurityScannerPage />,
     seo: {
       title: "Chrome Extension Security Scanner | Free Scan & Risk Score | ExtensionShield",
-      description: "Free chrome extension security scanner. Scan any extension for malware, get a risk score, and see permissions and threats in under 60 seconds. Check if a Chrome extension is safe.",
+      description: "Free Chrome extension scanner and security audit. Scan any extension for malware, risk score, permissions & threats in under 60 seconds. For developers: audit extensions before release.",
       canonical: "/chrome-extension-security-scanner"
     },
     priority: 0.85,

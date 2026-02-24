@@ -477,6 +477,14 @@ const ScannerPage = () => {
       },
       {
         "@type": "Question",
+        "name": "Is there a free Chrome extension scanner?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. ExtensionShield offers a free extension scanner: paste any Chrome Web Store URL or extension ID to get an instant security audit, risk score, permissions check, and malware scan—no signup required."
+        }
+      },
+      {
+        "@type": "Question",
         "name": "Can I scan extensions before installing them?",
         "acceptedAnswer": {
           "@type": "Answer",
@@ -503,20 +511,22 @@ const ScannerPage = () => {
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "USD"
+      "priceCurrency": "USD",
+      "description": "Free Chrome extension scanner and security audit"
     },
-    "description": "Free Chrome extension security scanner that analyzes extensions for malware, privacy risks, and compliance issues.",
+    "description": "Free Chrome extension scanner and security audit. Scan any extension by URL for risk score, permissions, malware check. For developers: audit extensions before release.",
     "url": "https://extensionshield.com/scan"
   };
 
   return (
     <>
       <SEOHead
-        title="Scan Chrome Extension for Malware | Extension Risk Score & Permissions Checker"
-        description="Scan chrome extension for malware, get chrome extension risk score, and use our chrome extension permissions checker. Audit chrome extension security and check if a Chrome extension is safe."
+        title="Free Chrome Extension Scanner — Risk Score & Security Audit | ExtensionShield"
+        description="Free Chrome extension scanner and security audit. Scan any extension by URL or ID—get risk score, permissions check, malware scan. For developers: audit extensions before release."
         pathname="/scan"
         ogType="website"
         schema={[faqSchema, softwareAppSchema]}
+        keywords="free extension scanner, free extension audit, Chrome extension scanner, scan Chrome extension, extension risk score, extension security audit"
       />
       <div className="scanner-page">
         <section className="scanner-hero">
