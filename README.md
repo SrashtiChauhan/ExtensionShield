@@ -13,8 +13,8 @@
 ### Docker (Recommended)
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Stanzin7/ExtensionScanner.git
+# 1. Clone the repository (replace <your-org> with your GitHub org or username)
+git clone https://github.com/<your-org>/ExtensionShield.git
 cd ExtensionShield
 
 # 2. Configure environment
@@ -98,14 +98,11 @@ make lint           # Lint code
 
 | Document | Description |
 |----------|-------------|
-| [docs/GO_LIVE_CHECKLIST.md](docs/GO_LIVE_CHECKLIST.md) | **🚀 Step-by-step go-live checklist** |
-| [docs/PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md) | Production deployment with Supabase |
-| [docs/MIGRATIONS.md](docs/MIGRATIONS.md) | Supabase migrations runner and setup |
-| [docs/analytics.md](docs/analytics.md) | Privacy-first analytics setup |
-| [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md) | Product features, API reference, configuration |
-| [docs/GOVERNANCE_ARCHITECTURE_AND_HLD.md](docs/GOVERNANCE_ARCHITECTURE_AND_HLD.md) | Architecture, data contracts, implementation details |
+| [docs/README.md](docs/README.md) | Documentation index |
+| [docs/SECURITY.md](docs/SECURITY.md) | Security: reporting vulnerabilities and secrets |
+| [docs/SOFTWARE_DOCUMENTATION.md](docs/SOFTWARE_DOCUMENTATION.md) | Stack, structure, workflows, configuration |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | High-level architecture |
 | [scripts/run_supabase_migrations.py](scripts/run_supabase_migrations.py) | Apply Supabase SQL migrations with tracking |
-| [AGENTS.md](AGENTS.md) | AI/Agent coding guidelines |
 | http://localhost:8007/docs | Interactive API documentation (when running) |
 
 ---
@@ -114,7 +111,7 @@ make lint           # Lint code
 
 **Note**: ExtensionShield is built on top of the **[ThreatXtension](https://github.com/barvhaim/ThreatXtension)** codebase and is under active solo development. I've taken the original extension-focused codebase and am building significant enhancements on top of it. My original custom rulesets remain private, but the modified code and enhanced privacy rulesets are public here.
 
-This is a work in progress—thanks for your patience! For questions or issues: **snorzang65@gmail.com**
+This is a work in progress—thanks for your patience! For questions or issues, open a GitHub issue or contact **snorzang65@gmail.com**.
 
 See [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md) for detailed attribution and information about our enhancements over the ThreatXtension foundation.
 

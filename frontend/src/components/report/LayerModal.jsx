@@ -55,7 +55,8 @@ const LAYER_CONFIG = {
 };
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Helpers: factor status labels (non-misleading; avoid "NOT SAFE" = malware)
+// Severity-based labels describe risk level, not a safety guarantee.
 // ---------------------------------------------------------------------------
 function humanizeFactor(factor) {
   const info = FACTOR_HUMAN[factor.name] || {
@@ -66,10 +67,10 @@ function humanizeFactor(factor) {
   };
   const severity = factor.severity ?? 0;
   let level, levelColor;
-  if (severity >= 0.7)      { level = 'Not safe';      levelColor = 'var(--risk-bad)'; }
-  else if (severity >= 0.4) { level = 'Needs review';  levelColor = 'var(--risk-warn)'; }
-  else if (severity >= 0.05){ level = 'Safe';          levelColor = 'var(--risk-good)'; }
-  else                      { level = 'Clear';         levelColor = 'var(--risk-good)'; }
+  if (severity >= 0.7)      { level = 'Concern';    levelColor = 'var(--risk-bad)'; }
+  else if (severity >= 0.4) { level = 'Review';     levelColor = 'var(--risk-warn)'; }
+  else if (severity >= 0.05){ level = 'Low risk';   levelColor = 'var(--risk-good)'; }
+  else                      { level = 'No issues'; levelColor = 'var(--risk-good)'; }
   return { ...info, level, levelColor, severity, raw: factor };
 }
 
@@ -110,6 +111,14 @@ function bandLabel(band) {
   }
 }
 
+/** Short phrase that frames the breakdown as supporting the verdict (not the other way around). */
+function getVerdictCaption(band) {
+  if (band === 'GOOD') return 'All checks passed for this layer.';
+  if (band === 'WARN') return 'Some checks need attention before approval.';
+  if (band === 'BAD')  return 'This layer did not pass; review required.';
+  return '';
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -130,9 +139,13 @@ const LayerModal = ({
   const displayScore = score === null ? '--' : Math.round(score);
   const bc = bandColor(band);
   const bl = bandLabel(band);
+  const verdictCaption = getVerdictCaption(band);
 
   const ld = layerDetails?.[layer] || {};
   const oneLiner = ld.one_liner || '';
+
+  // Reasons for this layer (from decision engine); show up to 2
+  const displayReasons = (layerReasons || []).slice(0, 2);
 
   // Risk Breakdown: categorised & humanised factors
   const humanised = factors.map(humanizeFactor);
@@ -181,17 +194,36 @@ const LayerModal = ({
         </DialogHeader>
 
         <div className="lm-body">
-          {/* One-liner: e.g. "High governance risk: violates Chrome Web Store policies" */}
+          {/* Decision first: one clear verdict + reasons so users know what to trust */}
+          <section className="lm-decision" aria-label="Layer verdict">
+            <p className="lm-verdict">
+              <span className="lm-verdict-label">Verdict:</span>{' '}
+              <span className="lm-verdict-value" style={{ color: bc }}>{bl || '—'}</span>
+            </p>
+            {verdictCaption && (
+              <p className="lm-verdict-caption">{verdictCaption}</p>
+            )}
+            {displayReasons.length > 0 && (
+              <ul className="lm-reasons" aria-label="Reasons for this verdict">
+                {displayReasons.map((reason, i) => (
+                  <li key={i}>{reason}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* One-liner: optional plain-English summary */}
           {oneLiner ? (
             <p className="lm-insight">{oneLiner}</p>
           ) : (
             <p className="lm-tagline">{config.tagline}</p>
           )}
 
-          {/* Risk Breakdown - visual gauge cards by category */}
+          {/* Factor breakdown: supporting detail (consistent labels: Concern / Review / Low risk / No issues) */}
           {grouped.length > 0 && (
             <div className="lm-section lm-section-risk">
-              <h3 className="lm-section-title">Risk Breakdown</h3>
+              <h3 className="lm-section-title">Factor breakdown</h3>
+              <p className="lm-section-hint">How each check contributed to the verdict above.</p>
               <div className="lm-categories">
                 {grouped.map(([cat, items], catIdx) => (
                   <div key={cat} className="lm-cat" style={{ animationDelay: `${catIdx * 60}ms` }}>

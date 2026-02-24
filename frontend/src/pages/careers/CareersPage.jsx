@@ -4,11 +4,45 @@ import SEOHead from "../../components/SEOHead";
 import { careersRoles } from "../../data/careersRoles";
 import "./CareersPage.scss";
 
+const CANONICAL_ORIGIN = "https://extensionshield.com";
+
 const CareersPage = () => {
   const navigate = useNavigate();
 
   const applyForRole = (roleId) => {
     navigate(`/careers/apply${roleId ? `?role=${encodeURIComponent(roleId)}` : ""}`);
+  };
+
+  const jobsSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Open roles at ExtensionShield",
+    "description": "Join ExtensionShield. We're building the security, privacy, and governance layer for browser extensions.",
+    "numberOfItems": careersRoles.length,
+    "itemListElement": careersRoles.map((role, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "JobPosting",
+        "title": role.title,
+        "description": role.summary,
+        "datePosted": "2025-01-01",
+        "employmentType": "FULL_TIME",
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": "ExtensionShield",
+          "sameAs": CANONICAL_ORIGIN,
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressRegion": "Remote",
+            "addressCountry": "US",
+          },
+        },
+      },
+    })),
   };
 
   return (
@@ -17,6 +51,8 @@ const CareersPage = () => {
         title="Careers | ExtensionShield"
         description="Join ExtensionShield. We're building the security, privacy, and governance layer for browser extensions. View open roles and apply."
         pathname="/careers"
+        ogType="website"
+        schema={jobsSchema}
       />
 
       <div className="careers-page">

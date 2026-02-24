@@ -145,6 +145,50 @@
   gap: 24px;
   margin-top: 18px;
 
+  // Decision first: one clear verdict + reasons (single source of truth)
+  .lm-decision {
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: lmFadeUp 0.35s var(--lm-ease) both;
+  }
+  .lm-verdict {
+    margin: 0;
+    font-size: var(--report-text-base, 1rem);
+    line-height: var(--report-line-normal, 1.6);
+  }
+  .lm-verdict-label {
+    color: rgba(248, 250, 252, 0.65);
+    font-weight: 500;
+  }
+  .lm-verdict-value {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .lm-verdict-caption {
+    margin: 0;
+    font-size: var(--report-text-sm, 0.9375rem);
+    color: rgba(248, 250, 252, 0.75);
+    line-height: var(--report-line-normal, 1.5);
+  }
+  .lm-reasons {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: var(--report-text-sm, 0.9375rem);
+    color: rgba(248, 250, 252, 0.85);
+    line-height: var(--report-line-normal, 1.55);
+
+    li {
+      margin-top: 4px;
+      &:first-child { margin-top: 6px; }
+    }
+  }
+
   .lm-insight {
     font-size: var(--report-text-base, 1rem);
     font-weight: 500;
@@ -177,6 +221,12 @@
     color: rgba(248, 250, 252, 0.55);
     margin: 0;
     line-height: var(--report-line-tight, 1.4);
+  }
+  .lm-section-hint {
+    font-size: var(--report-text-xs, 0.8125rem);
+    color: rgba(248, 250, 252, 0.5);
+    line-height: var(--report-line-normal, 1.5);
+    margin: -4px 0 0 0;
   }
 }
 
@@ -238,9 +288,12 @@
     font-weight: 700;
     color: rgba(248, 250, 252, 0.85);
     letter-spacing: 0.05em;
-    margin-bottom: 20px;
+    margin-bottom: 4px;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .lm-section-hint {
+    margin-bottom: 16px;
   }
 
   .lm-categories {
@@ -498,6 +551,14 @@
 }
 
 .light .lm-body {
+  .lm-decision {
+    background: var(--atlas-bg-secondary);
+    border-color: var(--atlas-border);
+  }
+  .lm-verdict-label { color: var(--atlas-text-muted); }
+  .lm-verdict-caption { color: var(--atlas-text-secondary); }
+  .lm-reasons { color: var(--atlas-text-primary); }
+  .lm-section-hint { color: var(--atlas-text-muted); }
   .lm-insight {
     color: var(--atlas-text-primary);
     background: var(--atlas-bg-secondary);

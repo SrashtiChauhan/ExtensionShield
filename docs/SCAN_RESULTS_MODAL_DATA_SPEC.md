@@ -19,13 +19,27 @@ The scan results page (`ScanResultsPageV2.jsx`) displays:
 
 ## 2. Layer Modal Structure
 
-Each modal (`LayerModal.jsx`) has **three sections** (in order). Key Findings, What It Can Do, and What to Watch were removed from the modal; that information is consolidated in the **Quick Summary** (see [SCAN_RESULTS_ARCHITECTURE.md](./SCAN_RESULTS_ARCHITECTURE.md)).
+Each modal (`LayerModal.jsx`) is built so **one clear decision comes first** (Safe / Needs review / Not safe), then reasons and evidence. Factor rows use **consistent, non-misleading status labels** so they support the verdict instead of conflicting with it.
 
 | Section | Data Source | Display |
 |---------|-------------|---------|
-| **Header** | `score`, `band`, layer config | Layer title + icon + mini score ring + score (e.g., "80/100 Caution") |
-| **One-liner** | `layerDetails[layer].one_liner` or fallback tagline | Plain-English summary of the layer |
-| **Risk Breakdown** | `factors` (grouped by category) | Visual gauge cards: factor label, description, severity bar, risk badge |
+| **Header** | `score`, `band`, layer config | Layer title + icon + mini score ring + score (e.g. "84/100") + **verdict badge** (Safe / Needs review / Not safe) |
+| **Decision** | `band`, `layerReasons` | **Verdict:** [Safe \| Needs review \| Not safe]. Short caption (e.g. "Some checks need attention before approval."). Up to 2 reasons from the scoring engine when available. |
+| **One-liner** | `layerDetails[layer].one_liner` or fallback tagline | Optional plain-English summary of the layer. |
+| **Factor breakdown** | `factors` (grouped by category) | Section title "Factor breakdown" + hint: "How each check contributed to the verdict above." Visual cards: factor label, description, severity bar, **status badge** (see below). |
+
+### Factor status labels (per row)
+
+Factor badges **do not** use "Safe" / "Clear" / "Not safe" to avoid confusion with the layer verdict and to avoid implying malware when the finding is e.g. "outdated." Labels are severity-based and consistent:
+
+| Severity (0–1) | Badge label | Meaning |
+|----------------|-------------|---------|
+| ≥ 0.7 | **Concern** | High risk; needs attention. |
+| 0.4 – &lt;0.7 | **Review** | Moderate risk; worth checking. |
+| 0.05 – &lt;0.4 | **Low risk** | Low risk; no strong signal. |
+| &lt; 0.05 | **No issues** | No issues found (does not guarantee safety). |
+
+The **layer verdict** (Safe / Needs review / Not safe) is the single source of truth; factor breakdown explains how each check contributed.
 
 ---
 
