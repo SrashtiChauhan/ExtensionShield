@@ -30,16 +30,14 @@ Each modal (`LayerModal.jsx`) is built so **one clear decision comes first** (Sa
 
 ### Factor status labels (per row)
 
-Factor badges **do not** use "Safe" / "Clear" / "Not safe" to avoid confusion with the layer verdict and to avoid implying malware when the finding is e.g. "outdated." Labels are severity-based and consistent:
+Factor badges use a binary system for maximum clarity across all user backgrounds:
 
 | Severity (0–1) | Badge label | Meaning |
 |----------------|-------------|---------|
-| ≥ 0.7 | **Concern** | High risk; needs attention. |
-| 0.4 – &lt;0.7 | **Review** | Moderate risk; worth checking. |
-| 0.05 – &lt;0.4 | **Low risk** | Low risk; no strong signal. |
-| &lt; 0.05 | **No issues** | No issues found (does not guarantee safety). |
+| ≥ 0.4 | **Issues Found** | Problems detected; needs attention. |
+| &lt; 0.4 | **No Issues** | No problems detected for this check. |
 
-The **layer verdict** (Safe / Needs review / Not safe) is the single source of truth; factor breakdown explains how each check contributed.
+The **layer verdict** (Safe / Needs Review / Not Safe) is the single source of truth; factor badges indicate whether each individual check found problems.
 
 ---
 
@@ -192,14 +190,12 @@ class FactorScore(BaseModel):
 | data | Data Handling |
 | policy | Rules & Policies |
 
-### Severity → Risk Level (Frontend)
+### Severity → Status (Frontend)
 
-| severity | level | color |
-|----------|-------|-------|
-| ≥ 0.7 | High risk | #EF4444 |
-| ≥ 0.4 | Medium risk | #F59E0B |
-| ≥ 0.05 | Low risk | #10B981 |
-| &lt; 0.05 | Clear | #10B981 |
+| severity | status | color |
+|----------|--------|-------|
+| ≥ 0.4 | Issues Found | #F59E0B (warn) |
+| &lt; 0.4 | No Issues | #10B981 (good) |
 
 ---
 

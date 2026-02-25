@@ -100,6 +100,7 @@ make lint           # Lint code
 |----------|-------------|
 | [docs/README.md](docs/README.md) | Documentation index |
 | [docs/SECURITY.md](docs/SECURITY.md) | Security: reporting vulnerabilities and secrets |
+| [docs/AUTH_SESSION_TIMEOUT.md](docs/AUTH_SESSION_TIMEOUT.md) | Configure 30-minute (or other) sign-out in Supabase |
 | [docs/SOFTWARE_DOCUMENTATION.md](docs/SOFTWARE_DOCUMENTATION.md) | Stack, structure, workflows, configuration |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | High-level architecture |
 | [scripts/run_supabase_migrations.py](scripts/run_supabase_migrations.py) | Apply Supabase SQL migrations with tracking |
