@@ -1,37 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 import './LayerModal.scss';
 
 const FACTOR_HUMAN = {
-  SAST:                 { label: 'Code Safety',           category: 'code',   desc: 'Scans code for security problems' },
-  VirusTotal:           { label: 'Malware Scan',          category: 'threat', desc: 'Antivirus detection results' },
-  Obfuscation:          { label: 'Hidden Code',           category: 'code',   desc: 'Code readability analysis' },
-  Manifest:             { label: 'Extension Config',      category: 'code',   desc: 'Configuration security check' },
-  ChromeStats:          { label: 'Threat Intelligence',   category: 'threat', desc: 'Known security issues check' },
-  Webstore:             { label: 'Store Reputation',      category: 'trust',  desc: 'Chrome store ratings & reviews' },
-  Maintenance:          { label: 'Update Freshness',      category: 'trust',  desc: 'Last update recency' },
-  PermissionsBaseline:  { label: 'Permission Risk',       category: 'access', desc: 'Browser access level' },
-  PermissionCombos:     { label: 'Dangerous Combos',      category: 'access', desc: 'Risky permission combinations' },
-  NetworkExfil:         { label: 'Data Sharing',          category: 'data',   desc: 'External data transmission' },
-  CaptureSignals:       { label: 'Screen / Tab Capture',  category: 'data',   desc: 'Screen recording capability' },
-  ToSViolations:        { label: 'Policy Violations',     category: 'policy', desc: 'Chrome store rule compliance' },
-  Consistency:          { label: 'Behavior Match',        category: 'policy', desc: 'Claims vs. actual behavior' },
-  DisclosureAlignment:  { label: 'Disclosure Accuracy',   category: 'policy', desc: 'Privacy policy accuracy' },
+  SAST:                 { label: 'Code Safety',           category: 'code',   desc: 'Scans source code for known vulnerability patterns' },
+  VirusTotal:           { label: 'Malware Scan',          category: 'threat', desc: 'Checks against 70+ antivirus engines for malicious code' },
+  Obfuscation:          { label: 'Hidden Code',           category: 'code',   desc: 'Detects deliberately obscured or unreadable code' },
+  Manifest:             { label: 'Extension Config',      category: 'code',   desc: 'Validates security settings in the extension manifest' },
+  ChromeStats:          { label: 'Threat Intel',          category: 'threat', desc: 'Cross-references known threat databases' },
+  Webstore:             { label: 'Store Reputation',      category: 'trust',  desc: 'Chrome Web Store ratings and user reviews' },
+  Maintenance:          { label: 'Update Freshness',      category: 'trust',  desc: 'How recently the extension was updated by its developer' },
+  PermissionsBaseline:  { label: 'Permission Risk',       category: 'access', desc: 'Evaluates the sensitivity of requested browser permissions' },
+  PermissionCombos:     { label: 'Dangerous Combos',      category: 'access', desc: 'Flags risky combinations of permissions that enable data theft' },
+  NetworkExfil:         { label: 'Data Sharing',          category: 'data',   desc: 'Detects if data is sent to external servers' },
+  CaptureSignals:       { label: 'Screen Capture',        category: 'data',   desc: 'Checks for screen or tab recording capabilities' },
+  ToSViolations:        { label: 'Policy Violations',     category: 'policy', desc: 'Checks compliance with Chrome Web Store policies' },
+  Consistency:          { label: 'Behavior Match',        category: 'policy', desc: 'Compares stated purpose vs actual behavior' },
+  DisclosureAlignment:  { label: 'Disclosure Accuracy',   category: 'policy', desc: 'Validates privacy policy against actual data collection' },
 };
 
 const CATEGORY_LABELS = {
   code:   'Code Checks',
   threat: 'Threat Detection',
   trust:  'Trust Signals',
-  access: 'What It Can Access',
+  access: 'Permissions',
   data:   'Data Handling',
-  policy: 'Rules & Policies',
+  policy: 'Policies',
 };
 
 const LAYER_CONFIG = {
@@ -58,10 +58,10 @@ function humanizeFactor(factor) {
   const severity = factor.severity ?? 0;
   let status, statusType;
   if (severity >= 0.4) {
-    status = 'Issues Found';
+    status = 'Issue';
     statusType = 'issues';
   } else {
-    status = 'No Issues';
+    status = 'Clear';
     statusType = 'clear';
   }
   return { ...info, status, statusType, severity, raw: factor };
@@ -79,15 +79,6 @@ function groupByCategory(items) {
     .sort(([, a], [, b]) => Math.max(...b.map(x => x.severity)) - Math.max(...a.map(x => x.severity)));
 }
 
-function bandColor(band) {
-  switch (band) {
-    case 'GOOD': return 'var(--risk-good)';
-    case 'WARN': return 'var(--risk-warn)';
-    case 'BAD':  return 'var(--risk-bad)';
-    default:     return 'var(--risk-neutral)';
-  }
-}
-
 function bandLabel(band) {
   switch (band) {
     case 'GOOD': return 'Safe';
@@ -96,6 +87,26 @@ function bandLabel(band) {
     default:     return '';
   }
 }
+
+const InfoTooltip = ({ text }) => {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <span
+      className="lm-info-trigger"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+      onFocus={() => setVisible(true)}
+      onBlur={() => setVisible(false)}
+      tabIndex={0}
+      role="button"
+      aria-label="More info"
+    >
+      <Info size={13} strokeWidth={2} />
+      {visible && <span className="lm-info-tooltip">{text}</span>}
+    </span>
+  );
+};
 
 const LayerModal = ({
   open,
@@ -115,8 +126,6 @@ const LayerModal = ({
   onViewEvidence = null,
 }) => {
   const config = LAYER_CONFIG[layer] || LAYER_CONFIG.security;
-  const displayScore = score === null ? '--' : Math.round(score);
-  const bc = bandColor(band);
   const bl = bandLabel(band);
 
   const ld = layerDetails?.[layer] || {};
@@ -128,13 +137,6 @@ const LayerModal = ({
   const issueCount = humanised.filter(f => f.statusType === 'issues').length;
   const totalCount = humanised.length;
 
-  const renderStatusIcon = (statusType) =>
-    statusType === 'clear' ? (
-      <CheckCircle className="lm-status-icon" size={16} strokeWidth={2} aria-hidden />
-    ) : (
-      <AlertCircle className="lm-status-icon" size={16} strokeWidth={2} aria-hidden />
-    );
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="lm-content lm-dialog-smooth" aria-describedby="lm-summary-or-checks">
@@ -145,7 +147,6 @@ const LayerModal = ({
               <span className="lm-title">{config.title}</span>
             </div>
             <div className="lm-header-right">
-              <span className="lm-score-num" style={{ color: bc }}>{displayScore}</span>
               {bl && (
                 <span className={`lm-verdict-pill lm-verdict-${band.toLowerCase()}`}>
                   {bl}
@@ -156,52 +157,53 @@ const LayerModal = ({
         </DialogHeader>
 
         <div className="lm-body" id="lm-summary-or-checks">
-          <div className="lm-body-left">
-            {oneLiner && (
-              <p className="lm-summary">{oneLiner}</p>
-            )}
-            <div className="lm-stats-row" aria-live="polite">
-              <span className="lm-stat">
-                <span className="lm-stat-num">{totalCount}</span> checks run
+          {oneLiner && (
+            <p className="lm-summary">{oneLiner}</p>
+          )}
+
+          <div className="lm-stats-row" aria-live="polite">
+            <span className="lm-stat">
+              <span className="lm-stat-num">{totalCount}</span> checks
+            </span>
+            {issueCount > 0 ? (
+              <span className="lm-stat lm-stat-issues">
+                <span className="lm-stat-num">{issueCount}</span> {issueCount === 1 ? 'issue' : 'issues'}
               </span>
-              {issueCount > 0 ? (
-                <span className="lm-stat lm-stat-issues">
-                  <span className="lm-stat-num">{issueCount}</span> with issues
-                </span>
-              ) : (
-                <span className="lm-stat lm-stat-clear">All clear</span>
-              )}
-            </div>
+            ) : (
+              <span className="lm-stat lm-stat-clear">All clear</span>
+            )}
           </div>
 
           {grouped.length > 0 && (
-            <div className="lm-body-right">
-              <div className="lm-checks" role="list" aria-label={`${config.title} checks`}>
-                {grouped.map(([cat, items], catIdx) => (
-                  <div key={cat} className="lm-group" style={{ animationDelay: `${catIdx * 40}ms` }} role="group" aria-label={CATEGORY_LABELS[cat] || cat}>
-                    <span className="lm-group-label">{CATEGORY_LABELS[cat] || cat}</span>
-                    <div className="lm-group-items">
-                      {items.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className={`lm-check-card lm-check-${item.statusType}`}
-                          style={{ animationDelay: `${(catIdx * 40 + (idx + 1) * 25)}ms` }}
-                          role="listitem"
-                          title={item.desc}
-                        >
-                          <span className="lm-check-name">{item.label}</span>
-                          <span className="lm-status-wrap">
-                            {renderStatusIcon(item.statusType)}
-                            <span className={`lm-status lm-status-${item.statusType}`}>
-                              {item.status}
-                            </span>
+            <div className="lm-checks" role="list" aria-label={`${config.title} checks`}>
+              {grouped.map(([cat, items], catIdx) => (
+                <div key={cat} className="lm-group" style={{ animationDelay: `${catIdx * 40}ms` }} role="group" aria-label={CATEGORY_LABELS[cat] || cat}>
+                  <span className="lm-group-label">{CATEGORY_LABELS[cat] || cat}</span>
+                  <div className="lm-group-items">
+                    {items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`lm-check-card lm-check-${item.statusType}`}
+                        style={{ animationDelay: `${(catIdx * 40 + (idx + 1) * 25)}ms` }}
+                        role="listitem"
+                      >
+                        <span className="lm-check-name">{item.label}</span>
+                        {item.desc && <InfoTooltip text={item.desc} />}
+                        <span className="lm-status-wrap">
+                          {item.statusType === 'clear' ? (
+                            <CheckCircle className="lm-status-icon" size={14} strokeWidth={2} aria-hidden />
+                          ) : (
+                            <AlertCircle className="lm-status-icon" size={14} strokeWidth={2} aria-hidden />
+                          )}
+                          <span className={`lm-status lm-status-${item.statusType}`}>
+                            {item.status}
                           </span>
-                        </div>
-                      ))}
-                    </div>
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

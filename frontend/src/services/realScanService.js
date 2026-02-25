@@ -391,10 +391,10 @@ class RealScanService {
   }
 
   // Determine risk level from CLI results
-  // Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
+  // Thresholds: Green (75-100), Yellow (50-74), Red (0-49)
   determineRiskLevel(score) {
-    if (score >= 85) return "LOW";
-    if (score >= 60) return "MEDIUM";
+    if (score >= 75) return "LOW";
+    if (score >= 50) return "MEDIUM";
     return "HIGH";
   }
 

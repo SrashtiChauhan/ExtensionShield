@@ -5,7 +5,7 @@ import './DonutScore.scss';
 
 /**
  * DonutScore - Accessible risk gauge with red/amber/green zones
- * - Track shows three segments: Red (0–59), Amber (60–84), Green (85–100)
+ * - Track shows three segments: Red (0–49), Amber (50–74), Green (75–100)
  * - Fill arc uses the band color so the current score is clearly in one zone
  * - Risk pill shows overall status and, when relevant, which layers need attention (Security, Privacy, Governance)
  *
@@ -85,12 +85,12 @@ const DonutScore = ({ score = 0, band = 'NA', size = 300, label }) => {
 
   const fillLength = (animatedScore / 100) * circumference;
 
-  const ariaLabel = `Risk score ${displayScore} out of 100. ${getStatusLabel()}. Scale: 0 to 59 is high risk, 60 to 84 is needs review, 85 to 100 is low risk.`;
+  const ariaLabel = `Risk score ${displayScore} out of 100. ${getStatusLabel()}. Scale: 0 to 49 is high risk, 50 to 74 is needs review, 75 to 100 is low risk.`;
 
   const segmentLength = (min, max) => ((max - min) / 100) * circumference;
-  const redLen = segmentLength(0, 59);
-  const amberLen = segmentLength(60, 84);
-  const greenLen = segmentLength(85, 100);
+  const redLen = segmentLength(0, 49);
+  const amberLen = segmentLength(50, 74);
+  const greenLen = segmentLength(75, 100);
 
   return (
     <motion.div

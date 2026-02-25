@@ -677,12 +677,10 @@ const ReportDetailPage = () => {
     }
   };
 
-  // Get trust level info
-  // Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
   const getTrustLevel = (score) => {
-    if (score >= 85) return { label: "Trusted", color: "green", icon: "✓" };
-    if (score >= 60) return { label: "Moderate", color: "yellow", icon: "!" };
-    if (score >= 40) return { label: "Caution", color: "orange", icon: "⚡" };
+    if (score >= 75) return { label: "Trusted", color: "green", icon: "✓" };
+    if (score >= 50) return { label: "Moderate", color: "yellow", icon: "!" };
+    if (score >= 30) return { label: "Caution", color: "orange", icon: "⚡" };
     return { label: "Warning", color: "red", icon: "⚠" };
   };
 

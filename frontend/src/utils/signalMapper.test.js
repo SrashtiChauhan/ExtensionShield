@@ -208,21 +208,21 @@ describe('Signal Mapper', () => {
   });
 
   describe('getRiskLevel', () => {
-    it('should return LOW for scores >= 85', () => {
-      expect(getRiskLevel(85)).toBe('LOW');
+    it('should return LOW for scores >= 75', () => {
+      expect(getRiskLevel(75)).toBe('LOW');
       expect(getRiskLevel(100)).toBe('LOW');
       expect(getRiskLevel(90)).toBe('LOW');
     });
 
-    it('should return MEDIUM for scores >= 60 and < 85', () => {
+    it('should return MEDIUM for scores >= 50 and < 75', () => {
+      expect(getRiskLevel(50)).toBe('MEDIUM');
       expect(getRiskLevel(60)).toBe('MEDIUM');
-      expect(getRiskLevel(75)).toBe('MEDIUM');
-      expect(getRiskLevel(84)).toBe('MEDIUM');
+      expect(getRiskLevel(74)).toBe('MEDIUM');
     });
 
-    it('should return HIGH for scores < 60', () => {
+    it('should return HIGH for scores < 50', () => {
       expect(getRiskLevel(40)).toBe('HIGH');
-      expect(getRiskLevel(55)).toBe('HIGH');
+      expect(getRiskLevel(49)).toBe('HIGH');
     });
 
     it('should return HIGH for lower scores as well', () => {

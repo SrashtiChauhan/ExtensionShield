@@ -108,19 +108,18 @@ const SignalChip = ({ type, signal }) => {
 const RiskBadge = ({ level, score }) => {
   const colorClass = getRiskColorClass(level);
   
-  // Get border color based on score (using new thresholds)
   const getBorderColor = () => {
     if (score === null || score === undefined) return 'rgba(107, 114, 128, 0.3)';
-    if (score >= 85) return '#10B981'; // Green
-    if (score >= 60) return '#F59E0B'; // Yellow
-    return '#EF4444'; // Red
+    if (score >= 75) return '#10B981';
+    if (score >= 50) return '#F59E0B';
+    return '#EF4444';
   };
 
   const getTextColor = () => {
     if (score === null || score === undefined) return '#6B7280';
-    if (score >= 85) return '#10B981'; // Green
-    if (score >= 60) return '#F59E0B'; // Yellow
-    return '#EF4444'; // Red
+    if (score >= 75) return '#10B981';
+    if (score >= 50) return '#F59E0B';
+    return '#EF4444';
   };
 
   return (

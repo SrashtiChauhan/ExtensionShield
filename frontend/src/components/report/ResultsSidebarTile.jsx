@@ -1,9 +1,10 @@
 import React from 'react';
+import { ChevronRight } from 'lucide-react';
 import './ResultsSidebarTile.scss';
 
 /**
  * ResultsSidebarTile - Right sidebar tile for Security/Privacy/Governance
- * Findings count is more prominent than % (enterprise design)
+ * Shows verdict pill + findings count. Click to expand details.
  */
 const ResultsSidebarTile = ({
   title = 'Layer',
@@ -13,15 +14,6 @@ const ResultsSidebarTile = ({
   icon = null,
   onClick = null
 }) => {
-  const getBandColor = () => {
-    switch (band) {
-      case 'GOOD': return 'var(--risk-good)';
-      case 'WARN': return 'var(--risk-warn)';
-      case 'BAD': return 'var(--risk-bad)';
-      default: return 'var(--risk-neutral)';
-    }
-  };
-
   const getBandLabel = () => {
     switch (band) {
       case 'GOOD': return 'Safe';
@@ -50,9 +42,6 @@ const ResultsSidebarTile = ({
     }
   };
 
-  const color = getBandColor();
-  const displayScore = score === null ? '--' : Math.round(score);
-
   return (
     <div
       className={`results-sidebar-tile band-${band.toLowerCase()} ${onClick ? 'is-clickable' : ''}`}
@@ -61,30 +50,28 @@ const ResultsSidebarTile = ({
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={(e) => onClick && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onClick())}
     >
-      {/* Row 1: Logo + Name + click hint when clickable */}
       <div className="tile-header">
         <span className="tile-icon">{getLayerIcon()}</span>
         <h3 className="tile-title">{title}</h3>
+        {onClick && <ChevronRight className="tile-chevron" size={16} />}
       </div>
-      {/* Row 2: Big percentage + findings (right) */}
-      <div className="tile-percent-row">
-        <span className="tile-percent" style={{ color }}>{displayScore}%</span>
-        <span className="tile-findings">
-          <strong>{findingsCount}</strong> findings
-        </span>
-      </div>
-      {/* Row 3: Review/Good pill */}
-      <div className="tile-pill-row">
+
+      <div className="tile-verdict-row">
         <span className={`tile-pill tile-pill-${band.toLowerCase()}`}>
           <span className="pill-icon">{getBandIcon()}</span>
           {getBandLabel()}
         </span>
+        {findingsCount > 0 && (
+          <span className="tile-findings-badge">
+            {findingsCount} {findingsCount === 1 ? 'finding' : 'findings'}
+          </span>
+        )}
       </div>
-      {/* Row 4: Status bar */}
+
       <div className="tile-progress">
         <div
           className="tile-progress-fill"
-          style={{ width: `${displayScore === '--' ? 0 : displayScore}%`, backgroundColor: color }}
+          style={{ width: `${score === null ? 0 : Math.round(score)}%`, backgroundColor: 'var(--tile-band-color)' }}
         />
       </div>
     </div>

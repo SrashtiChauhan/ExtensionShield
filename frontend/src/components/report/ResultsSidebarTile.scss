@@ -19,10 +19,11 @@
 }
 
 .results-sidebar-tile {
+  --tile-band-color: var(--risk-neutral);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 18px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -46,17 +47,20 @@
   }
 
   &.band-good {
+    --tile-band-color: var(--risk-good);
     border-color: rgba(16, 185, 129, 0.25);
   }
   &.band-warn {
+    --tile-band-color: var(--risk-warn);
     border-color: rgba(245, 158, 11, 0.25);
   }
   &.band-bad {
+    --tile-band-color: var(--risk-bad);
     border-color: rgba(239, 68, 68, 0.25);
   }
 }
 
-/* Row 1: Logo + Name */
+/* Row 1: Icon + Title + Chevron */
 .tile-header {
   display: flex;
   align-items: center;
@@ -77,56 +81,23 @@
   flex: 1;
 }
 
-.tile-click-hint {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  text-transform: none;
-  white-space: nowrap;
-  opacity: 0;
-  animation: tile-hint-fade 0.5s ease-out 1.2s forwards;
-}
-
-@keyframes tile-hint-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Row 2: Big percentage (left) + findings (right) */
-.tile-percent-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.tile-percent {
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.tile-findings {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: rgba(248, 250, 252, 0.65);
+.tile-chevron {
+  color: rgba(255, 255, 255, 0.35);
   flex-shrink: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
 
-  strong {
-    font-weight: 600;
-    color: rgba(248, 250, 252, 0.85);
+  .is-clickable:hover & {
+    color: rgba(255, 255, 255, 0.7);
+    transform: translateX(2px);
   }
 }
 
-/* Row 3: Needs review / Safe / Not safe pill */
-.tile-pill-row {
+/* Row 2: Verdict pill + findings badge */
+.tile-verdict-row {
   display: flex;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .tile-pill {
@@ -161,13 +132,18 @@
   opacity: 0.95;
 }
 
-/* Row 4: Status bar */
+.tile-findings-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+/* Row 3: Progress bar */
 .tile-progress {
-  height: 6px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 3px;
   overflow: hidden;
-  margin-top: 2px;
 }
 
 .tile-progress-fill {
@@ -177,7 +153,7 @@
 }
 
 /* ============================================================================
-   Light theme – visible text, borders, and pills (no muted)
+   Light theme
    ============================================================================ */
 .light .results-sidebar-tile {
   background: var(--atlas-bg-card);
@@ -213,16 +189,12 @@
   font-weight: 700;
 }
 
-.light .tile-click-hint {
+.light .tile-chevron {
   color: var(--atlas-text-muted);
 }
 
-.light .tile-percent-row .tile-findings {
+.light .tile-findings-badge {
   color: var(--atlas-text-secondary);
-
-  strong {
-    color: var(--atlas-text-primary);
-  }
 }
 
 .light .tile-pill {
