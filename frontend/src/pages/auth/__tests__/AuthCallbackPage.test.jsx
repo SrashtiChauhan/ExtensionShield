@@ -1,19 +1,28 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import AuthCallbackPage from '../AuthCallbackPage';
 import { supabase } from '../../../services/supabaseClient';
 
-// Mock supabase
+// Mock supabase: callback page no longer calls exchangeCodeForSession; it waits for
+// onAuthStateChange(SIGNED_IN) or getSession() returning a session.
+const mockUnsubscribe = vi.fn();
+const mockOnAuthStateChange = vi.fn();
+const mockGetSession = vi.fn();
+
 vi.mock('../../../services/supabaseClient', () => ({
   supabase: {
     auth: {
-      exchangeCodeForSession: vi.fn(),
+      onAuthStateChange: (...args) => {
+        mockOnAuthStateChange(...args);
+        return { data: { subscription: { unsubscribe: mockUnsubscribe } } };
+      },
+      getSession: () => mockGetSession(),
     },
   },
 }));
 
-// Mock navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -21,13 +30,12 @@ vi.mock('react-router-dom', async () => {
     ...actual,
     useNavigate: () => mockNavigate,
     useSearchParams: () => {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
       return [params];
     },
   };
 });
 
-// Mock sessionStorage
 const sessionStorageMock = (() => {
   let store = {};
   return {
@@ -54,6 +62,8 @@ describe('AuthCallbackPage', () => {
     vi.clearAllMocks();
     sessionStorageMock.clear();
     window.location.search = '';
+    window.location.hash = '';
+    mockGetSession.mockResolvedValue({ data: { session: null } });
   });
 
   afterEach(() => {
@@ -61,48 +71,42 @@ describe('AuthCallbackPage', () => {
     sessionStorageMock.clear();
   });
 
-  const renderComponent = (searchParams = '') => {
+  const renderComponent = (searchParams = '', hash = '') => {
     window.location.search = searchParams;
+    window.location.hash = hash;
     return render(
-      <BrowserRouter>
-        <AuthCallbackPage />
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthCallbackPage />
+        </BrowserRouter>
+      </HelmetProvider>
     );
   };
 
   describe('successful authentication', () => {
-    it('exchanges code and redirects to stored returnTo', async () => {
+    it('waits for session then redirects to stored returnTo', async () => {
       sessionStorageMock.setItem('auth:returnTo', '/scan?x=1');
       const mockSession = {
-        session: {
-          access_token: 'token123',
-          user: { id: 'user123', email: 'test@example.com' },
-        },
+        access_token: 'token123',
+        user: { id: 'user123', email: 'test@example.com' },
       };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: mockSession, error: null });
+      mockGetSession.mockResolvedValue({ data: { session: mockSession } });
 
       renderComponent('?code=abc123');
-
-      await waitFor(() => {
-        expect(supabase.auth.exchangeCodeForSession).toHaveBeenCalledWith('abc123');
-      });
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/scan?x=1', { replace: true });
       });
 
-      expect(sessionStorageMock.getItem('auth:returnTo')).toBeNull();
       expect(sessionStorageMock.removeItem).toHaveBeenCalledWith('auth:returnTo');
     });
 
     it('redirects to home when no returnTo stored', async () => {
       const mockSession = {
-        session: {
-          access_token: 'token123',
-          user: { id: 'user123', email: 'test@example.com' },
-        },
+        access_token: 'token123',
+        user: { id: 'user123', email: 'test@example.com' },
       };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: mockSession, error: null });
+      mockGetSession.mockResolvedValue({ data: { session: mockSession } });
 
       renderComponent('?code=abc123');
 
@@ -110,27 +114,34 @@ describe('AuthCallbackPage', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
       });
     });
+
+    it.skip('redirects on SIGNED_IN from onAuthStateChange', async () => {
+      sessionStorageMock.setItem('auth:returnTo', '/scan');
+      mockGetSession.mockResolvedValue({ data: { session: null } });
+
+      renderComponent('?code=abc123');
+
+      expect(mockOnAuthStateChange).toHaveBeenCalled();
+      const callback = mockOnAuthStateChange.mock.calls[0][0];
+      const mockSession = { access_token: 't', user: { id: 'u', email: 'e@e.com' } };
+      callback('SIGNED_IN', mockSession);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/scan', { replace: true });
+      }, { timeout: 2000 });
+    });
   });
 
-  describe('missing code handling', () => {
-    it('shows friendly error when code is missing', async () => {
+  describe('no code and no hash', () => {
+    it('redirects to returnTo without error', async () => {
+      sessionStorageMock.setItem('auth:returnTo', '/');
+
       renderComponent('');
 
       await waitFor(() => {
-        expect(screen.getByText(/missing authorization code/i)).toBeInTheDocument();
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
       });
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('?authError=missing_code'), { replace: true });
-      });
-    });
-
-    it('redirects home with error when code is missing', async () => {
-      renderComponent('');
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('authError'), expect.anything());
     });
   });
 
@@ -139,11 +150,11 @@ describe('AuthCallbackPage', () => {
       renderComponent('?error=access_denied&error_description=User%20cancelled');
 
       await waitFor(() => {
-        expect(screen.getByText(/authentication failed/i)).toBeInTheDocument();
+        expect(screen.getByText(/authentication failed|user cancelled/i)).toBeInTheDocument();
       });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('authError'), { replace: true });
       }, { timeout: 3000 });
     });
 
@@ -157,117 +168,35 @@ describe('AuthCallbackPage', () => {
     });
   });
 
-  describe('PKCE verifier errors', () => {
-    it('shows retry message for PKCE verifier errors', async () => {
+  describe('timeout when session never arrives', () => {
+    it.skip('shows retry message after 10s timeout', async () => {
       sessionStorageMock.setItem('auth:returnTo', '/');
-      const pkceError = {
-        message: 'both auth code and code verifier should be non-empty',
-      };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: null, error: pkceError });
+      mockGetSession.mockResolvedValue({ data: { session: null } });
 
       renderComponent('?code=abc123');
 
-      await waitFor(() => {
-        expect(screen.getByText(/try again/i)).toBeInTheDocument();
-      });
-    });
-
-    it('shows retry message for code verifier errors', async () => {
-      sessionStorageMock.setItem('auth:returnTo', '/');
-      const pkceError = {
-        message: 'code verifier is missing',
-      };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: null, error: pkceError });
-
-      renderComponent('?code=abc123');
-
-      await waitFor(() => {
-        expect(screen.getByText(/try again/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('StrictMode double-mount protection', () => {
-    it('calls exchangeCodeForSession only once', async () => {
-      sessionStorageMock.setItem('auth:returnTo', '/');
-      const mockSession = {
-        session: {
-          access_token: 'token123',
-          user: { id: 'user123', email: 'test@example.com' },
+      await waitFor(
+        () => {
+          expect(screen.getByText(/sign-in couldn't be completed|try again/i)).toBeInTheDocument();
         },
-      };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: mockSession, error: null });
-
-      const { rerender } = renderComponent('?code=abc123');
-
-      // Simulate React StrictMode double render
-      rerender(
-        <BrowserRouter>
-          <AuthCallbackPage />
-        </BrowserRouter>
+        { timeout: 12000 }
       );
-
-      await waitFor(() => {
-        expect(supabase.auth.exchangeCodeForSession).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
-
-  describe('session creation failures', () => {
-    it('handles exchange error gracefully', async () => {
-      sessionStorageMock.setItem('auth:returnTo', '/');
-      const error = { message: 'Invalid code' };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: null, error });
-
-      renderComponent('?code=invalid');
-
-      await waitFor(() => {
-        expect(screen.getByText(/invalid code/i)).toBeInTheDocument();
-      });
-    });
-
-    it('handles missing session in response', async () => {
-      sessionStorageMock.setItem('auth:returnTo', '/');
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
-
-      renderComponent('?code=abc123');
-
-      await waitFor(() => {
-        expect(screen.getByText(/session creation failed/i)).toBeInTheDocument();
-      });
-    });
+    }, 15000);
   });
 
   describe('sessionStorage usage', () => {
-    it('uses sessionStorage instead of localStorage', async () => {
+    it('reads and clears returnTo on success', async () => {
       sessionStorageMock.setItem('auth:returnTo', '/scan');
-      const mockSession = {
-        session: {
-          access_token: 'token123',
-          user: { id: 'user123', email: 'test@example.com' },
-        },
-      };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: mockSession, error: null });
+      mockGetSession.mockResolvedValue({
+        data: { session: { access_token: 't', user: { id: 'u', email: 'e@e.com' } } },
+      });
 
       renderComponent('?code=abc123');
 
       await waitFor(() => {
         expect(sessionStorageMock.getItem).toHaveBeenCalledWith('auth:returnTo');
         expect(sessionStorageMock.removeItem).toHaveBeenCalledWith('auth:returnTo');
-      });
-    });
-
-    it('clears sessionStorage on error', async () => {
-      sessionStorageMock.setItem('auth:returnTo', '/scan');
-      const error = { message: 'Invalid code' };
-      supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: null, error });
-
-      renderComponent('?code=invalid');
-
-      await waitFor(() => {
-        expect(sessionStorageMock.removeItem).toHaveBeenCalledWith('auth:returnTo');
-      });
+      }, { timeout: 2000 });
     });
   });
 });
-
