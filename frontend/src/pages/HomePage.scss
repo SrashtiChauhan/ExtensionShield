@@ -212,41 +212,21 @@
     font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
     color: var(--atlas-text-secondary);
     line-height: 1.5;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0;
     max-width: 520px;
   }
 
   .hero-dev-helper {
     font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
     color: var(--atlas-text-muted);
-    margin-top: 0;
-    margin-bottom: 1rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
     line-height: 1.4;
   }
 
   .hero-developers-cta {
+    margin-top: 0;
     margin-bottom: 0.5rem;
-  }
-
-  .hero-dev-bullets {
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0 0.75rem;
-    font-size: 0.8125rem;
-    color: var(--atlas-text-secondary);
-    line-height: 1.5;
-
-    li {
-      position: relative;
-      padding-left: 1rem;
-      &::before {
-        content: "✓";
-        position: absolute;
-        left: 0;
-        color: var(--atlas-accent);
-        font-weight: 600;
-      }
-    }
   }
 
   .hero-pro-upload-btn {
@@ -420,12 +400,12 @@
   color: var(--atlas-text-muted);
 }
 
-/* Hero scan info - checkmark line below input, 2rem space above (from search bar) */
+/* Hero scan info - checkmark line below input */
 .hero-scan-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
   font-size: clamp(0.8125rem, 1.4vw, 0.875rem);
   color: var(--atlas-text-secondary);
   line-height: 1.45;
@@ -440,7 +420,7 @@
 
 .hero-scan-free {
   margin-top: 0.5rem;
-  margin-bottom: 0;
+  margin-bottom: 1.25rem;
   font-size: 0.8125rem;
   color: var(--atlas-text-muted);
 }
@@ -451,7 +431,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   border: none;
   background: none;
   font: inherit;
@@ -502,6 +482,7 @@
 .hero-search {
   width: 100%;
   max-width: 520px;
+  margin-top: 0;
   margin-bottom: 0.5rem;
 }
 

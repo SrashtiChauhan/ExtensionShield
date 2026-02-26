@@ -42,7 +42,7 @@ export default function ScanUploadPage() {
           </nav>
 
           <p className="scan-upload-kicker">Pro • Private Build Audit</p>
-          <h1 className="scan-upload-headline">Pre-release Chrome Extension Audit (CRX/ZIP)</h1>
+          <h1 className="scan-upload-headline">Pre-release Chrome Extension Audit</h1>
           <p className="scan-upload-subhead">
             Find vulnerabilities, risky permissions, policy violations, and suspicious network behavior—each with evidence + fix guidance.
           </p>
@@ -50,9 +50,9 @@ export default function ScanUploadPage() {
           <div className="scan-upload-dropzone-wrap">
             {showSignInOverlay && (
               <div className="scan-upload-gate scan-upload-gate--signin">
-                <p className="scan-upload-gate__text">Sign in to start a Pro audit</p>
+                <p className="scan-upload-gate__text">Start a Pro audit</p>
                 <button type="button" className="scan-upload-gate__btn" onClick={openSignInModal}>
-                  Sign in to start a Pro audit
+                  Start a Pro audit
                 </button>
                 <p className="scan-upload-gate__secondary">
                   <Link to="/scan">Or run a free extension risk check →</Link>
@@ -67,8 +67,6 @@ export default function ScanUploadPage() {
             <li>Permission / host risk</li>
             <li>Network indicators + reputation</li>
             <li>Policy & governance checks</li>
-            <li>Evidence attached per finding</li>
-            <li>Private by default</li>
           </ul>
 
           <PrivateBuildTrustPills />

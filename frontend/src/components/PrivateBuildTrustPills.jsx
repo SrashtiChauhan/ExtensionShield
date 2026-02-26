@@ -11,7 +11,6 @@ const PILLS = [
   "Permission audit",
   "Network endpoints",
   "Rulepacks",
-  "Evidence attached",
   "Reputation signals",
   "VirusTotal (when available)",
 ];
@@ -21,7 +20,7 @@ export default function PrivateBuildTrustPills() {
     <div className="private-build-trust-pills" aria-label="Security signals we use">
       <h2 className="private-build-trust-pills__title">Comprehensive security signals</h2>
       <p className="private-build-trust-pills__sentence">
-        We combine static checks, reputation signals (VirusTotal), and rulepacks — with evidence attached.
+        We combine static checks, reputation signals (VirusTotal), and rulepacks.
       </p>
       <div className="private-build-trust-pills__pills-wrap">
         <div className="private-build-trust-pills__pills" role="list">

@@ -283,11 +283,12 @@ const HomePage = () => {
               <>
                 <p className="hero-tagline">Pro • Private Build Audit</p>
                 <h1 className="hero-title">
-                  Chrome Extension Security Audit (CRX/ZIP) — before you ship
+                  Chrome extension security audit before you ship
                 </h1>
                 <p className="hero-dev-body">
-                  Scan your build for vulnerabilities, risky permissions, policy issues, and suspicious network behavior — with evidence and fix guidance.
+                  Vulnerabilities, permissions, policy checks — with evidence and fix guidance.
                 </p>
+                <p className="hero-dev-helper">Private by default — share only if you choose.</p>
                 <div className="hero-developers-cta">
                   {isAuthenticated ? (
                     <button
@@ -310,22 +311,10 @@ const HomePage = () => {
                       className="hero-pro-upload-btn"
                       onClick={() => openSignInModal()}
                     >
-                      <span className="hero-pro-upload-btn-icon" aria-hidden>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                      </span>
-                      <span>Sign in to start a Pro audit</span>
+                      <span>Start a Pro audit</span>
                     </button>
                   )}
                 </div>
-                <ul className="hero-dev-bullets" aria-label="Pro audit includes">
-                  <li>Vulnerability scan (SAST)</li>
-                  <li>Permissions + host access risk</li>
-                  <li>Chrome Web Store policy checks</li>
-                  <li>Evidence bundle per finding</li>
-                </ul>
-                <p className="hero-dev-helper">Private by default — share only if you choose.</p>
               </>
               )}
             </motion.div>

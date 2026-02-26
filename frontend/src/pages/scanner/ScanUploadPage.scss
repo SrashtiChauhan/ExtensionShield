@@ -122,7 +122,7 @@
   position: relative;
   width: 100%;
   max-width: 520px;
-  margin: 0 auto 1rem;
+  margin: 3rem auto 1.5rem;
   display: flex;
   justify-content: center;
 }
@@ -188,7 +188,7 @@
 .scan-upload-feature-strip {
   list-style: none;
   padding: 0;
-  margin: 0 0 1rem;
+  margin: 0 0 2rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -214,6 +214,6 @@
 .scan-upload-privacy {
   font-size: 0.8125rem;
   color: var(--atlas-text-muted);
-  margin: 0;
+  margin: 2rem 0 0;
   line-height: 1.4;
 }
