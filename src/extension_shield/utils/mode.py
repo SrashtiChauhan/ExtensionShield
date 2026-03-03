@@ -6,6 +6,10 @@ EXTSHIELD_MODE controls which features are available:
   - "cloud": All features enabled (auth, history, telemetry admin, etc.).
 
 Individual feature flags can override the mode defaults via env vars.
+
+OSS telemetry: In OSS mode, POST /api/telemetry/pageview and /api/telemetry/event
+can be enabled for local-only metrics (SQLite) via OSS_TELEMETRY_ENABLED=true.
+When false (default), those endpoints return 501. No outbound tracking in OSS.
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Literal
 
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 
 Mode = Literal["oss", "cloud"]
 
@@ -44,6 +48,8 @@ class FeatureFlags:
     telemetry_enabled: bool
     community_queue_enabled: bool
     enterprise_forms_enabled: bool
+    # In OSS mode only: allow local metrics (pageview/event) stored in SQLite only. Default False.
+    oss_telemetry_enabled: bool
 
 
 @lru_cache(maxsize=1)
@@ -58,24 +64,70 @@ def get_feature_flags() -> FeatureFlags:
         telemetry_enabled=_flag("TELEMETRY_ENABLED", cloud),
         community_queue_enabled=_flag("COMMUNITY_QUEUE_ENABLED", cloud),
         enterprise_forms_enabled=_flag("ENTERPRISE_FORMS_ENABLED", cloud),
+        oss_telemetry_enabled=_flag("OSS_TELEMETRY_ENABLED", False),
     )
 
 
-def is_cloud() -> bool:
+def get_mode() -> Mode:
+    """Return current runtime mode: 'oss' or 'cloud'."""
+    return get_feature_flags().mode
+
+
+def is_cloud_mode() -> bool:
+    """True when EXTSHIELD_MODE=cloud (or feature flags enable cloud features)."""
     return get_feature_flags().mode == "cloud"
+
+
+def is_cloud() -> bool:
+    """Alias for is_cloud_mode()."""
+    return is_cloud_mode()
 
 
 def is_oss() -> bool:
     return get_feature_flags().mode == "oss"
 
 
+def is_feature_enabled(feature_name: str) -> bool:
+    """
+    Return True if the given cloud feature is enabled.
+
+    Recognized: auth, history, telemetry, community_queue, enterprise_forms.
+    Unknown features are enabled only when mode is cloud.
+    """
+    flags = get_feature_flags()
+    flag_map = {
+        "auth": flags.auth_enabled,
+        "history": flags.history_enabled,
+        "telemetry": flags.telemetry_enabled,
+        "community_queue": flags.community_queue_enabled,
+        "enterprise_forms": flags.enterprise_forms_enabled,
+    }
+    enabled = flag_map.get(feature_name)
+    if enabled is None:
+        enabled = is_cloud_mode()
+    return bool(enabled)
+
+
+def is_oss_telemetry_allowed() -> bool:
+    """
+    True when local-only telemetry (pageview/event) is allowed in OSS mode.
+    In cloud mode this is not used; telemetry is governed by telemetry_enabled.
+    """
+    flags = get_feature_flags()
+    if flags.mode == "cloud":
+        return flags.telemetry_enabled
+    return bool(flags.oss_telemetry_enabled)
+
+
 def require_cloud(feature_name: str) -> None:
     """
     Guard for cloud-only API routes.
 
-    Raises HTTP 501 with a structured JSON body when the feature
-    is not enabled in the current mode. Safe to call at the top of
-    any FastAPI route handler.
+    Must be called as the first line in every cloud/ops route handler.
+    Raises HTTP 501 with consistent JSON detail when the feature is not enabled,
+    so that no cloud logic runs after the guard.
+
+    Response detail: {"error": "not_implemented", "feature": "<name>", "mode": "<oss|cloud>"}
     """
     flags = get_feature_flags()
 
@@ -89,15 +141,35 @@ def require_cloud(feature_name: str) -> None:
 
     enabled = flag_map.get(feature_name)
     if enabled is None:
-        enabled = is_cloud()
+        enabled = is_cloud_mode()
 
     if not enabled:
         raise HTTPException(
             status_code=501,
             detail={
-                "error": "cloud_feature_disabled",
+                "error": "not_implemented",
                 "feature": feature_name,
-                "message": f"Available in ExtensionShield Cloud. "
-                f"Set EXTSHIELD_MODE=cloud or {feature_name.upper()}_ENABLED=true to enable.",
+                "mode": flags.mode,
             },
         )
+
+
+def require_cloud_dep(feature_name: str):
+    """
+    FastAPI dependency factory for cloud-only routes.
+
+    Use at route or router level so enforcement is mechanical (no per-handler discipline).
+    Example: dependencies=[require_cloud_dep("telemetry")]
+    """
+    def _dependency() -> None:
+        require_cloud(feature_name)
+
+    return Depends(_dependency)
+
+
+def reset_feature_flags_cache() -> None:
+    """
+    Clear the feature flags cache. Call in tests after changing env vars,
+    or when the app reloads config, so get_feature_flags() reads fresh values.
+    """
+    get_feature_flags.cache_clear()

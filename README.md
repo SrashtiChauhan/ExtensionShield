@@ -88,7 +88,7 @@ To enable all features, set these in `.env`:
 EXTSHIELD_MODE=cloud
 DB_BACKEND=supabase
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
 ```
 
 And in `frontend/.env`:
@@ -96,8 +96,10 @@ And in `frontend/.env`:
 ```bash
 VITE_AUTH_ENABLED=true
 VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY_HERE
 ```
+
+**OSS vs Cloud mode:** The API enforces the boundary server-side. In OSS mode (`EXTSHIELD_MODE=oss`, default), cloud-only routes (history, auth/karma, telemetry admin, community queue, enterprise forms) return **HTTP 501** with `{"error": "not_implemented", "feature": "...", "mode": "oss"}`. Optional local metrics in OSS: set `OSS_TELEMETRY_ENABLED=true` to store pageview/event in SQLite only (no outbound). See [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md).
 
 ---
 

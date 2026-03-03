@@ -55,12 +55,17 @@ class TestDeleteScanEndpoint:
 
     def test_delete_scan_without_admin_key_returns_403(self, client, admin_key):
         """DELETE without X-Admin-Key header should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             # Add a test scan result
             test_extension_id = "test-ext-123"
@@ -73,12 +78,17 @@ class TestDeleteScanEndpoint:
 
     def test_delete_scan_with_wrong_admin_key_returns_403(self, client, admin_key):
         """DELETE with wrong X-Admin-Key should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             test_extension_id = "test-ext-123"
             scan_results[test_extension_id] = {"extension_id": test_extension_id, "status": "completed"}
@@ -93,12 +103,17 @@ class TestDeleteScanEndpoint:
 
     def test_delete_scan_with_correct_admin_key_succeeds(self, client, admin_key):
         """DELETE with correct X-Admin-Key should succeed."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             # Mock database delete
             with patch.object(db, "delete_scan_result", return_value=True):
@@ -115,12 +130,17 @@ class TestDeleteScanEndpoint:
 
     def test_delete_scan_without_configured_admin_key_returns_403(self, client):
         """DELETE when admin key is not configured should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = None
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             test_extension_id = "test-ext-123"
             scan_results[test_extension_id] = {"extension_id": test_extension_id, "status": "completed"}
@@ -139,12 +159,17 @@ class TestDiagnosticScansEndpoint:
 
     def test_diagnostic_scans_without_admin_key_returns_403(self, client, admin_key):
         """GET /api/diagnostic/scans without X-Admin-Key should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             response = client.get("/api/diagnostic/scans")
             assert response.status_code == 403
@@ -156,12 +181,17 @@ class TestClearEndpoint:
 
     def test_clear_without_admin_key_returns_403(self, client, admin_key):
         """POST /api/clear without X-Admin-Key should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             response = client.post("/api/clear")
             assert response.status_code == 403
@@ -173,12 +203,17 @@ class TestTelemetrySummaryEndpoint:
 
     def test_telemetry_summary_without_admin_key_returns_403(self, client, admin_key, telemetry_key):
         """GET without X-Admin-Key header should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = telemetry_key
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             response = client.get("/api/telemetry/summary")
 
@@ -187,12 +222,17 @@ class TestTelemetrySummaryEndpoint:
 
     def test_telemetry_summary_with_wrong_admin_key_returns_403(self, client, admin_key, telemetry_key):
         """GET with wrong X-Admin-Key should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = telemetry_key
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             response = client.get(
                 "/api/telemetry/summary",
@@ -204,12 +244,17 @@ class TestTelemetrySummaryEndpoint:
 
     def test_telemetry_summary_with_telemetry_key_succeeds(self, client, admin_key, telemetry_key):
         """GET with correct TELEMETRY_ADMIN_KEY should succeed."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = telemetry_key
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             # Mock database method (handle AttributeError if method doesn't exist)
             with patch("extension_shield.api.main.db") as mock_db:
@@ -223,12 +268,17 @@ class TestTelemetrySummaryEndpoint:
 
     def test_telemetry_summary_falls_back_to_admin_key(self, client, admin_key):
         """GET should fallback to ADMIN_API_KEY when TELEMETRY_ADMIN_KEY is not set."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             # Mock database method (handle AttributeError if method doesn't exist)
             with patch("extension_shield.api.main.db") as mock_db:
@@ -242,12 +292,17 @@ class TestTelemetrySummaryEndpoint:
 
     def test_telemetry_summary_without_configured_key_returns_403(self, client):
         """GET when no admin keys are configured should return 403."""
-        with patch("extension_shield.api.main.get_settings") as mock_get_settings:
+        with patch("extension_shield.api.main.get_settings") as mock_get_settings, \
+             patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
             from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = None
             settings.telemetry_admin_key = None
             mock_get_settings.return_value = settings
+            flags = MagicMock()
+            flags.mode = "cloud"
+            flags.telemetry_enabled = True
+            mock_flags.return_value = flags
 
             response = client.get(
                 "/api/telemetry/summary",
@@ -259,17 +314,40 @@ class TestTelemetrySummaryEndpoint:
 
 
 class TestPageviewEndpoint:
-    """Tests for POST /api/telemetry/pageview endpoint (should remain public)."""
+    """Tests for POST /api/telemetry/pageview endpoint."""
 
-    def test_pageview_remains_public(self, client):
-        """POST /api/telemetry/pageview should not require admin key."""
-        response = client.post(
-            "/api/telemetry/pageview",
-            json={"path": "/test"}
-        )
+    def test_pageview_oss_without_oss_telemetry_returns_501(self, client):
+        """In OSS mode with OSS_TELEMETRY_ENABLED=false, pageview returns 501."""
+        with patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
+            from unittest.mock import MagicMock
+            flags = MagicMock()
+            flags.mode = "oss"
+            flags.telemetry_enabled = False
+            flags.oss_telemetry_enabled = False
+            mock_flags.return_value = flags
+            response = client.post(
+                "/api/telemetry/pageview",
+                json={"path": "/test"}
+            )
+            assert response.status_code == 501
+            data = response.json()
+            assert data.get("detail", {}).get("error") == "not_implemented"
+            assert data.get("detail", {}).get("mode") == "oss"
 
-        # Should succeed (200) or fail gracefully (doesn't break UI)
-        assert response.status_code in [200, 500]  # 500 if DB method not available
+    def test_pageview_succeeds_when_oss_telemetry_enabled(self, client):
+        """POST /api/telemetry/pageview succeeds when OSS_TELEMETRY_ENABLED=true (or cloud)."""
+        with patch("extension_shield.utils.mode.get_feature_flags") as mock_flags:
+            from unittest.mock import MagicMock
+            flags = MagicMock()
+            flags.mode = "oss"
+            flags.telemetry_enabled = False
+            flags.oss_telemetry_enabled = True
+            mock_flags.return_value = flags
+            response = client.post(
+                "/api/telemetry/pageview",
+                json={"path": "/test"}
+            )
+            assert response.status_code in [200, 500]
 
 
 class TestDatabaseHealthEndpoint:
@@ -307,7 +385,7 @@ class TestDatabaseHealthEndpoint:
     def test_db_health_with_correct_admin_key_returns_backend(self, client, admin_key):
         """GET with correct X-Admin-Key should return backend info."""
         with patch("extension_shield.api.main.get_settings") as mock_get_settings:
-            from unittest.mock import MagicMock, patch
+            from unittest.mock import MagicMock
             settings = MagicMock()
             settings.admin_api_key = admin_key
             mock_get_settings.return_value = settings

@@ -78,7 +78,7 @@ class Database:
         with self.get_connection() as conn:
             cursor = conn.cursor()
 
-            # Privacy-first telemetry (no PII)
+            # Local metrics (OSS: pageview/event when OSS_TELEMETRY_ENABLED; Cloud: same table)
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS page_views_daily (
@@ -1983,7 +1983,7 @@ def _create_db():
     Choose storage backend based on EXTSHIELD_MODE and DB_BACKEND.
 
     OSS mode (default):
-      - Uses SQLite unless Supabase is explicitly configured.
+      - Always uses SQLite. Supabase is never initialized so no cloud clients at import time.
     Cloud mode:
       - Uses Supabase when configured; falls back to SQLite.
     """
@@ -1995,10 +1995,16 @@ def _create_db():
     flags = get_feature_flags()
     settings = get_settings()
 
-    # In OSS mode, default to SQLite unless explicitly set to supabase
-    if flags.mode == "oss" and settings.db_backend != "supabase":
+    # OSS mode: never create Supabase or any cloud client at import time.
+    if flags.mode == "oss":
         _db = Database()
-        _logger.info("DB backend: sqlite (OSS mode)")
+        _logger.info("DB backend: sqlite (OSS mode, cloud clients not initialized)")
+        print(f"✓ DB backend: sqlite  |  mode={flags.mode}")
+        return _db
+
+    if settings.db_backend != "supabase":
+        _db = Database()
+        _logger.info("DB backend: sqlite")
         print(f"✓ DB backend: sqlite  |  mode={flags.mode}")
         return _db
 

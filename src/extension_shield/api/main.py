@@ -22,7 +22,7 @@ import logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone, timedelta
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Response, UploadFile, File, Request
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Response, UploadFile, File, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
@@ -42,7 +42,7 @@ from extension_shield.workflow.state import WorkflowState, WorkflowStatus
 from extension_shield.api.database import db, SupabaseDatabase, _is_extension_id
 from extension_shield.api.supabase_auth import get_current_user_id as _get_current_user_id
 from extension_shield.core.config import get_settings
-from extension_shield.utils.mode import require_cloud, get_feature_flags
+from extension_shield.utils.mode import require_cloud, get_feature_flags, is_oss_telemetry_allowed, require_cloud_dep
 from extension_shield.api.csp_middleware import CSPMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from extension_shield.api.payload_helpers import (
@@ -437,6 +437,34 @@ def _require_admin_key(request: Request) -> None:
         )
     
     if provided_key != admin_key:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid admin API key"
+        )
+
+
+def _require_admin_or_telemetry_key(request: Request) -> None:
+    """
+    Verify X-Admin-Key header matches ADMIN_API_KEY or TELEMETRY_ADMIN_KEY.
+    Used for telemetry summary endpoint so either key is accepted.
+    """
+    settings = get_settings()
+    admin_key = settings.admin_api_key
+    telemetry_key = settings.telemetry_admin_key
+    accepted = admin_key or telemetry_key
+    if not accepted:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin API key is not configured"
+        )
+    provided = request.headers.get("X-Admin-Key") or request.headers.get("x-admin-key")
+    if not provided:
+        raise HTTPException(
+            status_code=403,
+            detail="X-Admin-Key header is required"
+        )
+    valid = (admin_key and provided == admin_key) or (telemetry_key and provided == telemetry_key)
+    if not valid:
         raise HTTPException(
             status_code=403,
             detail="Invalid admin API key"
@@ -1750,10 +1778,9 @@ def _send_enterprise_pilot_emails(item: Dict[str, Any]) -> None:
         # Do not fail the request; submission is already stored
 
 
-@app.post("/api/enterprise/pilot-request")
+@app.post("/api/enterprise/pilot-request", dependencies=[require_cloud_dep("enterprise_forms")])
 async def create_enterprise_pilot_request(request: EnterprisePilotRequest, http_request: Request):
     """Capture an Enterprise pilot request; optionally send confirmation email via Resend."""
-    require_cloud("enterprise_forms")
     user_id = _get_user_id(http_request)
     now = datetime.now(timezone.utc).isoformat()
     item = {
@@ -1771,11 +1798,10 @@ async def create_enterprise_pilot_request(request: EnterprisePilotRequest, http_
     return {"ok": True, "received_at": now}
 
 
-@app.post("/api/careers/apply")
+@app.post("/api/careers/apply", dependencies=[require_cloud_dep("enterprise_forms")])
 @_rate_limit("5/minute")
 async def create_careers_apply(request: CareersApplyRequest, http_request: Request):
     """Accept careers application; send to team email via Resend (and optional confirmation to applicant)."""
-    require_cloud("enterprise_forms")
     now = datetime.now(timezone.utc).isoformat()
     item = {
         "received_at": now,
@@ -1826,19 +1852,17 @@ async def submit_feedback(feedback: FeedbackRequest, http_request: Request):
 # Community review queue (Supabase only)
 # -----------------------------------------------------------------------------
 
-@app.get("/api/community/review-queue")
+@app.get("/api/community/review-queue", dependencies=[require_cloud_dep("community_queue")])
 async def get_community_review_queue():
     """List review queue items with extension names and vote counts. Sorted: open, in_review, then by newest."""
-    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         return []
     return db.get_review_queue()
 
 
-@app.post("/api/community/review-queue/claim")
+@app.post("/api/community/review-queue/claim", dependencies=[require_cloud_dep("community_queue")])
 async def claim_community_review_item(body: ReviewQueueClaimRequest, http_request: Request):
     """Claim a queue item (set status=in_review, optional assigned_to_user_id)."""
-    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         raise HTTPException(status_code=501, detail="Review queue is not available")
     user_id = _get_user_id(http_request)
@@ -1848,10 +1872,9 @@ async def claim_community_review_item(body: ReviewQueueClaimRequest, http_reques
     return {"ok": True}
 
 
-@app.post("/api/community/review-queue/vote")
+@app.post("/api/community/review-queue/vote", dependencies=[require_cloud_dep("community_queue")])
 async def vote_community_review_item(body: ReviewQueueVoteRequest, http_request: Request):
     """Upsert a vote (up/down) and optional note. Requires authenticated user."""
-    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         raise HTTPException(status_code=501, detail="Review queue is not available")
     if body.vote not in ("up", "down"):
@@ -2535,11 +2558,12 @@ async def track_pageview(event: PageViewEvent):
     """
     Privacy-first pageview counter.
 
-    - No IP storage
-    - No user identifier
-    - Server computes day in UTC
-    - Supports Postgres (Supabase) and SQLite dev fallback
+    In OSS mode: enabled only when OSS_TELEMETRY_ENABLED=true; stores in SQLite (local metrics only, no outbound).
+    In Cloud mode: stores in configured backend (Supabase or SQLite).
+    - No IP storage, no user identifier; server computes day in UTC.
     """
+    if not is_oss_telemetry_allowed():
+        require_cloud("telemetry")  # Raises 501 in OSS when OSS_TELEMETRY_ENABLED is false
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     path = (event.path or "/").strip()
     try:
@@ -2554,27 +2578,30 @@ async def track_pageview(event: PageViewEvent):
 async def track_custom_event(event: CustomTelemetryEvent):
     """
     Log a custom frontend event (e.g. enterprise_custom_extension_cta_click).
+    In OSS: enabled only when OSS_TELEMETRY_ENABLED=true; local only (no outbound).
     No PII; fails silently if backend has no storage for events.
     """
+    if not is_oss_telemetry_allowed():
+        require_cloud("telemetry")  # Raises 501 in OSS when OSS_TELEMETRY_ENABLED is false
     name = (event.event or "").strip()
     if name:
         logger.info("Telemetry event: %s", name)
     return {"ok": True}
 
 
-@app.get("/api/telemetry/summary")
-async def telemetry_summary(days: int = 14):
+@app.get("/api/telemetry/summary", dependencies=[require_cloud_dep("telemetry")])
+async def telemetry_summary(request: Request, days: int = 14):
     """
-    Aggregate telemetry summary (open endpoint for now; intended for admin later).
+    Aggregate telemetry summary (admin-only). Requires X-Admin-Key (ADMIN_API_KEY or TELEMETRY_ADMIN_KEY).
     """
-    require_cloud("telemetry")
+    _require_admin_or_telemetry_key(request)
     try:
         return db.get_page_view_summary(days=days)
     except AttributeError:
         return {"days": days, "start_day": None, "end_day": None, "by_day": {}, "by_path": {}, "rows": []}
 
 
-@app.get("/api/history")
+@app.get("/api/history", dependencies=[require_cloud_dep("history")])
 async def get_history(http_request: Request, limit: int = 50):
     """
     Get scan history.
@@ -2585,7 +2612,6 @@ async def get_history(http_request: Request, limit: int = 50):
     Returns:
         List of scan history items
     """
-    require_cloud("history")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         # When using Supabase (staging or prod), require auth. SQLite fallback allows global history for dev testing.
@@ -2598,7 +2624,7 @@ async def get_history(http_request: Request, limit: int = 50):
     return {"history": history, "total": len(history)}
 
 
-@app.get("/api/history/private")
+@app.get("/api/history/private", dependencies=[require_cloud_dep("history")])
 async def get_private_history(http_request: Request, limit: int = 50):
     """
     Get user's private scan history (uploaded CRX/ZIP builds only).
@@ -2609,7 +2635,6 @@ async def get_private_history(http_request: Request, limit: int = 50):
     Returns:
         List of private scan history items (source='upload')
     """
-    require_cloud("history")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         raise HTTPException(status_code=401, detail="Sign in to view private history")
@@ -2618,7 +2643,7 @@ async def get_private_history(http_request: Request, limit: int = 50):
     return {"history": history, "total": len(history)}
 
 
-@app.get("/api/user/karma")
+@app.get("/api/user/karma", dependencies=[require_cloud_dep("auth")])
 async def get_user_karma(http_request: Request):
     """
     Get user's karma points and scan statistics.
@@ -2626,7 +2651,6 @@ async def get_user_karma(http_request: Request):
     Returns:
         User karma points, total scans, and timestamps
     """
-    require_cloud("auth")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         raise HTTPException(status_code=401, detail="Sign in to view karma")
@@ -2708,14 +2732,13 @@ async def get_recent_scans(limit: int = 10, search: str = None):
         return {"recent": [], "db_backend": db_backend}
 
 
-@app.get("/api/diagnostic/scans")
+@app.get("/api/diagnostic/scans", dependencies=[require_cloud_dep("telemetry")])
 async def diagnostic_scans(request: Request):
     """
     Diagnostic endpoint to check scan data flow.
     Returns information about scans in memory, database, and their status.
     Useful for debugging why scans aren't appearing in the UI.
     """
-    require_cloud("telemetry")
     _require_admin_key(request)
     try:
         diagnostic_info = {
@@ -2811,7 +2834,7 @@ async def diagnostic_scans(request: Request):
         return {"error": str(e)}
 
 
-@app.delete("/api/scan/{extension_id}")
+@app.delete("/api/scan/{extension_id}", dependencies=[require_cloud_dep("telemetry")])
 async def delete_scan(extension_id: str, request: Request):
     """
     Delete a scan result.
@@ -2822,7 +2845,6 @@ async def delete_scan(extension_id: str, request: Request):
     Returns:
         Deletion confirmation
     """
-    require_cloud("telemetry")
     _require_admin_key(request)
     success = db.delete_scan_result(extension_id)
 
@@ -2836,7 +2858,7 @@ async def delete_scan(extension_id: str, request: Request):
     raise HTTPException(status_code=404, detail="Scan not found")
 
 
-@app.post("/api/clear")
+@app.post("/api/clear", dependencies=[require_cloud_dep("telemetry")])
 async def clear_all_scans(request: Request):
     """
     Clear all scan results.
@@ -2844,7 +2866,6 @@ async def clear_all_scans(request: Request):
     Returns:
         Confirmation message
     """
-    require_cloud("telemetry")
     _require_admin_key(request)
     success = db.clear_all_results()
 

@@ -6,6 +6,12 @@ dist/
 wheels/
 *.egg-info
 
+# ------------------------------------------------------------------------------
+# Pre-open-source: do not publish (secrets / local / generated)
+# ------------------------------------------------------------------------------
+# .env, .venv/, node_modules/, .pytest_cache/, .vscode/, *.db, extensions_storage/, **/*.log
+# (Explicit entries for these appear below.)
+
 # Virtual environments
 .venv
 ### Python template
@@ -192,6 +198,12 @@ extensions_storage/
 .playwright-mcp/
 *.db
 .DS_Store
+**/*.log
+
+# Contractor / internal only (do not publish)
+contracts/
+docs/
+.railway-deploy
 
 # Frontend build artifacts
 static/

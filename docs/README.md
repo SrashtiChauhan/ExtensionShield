@@ -24,6 +24,13 @@ This directory contains documentation for the ExtensionShield project.
 
 - **[SECURITY.md](./SECURITY.md)** – Reporting vulnerabilities and secrets best practices
 
+### Open source & licensing
+
+- **[OPEN_CORE_BOUNDARIES.md](./OPEN_CORE_BOUNDARIES.md)** – Runtime mode, feature flags, API route classification, what's OSS vs Cloud
+- **[TRADEMARK.md](./TRADEMARK.md)** – Brand name and logo usage guidelines
+- **[OPEN_CORE_BOUNDARY_PLAN.md](./OPEN_CORE_BOUNDARY_PLAN.md)** – Definitive inventory (OPEN/CLOSED/MIXED), MIXED split recommendations, action plan checklist, secrets-check
+- **[AUDIT_OPEN_CORE_FOUR_FILES.md](./AUDIT_OPEN_CORE_FOUR_FILES.md)** – Line-by-line audit of `scoring/engine.py`, `scoring/gates.py`, `governance/rules_engine.py`, `api/main.py` for deterministic scoring and open-core boundaries
+
 ### Other
 
 - **[TYPOGRAPHY.md](./TYPOGRAPHY.md)** – Typography and font tokens
