@@ -49,7 +49,16 @@ const ScanProgressPage = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const hasSeenInProgressRef = useRef(false);
-  
+
+  // Apply extension name/icon from location state immediately (when navigating from scanner with a selected suggestion)
+  useEffect(() => {
+    if (!scanId) return;
+    const stateName = location.state?.extensionName;
+    const stateLogo = location.state?.extensionLogoUrl;
+    if (stateName != null) setExtensionName(stateName);
+    if (stateLogo != null) setExtensionLogo(stateLogo);
+  }, [scanId, location.state]);
+
   // Detect mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -60,29 +69,25 @@ const ScanProgressPage = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch extension logo and name with error handling
+  // Fetch extension logo and name: set icon URL immediately so it shows/loads right away; fallback to placeholder on error.
   useEffect(() => {
     if (!scanId) return;
     let cancelled = false;
-    
-    const iconUrl = getExtensionIconUrl(scanId);
-    
-    // Try to load the icon with error handling
-    try {
-      const img = new Image();
-      img.onload = () => {
-        if (!cancelled) setExtensionLogo(iconUrl);
-      };
-      img.onerror = () => {
-        if (!cancelled) setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
-      };
-      img.src = iconUrl;
-    } catch (err) {
-      // Silently fail - use placeholder
-      if (!cancelled) setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
-    }
 
-    // Try to fetch extension name from scan results
+    const iconUrl = getExtensionIconUrl(scanId);
+    // Set logo URL immediately so the img starts loading (unless we already have one from location state).
+    if (!location.state?.extensionLogoUrl) setExtensionLogo(iconUrl);
+
+    const img = new Image();
+    img.onload = () => {
+      if (!cancelled) setExtensionLogo(iconUrl);
+    };
+    img.onerror = () => {
+      if (!cancelled) setExtensionLogo(EXTENSION_ICON_PLACEHOLDER);
+    };
+    img.src = iconUrl;
+
+    // Fetch extension name from scan results when available (async; may not exist yet while scan is running).
     const fetchExtensionInfo = async () => {
       try {
         const results = await realScanService.getRealScanResults(scanId);
@@ -301,6 +306,17 @@ const ScanProgressPage = () => {
     return "Not complete";
   };
 
+  const getStageLabel = (stage) => {
+    const labels = {
+      extracting: "Extracting extension…",
+      security_scan: "Running security scan…",
+      building_evidence: "Building evidence…",
+      applying_rules: "Applying rules…",
+      generating_report: "Generating report…",
+    };
+    return labels[stage] || "Processing…";
+  };
+
   // Always render something - never show blank page
   // Show error if normalized ID is empty (invalid format or missing)
   if (!scanId) {
@@ -343,15 +359,23 @@ const ScanProgressPage = () => {
           {/* Minimal centered: icon, name, progress bar, status */}
           <div className="scan-progress-center">
             <div className="scan-progress-minimal-card">
-              <img
-                src={extensionLogo}
-                alt=""
-                className="scan-progress-minimal-icon"
-                onError={(e) => { e.target.style.display = "none"; }}
-              />
+              <div className="scan-progress-icon-wrap">
+                <img
+                  src={extensionLogo}
+                  alt=""
+                  className="scan-progress-minimal-icon"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = EXTENSION_ICON_PLACEHOLDER;
+                  }}
+                />
+              </div>
               <p className="scan-progress-minimal-name">
                 {extensionName || `Extension ${scanId?.substring(0, 8)}...`}
               </p>
+              {scanStage && (
+                <p className="scan-progress-stage-label">{getStageLabel(scanStage)}</p>
+              )}
               <div className="scan-progress-minimal-bar-wrap">
                 <div className="scan-progress-minimal-bar">
                   <div

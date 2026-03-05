@@ -41,6 +41,24 @@ def _is_extension_id(s: str) -> bool:
     return bool(s and len(s) == 32 and all(c in "abcdefghijklmnop" for c in s))
 
 
+def _relevance_rank(extension_name: str, extension_id: str, search_term: str) -> int:
+    """Return a numeric rank for search relevance (lower = better). Used for Supabase in-memory sort."""
+    if not search_term or not (extension_name or extension_id):
+        return 4
+    term = search_term.strip().lower()
+    name = (extension_name or "").strip().lower()
+    eid = (extension_id or "").lower()
+    if name == term:
+        return 0  # Exact title match
+    if name.startswith(term):
+        return 1  # Title starts with search
+    if term in name:
+        return 2  # Title contains (e.g. "block" in "Paypal ad blocker")
+    if term in eid:
+        return 3  # ID contains
+    return 4
+
+
 class Database:
     """SQLite database manager (dev fallback when Postgres/Supabase is not used)."""
 
@@ -730,12 +748,15 @@ class Database:
     def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get recent scans with summary info including metadata and signal data to avoid N+1 queries.
         Optional search filters by extension_name or extension_id (case-insensitive).
+        When search is provided, results are ranked by relevance: exact title match first, then title
+        starts with, then title contains (e.g. "block" matches "Paypal ad blocker"), then ID match; then by recency.
         """
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 if search and search.strip():
-                    term = f"%{search.strip()}%"
+                    term_raw = search.strip()
+                    term = f"%{term_raw}%"
                     cursor.execute(
                         """
                         SELECT 
@@ -750,10 +771,18 @@ class Database:
                           AND COALESCE(visibility, 'public') = 'public'
                           AND COALESCE(source, 'webstore') = 'webstore'
                           AND (extension_name LIKE ? OR extension_id LIKE ?)
-                        ORDER BY COALESCE(updated_at, timestamp) DESC
+                        ORDER BY
+                          CASE
+                            WHEN LOWER(TRIM(extension_name)) = LOWER(?) THEN 0
+                            WHEN LOWER(extension_name) LIKE LOWER(?) || '%' THEN 1
+                            WHEN LOWER(extension_name) LIKE '%' || LOWER(?) || '%' THEN 2
+                            WHEN extension_id LIKE ? THEN 3
+                            ELSE 4
+                          END,
+                          COALESCE(updated_at, timestamp) DESC
                         LIMIT ?
                     """,
-                        (term, term, limit),
+                        (term, term, term_raw, term_raw, term_raw, term, limit),
                     )
                 else:
                     cursor.execute(
@@ -1457,9 +1486,13 @@ class SupabaseDatabase:
             return []
 
     def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get recent scans (public webstore only; exclude private uploads). Optional search filters by extension_name or extension_id."""
+        """Get recent scans (public webstore only; exclude private uploads). Optional search filters by extension_name or extension_id.
+        When search is provided, results are ranked by relevance: exact title first, then title starts with, then title contains, then ID; then by recency.
+        """
         select_cols = "extension_id, extension_name, slug, scanned_at, created_at, updated_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary, icon_base64, icon_media_type"
         try:
+            # When searching, fetch more candidates so we can rank by relevance then trim to limit
+            limit_fetch = min(200, limit * 15) if (search and search.strip()) else limit
             q = (
                 self.client.table(self.table_scan_results)
                 .select(select_cols)
@@ -1470,10 +1503,15 @@ class SupabaseDatabase:
             )
             if search and search.strip():
                 term = search.strip()
-                # PostgREST or_ syntax: column.op.pattern (ilike uses % for wildcard)
                 q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
-            resp = q.limit(limit).execute()
+            resp = q.limit(limit_fetch).execute()
             rows = getattr(resp, "data", None) or []
+
+            # Rank by relevance when search is present: exact title > title starts with > title contains > id contains; then recency (query already ordered by updated_at)
+            if search and search.strip():
+                term = search.strip()
+                rows = sorted(rows, key=lambda r: _relevance_rank(r.get("extension_name"), r.get("extension_id"), term))[:limit]
+
             print(f"[get_recent_scans Supabase] Retrieved {len(rows)} scans from database")
             
             # Map scanned_at → timestamp for API compatibility. Use most accurate time for "recently scanned" display.
@@ -1509,6 +1547,7 @@ class SupabaseDatabase:
             # Migration 20260221100000 not applied: visibility/source columns missing
             if "42703" in err_str or "visibility" in err_str or "source" in err_str or "does not exist" in err_str:
                 try:
+                    limit_fetch = min(200, limit * 15) if (search and search.strip()) else limit
                     q = (
                         self.client.table(self.table_scan_results)
                         .select(select_cols)
@@ -1518,8 +1557,11 @@ class SupabaseDatabase:
                     if search and search.strip():
                         term = search.strip()
                         q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
-                    resp = q.limit(limit).execute()
+                    resp = q.limit(limit_fetch).execute()
                     rows = getattr(resp, "data", None) or []
+                    if search and search.strip():
+                        term = search.strip()
+                        rows = sorted(rows, key=lambda r: _relevance_rank(r.get("extension_name"), r.get("extension_id"), term))[:limit]
                     print(f"[get_recent_scans Supabase] Retrieved {len(rows)} scans (no visibility/source filter)")
                     for row in rows:
                         try:

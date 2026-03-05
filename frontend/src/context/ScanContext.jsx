@@ -144,7 +144,7 @@ export const ScanProvider = ({ children }) => {
   }, []);
 
   // Start scan from URL
-  const startScan = useCallback(async (scanUrl) => {
+  const startScan = useCallback(async (scanUrl, options = {}) => {
     const urlToScan = scanUrl || url;
     
     if (!urlToScan.trim()) {
@@ -209,7 +209,12 @@ export const ScanProvider = ({ children }) => {
 
       // Navigate to the progress/game screen ASAP for best UX.
       // The progress page will poll status until the scan is running/completed.
-      navigate(`/scan/progress/${extId}`);
+      navigate(`/scan/progress/${extId}`, {
+        state: {
+          extensionName: options.extensionName ?? undefined,
+          extensionLogoUrl: options.extensionLogoUrl ?? undefined,
+        },
+      });
       
       // Always trigger scan (for cached lookups, backend bumps extension to top of recent scans)
       const scanTrigger = await realScanService.triggerScan(urlToScan);

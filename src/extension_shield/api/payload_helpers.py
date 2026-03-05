@@ -101,11 +101,17 @@ def build_report_view_model_safe(
         return {}
 
 
-def upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[str, Any]:
+def upgrade_legacy_payload(payload: Optional[Dict[str, Any]], extension_id: str) -> Dict[str, Any]:
     """Upgrade legacy payloads to include scoring_v2 and report_view_model."""
+    if payload is None:
+        logger.warning(
+            "[UPGRADE] upgrade_legacy_payload called with None payload for extension_id=%s",
+            extension_id,
+        )
+        return {}
     has_scoring_v2_before = bool(
         payload.get("scoring_v2")
-        or payload.get("governance_bundle", {}).get("scoring_v2")
+        or (payload.get("governance_bundle") or {}).get("scoring_v2")
     )
     has_report_view_model_before = bool(payload.get("report_view_model"))
     has_consumer_insights_before = bool(
@@ -117,7 +123,7 @@ def upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[s
     try:
         existing_scoring = (
             payload.get("scoring_v2")
-            or payload.get("governance_bundle", {}).get("scoring_v2")
+            or (payload.get("governance_bundle") or {}).get("scoring_v2")
             or {}
         )
         existing_version = (existing_scoring or {}).get("scoring_version")
@@ -278,7 +284,7 @@ def upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[s
         )
         final_has_scoring_v2 = bool(
             payload.get("scoring_v2")
-            or payload.get("governance_bundle", {}).get("scoring_v2")
+            or (payload.get("governance_bundle") or {}).get("scoring_v2")
         )
         final_has_report_view_model = bool(payload.get("report_view_model"))
         final_has_consumer_insights = bool(

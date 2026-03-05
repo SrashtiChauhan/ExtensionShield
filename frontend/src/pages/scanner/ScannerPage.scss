@@ -142,11 +142,13 @@
   box-shadow: 0 8px 32px rgba(0,0,0,.35);
   max-height: 280px;
   overflow-y: auto;
+  text-align: left;
 }
 
 .scanner-autocomplete-item {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   padding: 10px 16px;
   cursor: pointer;
@@ -171,12 +173,14 @@
 
   .autocomplete-name {
     flex: 1;
+    min-width: 0;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--theme-text-primary, #f8fafc);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: left;
   }
 }
 

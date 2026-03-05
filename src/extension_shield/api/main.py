@@ -1933,7 +1933,7 @@ async def vote_community_review_item(body: ReviewQueueVoteRequest, http_request:
 
 
 @app.post("/api/scan/trigger")
-@_rate_limit("5/minute")
+@_rate_limit("6/minute")  # Conservative for VirusTotal (3 keys); cached lookups return immediately without running scan
 async def trigger_scan(scan_request: ScanRequest, background_tasks: BackgroundTasks, request: Request):
     """
     Trigger a new extension scan.
@@ -2217,7 +2217,7 @@ async def get_scan_results(identifier: str, http_request: Request):
     Returns:
         Complete scan results
     """
-    logger.info("[DEBUG get_scan_results] identifier=%s", identifier)
+    logger.debug("[get_scan_results] identifier=%s", identifier)
 
     # Resolve identifier to extension_id for memory/file lookups.
     # Accept Chrome extension ID (32 a-p) or upload scan ID (e.g. UUID).
@@ -2233,30 +2233,33 @@ async def get_scan_results(identifier: str, http_request: Request):
 
     # Try memory first (works for both Chrome IDs and upload UUIDs)
     if extension_id and extension_id in scan_results:
-        logger.info("[DEBUG get_scan_results] Using memory cache path")
         payload = scan_results[extension_id]
-        # Private reports: only the owning user may view
-        if payload.get("visibility") == "private":
-            requester_id = getattr(getattr(http_request, "state", None), "user_id", None)
-            if not requester_id or payload.get("user_id") != requester_id:
-                raise HTTPException(status_code=404, detail="Scan results not found")
-        # Upgrade legacy payload and ensure consumer_insights
-        payload = upgrade_legacy_payload(payload, extension_id)
-        payload = ensure_consumer_insights(payload)
-        ensure_description_in_meta(payload)
-        ensure_name_in_payload(payload)
-        # Add risk and signals mapping
-        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
-        scan_results[extension_id] = payload
-        log_scan_results_return_shape("memory", payload)
-        return payload
+        if payload is None:
+            del scan_results[extension_id]
+        else:
+            logger.debug("[get_scan_results] Using memory cache path")
+            # Private reports: only the owning user may view
+            if payload.get("visibility") == "private":
+                requester_id = getattr(getattr(http_request, "state", None), "user_id", None)
+                if not requester_id or payload.get("user_id") != requester_id:
+                    raise HTTPException(status_code=404, detail="Scan results not found")
+            # Upgrade legacy payload and ensure consumer_insights
+            payload = upgrade_legacy_payload(payload, extension_id)
+            payload = ensure_consumer_insights(payload)
+            ensure_description_in_meta(payload)
+            ensure_name_in_payload(payload)
+            # Add risk and signals mapping
+            payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+            scan_results[extension_id] = payload
+            log_scan_results_return_shape("memory", payload)
+            return payload
 
     # Try loading from database (accepts extension_id or slug)
-    logger.info("[DEBUG get_scan_results] Trying database path")
+    logger.debug("[get_scan_results] Trying database path")
     results = db.get_scan_result(identifier)
     if results:
         extension_id = results.get("extension_id") or extension_id
-        logger.info("[DEBUG get_scan_results] Database row exists: %s", bool(results))
+        logger.debug("[get_scan_results] Database row exists: %s", bool(results))
         # Private reports: only the owning user may view
         if results.get("visibility") == "private":
             requester_id = getattr(getattr(http_request, "state", None), "user_id", None)
@@ -2353,24 +2356,24 @@ async def get_scan_results(identifier: str, http_request: Request):
                     payload.get("scoring_v2"),
                     payload.get("report_view_model"),
                 )
-                logger.info("[DEBUG get_scan_results] Persisted upgraded payload to DB for %s", extension_id)
+                logger.debug("[get_scan_results] Persisted upgraded payload to DB for %s", extension_id)
             except Exception as persist_err:
-                logger.warning("[DEBUG get_scan_results] Failed to persist upgraded payload: %s", persist_err)
+                logger.debug("[get_scan_results] Failed to persist upgraded payload: %s", persist_err)
         
         log_scan_results_return_shape("db", payload)
         return payload
     else:
-        logger.warning("[DEBUG get_scan_results] Database row does NOT exist for identifier=%s", identifier)
+        logger.debug("[get_scan_results] Database row does NOT exist for identifier=%s", identifier)
 
     # Try loading from file (fallback; use identifier so upload UUID works)
     if not extension_id:
         extension_id = identifier
     if not extension_id:
         raise HTTPException(status_code=404, detail="Scan results not found")
-    logger.info("[DEBUG get_scan_results] Trying file path")
+    logger.debug("[get_scan_results] Trying file path")
     result_file = RESULTS_DIR / f"{extension_id}_results.json"
     if result_file.exists():
-        logger.info("[DEBUG get_scan_results] File exists: %s", result_file)
+        logger.debug("[get_scan_results] File exists: %s", result_file)
         try:
             with open(result_file, "r", encoding="utf-8") as f:
                 payload = json.load(f)
@@ -2390,17 +2393,17 @@ async def get_scan_results(identifier: str, http_request: Request):
             log_scan_results_return_shape("file", payload)
             return payload
         except json.JSONDecodeError as e:
-            logger.error("[DEBUG get_scan_results] JSON file is corrupted for %s: %s", extension_id, str(e))
+            logger.error("[get_scan_results] JSON file is corrupted for %s: %s", extension_id, str(e))
             # Delete the corrupted file
             try:
                 result_file.unlink()
-                logger.info("[DEBUG get_scan_results] Deleted corrupted JSON file: %s", result_file)
+                logger.debug("[get_scan_results] Deleted corrupted JSON file: %s", result_file)
             except Exception as delete_err:
-                logger.warning("[DEBUG get_scan_results] Failed to delete corrupted file: %s", str(delete_err))
+                logger.debug("[get_scan_results] Failed to delete corrupted file: %s", str(delete_err))
     else:
-        logger.warning("[DEBUG get_scan_results] File does NOT exist: %s", result_file)
+        logger.debug("[get_scan_results] File does NOT exist: %s", result_file)
 
-    logger.error("[DEBUG get_scan_results] No results found in memory, DB, or file for identifier=%s", identifier)
+    logger.error("[get_scan_results] No results found in memory, DB, or file for identifier=%s", identifier)
     raise HTTPException(status_code=404, detail="Scan results not found")
 
 

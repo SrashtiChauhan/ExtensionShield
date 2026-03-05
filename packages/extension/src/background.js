@@ -2,7 +2,7 @@
 'use strict';
 
 var API = 'https://extensionshield.com';
-var BATCH_DELAY_MS = 1500;
+var BATCH_DELAY_MS = 10000; // 6 triggers/min max; stay under API limit (VirusTotal-friendly)
 
 function delay(ms) {
   return new Promise(function (resolve) { setTimeout(resolve, ms); });
