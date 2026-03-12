@@ -34,8 +34,9 @@ Install the **ExtensionShield Chrome extension** to manage your extensions from 
 - Stay safer while browsing with better extension visibility  
 
 <p>
-  <a href="https://chromewebstore.google.com/">
-    <img src="https://img.shields.io/badge/Get%20it%20on-Chrome%20Web%20Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Get it on Chrome Web Store" />
+  <a href="https://chromewebstore.google.com/detail/extension-shield/lgfembekgpcfapeemgalpeefnlikpobd">
+    <img src="https://img.shields.io/badge/Get%20it%20on-Chrome%20Web%20Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white"
+         alt="Get it on Chrome Web Store" />
   </a>
 </p>
 
