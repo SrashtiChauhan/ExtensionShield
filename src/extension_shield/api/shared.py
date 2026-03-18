@@ -60,3 +60,13 @@ class PageViewEvent(BaseModel):
 class CustomTelemetryEvent(BaseModel):
     """Request model for custom frontend events (e.g. CTA clicks). No PII."""
     event: str
+
+
+class BatchResultsRequest(BaseModel):
+    """Request model for batch results lookup (Chrome extension popup)."""
+    extension_ids: list[str]
+
+
+class BatchStatusRequest(BaseModel):
+    """Request model for batch status lookup (Chrome extension popup)."""
+    extension_ids: list[str]

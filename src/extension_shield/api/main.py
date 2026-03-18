@@ -79,6 +79,8 @@ from extension_shield.api.shared import (  # noqa: E402
     FileListResponse,
     PageViewEvent,
     CustomTelemetryEvent,
+    BatchResultsRequest,
+    BatchStatusRequest,
 )
 
 
@@ -2695,6 +2697,11 @@ async def get_scan_results(identifier: str, http_request: Request):
             # Add risk and signals mapping
             payload["risk_and_signals"] = _extract_risk_and_signals(payload)
             scan_results[extension_id] = payload  # Cache in memory
+            # Persist upgraded payload to database so subsequent requests skip file I/O
+            try:
+                db.save_scan_result(payload)
+            except Exception:
+                pass
             log_scan_results_return_shape("file", payload)
             if payload.get("error"):
                 payload["error"] = _sanitize_error_for_client(payload["error"])
@@ -2715,6 +2722,155 @@ async def get_scan_results(identifier: str, http_request: Request):
     if http_request.headers.get("X-Prefer-Soft-NotFound", "").lower() in ("1", "true", "yes"):
         return JSONResponse(status_code=200, content={"_st": "not_found", "message": "Scan results not found"})
     raise HTTPException(status_code=404, detail="Scan results not found")
+
+
+# ---------------------------------------------------------------------------
+# Batch endpoints for Chrome extension popup performance
+# ---------------------------------------------------------------------------
+
+def _lookup_scan_result(
+    extension_id: str,
+    *,
+    lightweight: bool = False,
+) -> Optional[Dict[str, Any]]:
+    """
+    Internal helper: look up a scan result via memory → DB → file.
+
+    When *lightweight* is True the expensive ``upgrade_legacy_payload`` step
+    is skipped — the caller only needs the score / risk-level for badge
+    rendering (used by the batch endpoint to stay fast).
+
+    Returns the payload dict or ``None`` if not found anywhere.
+    """
+    # 1. Memory cache (instant)
+    payload = scan_results.get(extension_id)
+    if payload is not None:
+        if lightweight:
+            ensure_name_in_payload(payload)
+            payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+            return payload
+        payload = upgrade_legacy_payload(payload, extension_id)
+        payload = ensure_consumer_insights(payload)
+        ensure_description_in_meta(payload)
+        ensure_name_in_payload(payload)
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+        scan_results[extension_id] = payload
+        return payload
+
+    # 2. Database
+    try:
+        db_row = db.get_scan_result(extension_id)
+    except Exception:
+        db_row = None
+
+    if db_row:
+        resolved_id = db_row.get("extension_id") or extension_id
+        formatted = _hydrate_db_scan_result(db_row, extension_id)
+        if lightweight:
+            ensure_name_in_payload(formatted)
+            formatted["risk_and_signals"] = _extract_risk_and_signals(formatted)
+            scan_results[resolved_id] = formatted  # warm the memory cache
+            return formatted
+        payload = upgrade_legacy_payload(formatted, resolved_id)
+        payload = ensure_consumer_insights(payload)
+        ensure_description_in_meta(payload)
+        ensure_name_in_payload(payload)
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+        scan_results[resolved_id] = payload
+        return payload
+
+    # 3. File fallback
+    result_file = RESULTS_DIR / f"{extension_id}_results.json"
+    if result_file.exists():
+        try:
+            with open(result_file, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return None
+        if lightweight:
+            ensure_name_in_payload(payload)
+            payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+            scan_results[extension_id] = payload
+            return payload
+        payload = upgrade_legacy_payload(payload, extension_id)
+        payload = ensure_consumer_insights(payload)
+        ensure_description_in_meta(payload)
+        ensure_name_in_payload(payload)
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
+        scan_results[extension_id] = payload
+        return payload
+
+    return None
+
+
+@app.post("/api/scan/batch-results")
+@_rate_limit("30/minute")
+async def batch_scan_results(req: BatchResultsRequest):
+    """
+    Batch lookup of scan results for multiple extensions.
+
+    Used by the Chrome extension popup to fetch all installed extension
+    results in a single HTTP call instead of N individual GET requests.
+    Returns lightweight payloads (skips expensive legacy upgrades) with
+    just enough data for badge rendering.
+
+    Returns:
+        Dict mapping extension_id → payload (or {\"_st\": \"not_found\"}).
+    """
+    if len(req.extension_ids) > 50:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum 50 extension IDs per batch request",
+        )
+
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    unique_ids: list[str] = []
+    for eid in req.extension_ids:
+        if eid not in seen:
+            seen.add(eid)
+            unique_ids.append(eid)
+
+    results: Dict[str, Any] = {}
+    for ext_id in unique_ids:
+        payload = _lookup_scan_result(ext_id, lightweight=True)
+        if payload is None:
+            results[ext_id] = {"_st": "not_found"}
+        else:
+            if payload.get("error"):
+                payload["error"] = _sanitize_error_for_client(payload["error"])
+            results[ext_id] = payload
+
+    return results
+
+
+@app.post("/api/scan/batch-status")
+@_rate_limit("60/minute")
+async def batch_scan_status(req: BatchStatusRequest):
+    """
+    Batch lookup of scan statuses for multiple extensions.
+
+    Used by the Chrome extension popup to poll all in-progress scans
+    in a single HTTP call instead of N individual GET requests.
+
+    Returns:
+        Dict with \"statuses\" mapping extension_id → {scanned, status}.
+    """
+    if len(req.extension_ids) > 50:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum 50 extension IDs per batch request",
+        )
+
+    statuses: Dict[str, Dict[str, Any]] = {}
+    for ext_id in req.extension_ids:
+        status = scan_status.get(ext_id)
+        statuses[ext_id] = {
+            "scanned": status == "completed",
+            "status": status or "unknown",
+        }
+
+    return {"statuses": statuses}
 
 
 @app.get("/api/scan/enforcement_bundle/{extension_id}")
