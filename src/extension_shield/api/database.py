@@ -59,6 +59,11 @@ def _relevance_rank(extension_name: str, extension_id: str, search_term: str) ->
     return 4
 
 
+def _escape_postgrest_like_term(term: str) -> str:
+    """Escape wildcard characters before interpolating into a PostgREST ilike filter."""
+    return re.sub(r"([%_\\])", r"\\\1", term)
+
+
 class Database:
     """SQLite database manager (dev fallback when Postgres/Supabase is not used)."""
 
@@ -1506,7 +1511,7 @@ class SupabaseDatabase:
                 q = q.or_("visibility.is.null,visibility.eq.public").or_("source.is.null,source.eq.webstore")
             q = q.order("updated_at", desc=True)
             if search and search.strip():
-                term = search.strip()
+                term = _escape_postgrest_like_term(search.strip())
                 q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
             resp = q.limit(limit_fetch).execute()
             rows = getattr(resp, "data", None) or []
@@ -1559,7 +1564,7 @@ class SupabaseDatabase:
                         .order("updated_at", desc=True)
                     )
                     if search and search.strip():
-                        term = search.strip()
+                        term = _escape_postgrest_like_term(search.strip())
                         q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
                     resp = q.limit(limit_fetch).execute()
                     rows = getattr(resp, "data", None) or []
