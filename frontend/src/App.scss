@@ -1219,6 +1219,7 @@ body {
   cursor: pointer;
   flex-direction: column;
   gap: 5px;
+  flex-shrink: 0;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -1411,7 +1412,7 @@ body {
   }
 
   .header-container {
-    padding: 0 1rem;
+    padding: 0 1.25rem;
   }
 
   .header-nav-desktop,
@@ -1448,7 +1449,7 @@ body {
   }
 
   .header-container {
-    padding: 0 0.75rem;
+    padding: 0 1rem;
   }
 
   .header-logo-img {
