@@ -188,7 +188,7 @@ class TestLayerDetailsGenerator:
                 "one_liner": "Low governance risk with good policy compliance.",
                 "key_points": [
                     "WebStoreTrust: 50,000 users indicates established extension",
-                    "WebStoreTrust and store metadata show no policy violations detected."
+                    "WebStoreTrust reports no Chrome Web Store policy violations for this listing."
                 ],
                 "what_to_watch": [
                     "Monitor WebStoreTrust changes and store policy updates."
