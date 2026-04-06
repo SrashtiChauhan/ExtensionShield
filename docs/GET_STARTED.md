@@ -194,3 +194,64 @@ Hooks include Black, Pylint, gitleaks, and basic file checks. Run `make secrets-
 - **Security:** [SECURITY.md](SECURITY.md)
 - **Open-core details:** [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md)
 - **Back to overview:** [README.md](../README.md)
+
+- ## Common Issues & Improvements
+- Common Issues & Improvements
+
+1. Missing Step: Environment Configuration
+
+The guide says “Configure environment” but gives no instructions.
+
+Suggested Fix:
+List steps for setting environment variables (such as .env), including API keys for LLM features.
+
+---
+
+2. URL Input Requirement
+
+Users may face issues while analyzing extensions if incorrect URLs are used.
+
+Clarification:
+Only Chrome Web Store URLs are supported. Example:
+https://chromewebstore.google.com/detail/
+
+---
+
+3. “Unknown” Analysis Results
+
+Some extensions may show “Unknown” during analysis.
+
+Reason:
+
+* Insufficient data
+* Fetching limitations
+* Unsupported extension structure
+
+Suggestion:
+Provide an explanation in the UI or documentation to enhance user understanding.
+
+---
+
+4. Improve Beginner Guidance
+
+New users may find the setup confusing.
+
+Suggestion:
+Add a simple, quick-start section:
+
+* Clone repo
+* Run make install
+* Run make api
+* Run make frontend
+
+---
+
+5. Add Example Command
+
+Provide a working example for CLI usage:
+
+make analyze URL=https://chromewebstore.google.com/detail/example
+
+This will help users understand the expected input format.
+
+- These improvements are based on real usage of ExtensionShield during extension security analysis.
