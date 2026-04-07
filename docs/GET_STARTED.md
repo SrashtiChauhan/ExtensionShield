@@ -197,10 +197,5 @@ Hooks include Black, Pylint, gitleaks, and basic file checks. Run `make secrets-
 
 
 
-Provide a working example for CLI usage:
-
-make analyze URL=https://chromewebstore.google.com/detail/example
-
-This will help users understand the expected input format.
 
 - These improvements are based on real usage of ExtensionShield during extension security analysis.
