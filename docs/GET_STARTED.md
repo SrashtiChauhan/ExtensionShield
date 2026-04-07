@@ -195,7 +195,8 @@ Hooks include Black, Pylint, gitleaks, and basic file checks. Run `make secrets-
 - **Open-core details:** [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md)
 - **Back to overview:** [README.md](../README.md)
 
+---
 
+## Additional Resources
 
-
-- These improvements are based on real usage of ExtensionShield during extension security analysis.
+See [Common Issues & Improvements](COMMON_ISSUES.md) for known issues and usability suggestions.
