@@ -194,3 +194,9 @@ Hooks include Black, Pylint, gitleaks, and basic file checks. Run `make secrets-
 - **Security:** [SECURITY.md](SECURITY.md)
 - **Open-core details:** [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md)
 - **Back to overview:** [README.md](../README.md)
+
+---
+
+## Additional Resources
+
+See [Common Issues & Improvements](COMMON_ISSUES.md) for known issues and usability suggestions.
