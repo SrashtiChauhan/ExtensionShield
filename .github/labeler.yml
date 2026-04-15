@@ -1,0 +1,56 @@
+"area: backend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/extension_shield/**"
+          - "tests/api/**"
+          - "tests/scoring/**"
+          - "tests/governance/**"
+          - "tests/workflow/**"
+          - "tests/llm/**"
+          - "tests/test_*.py"
+          - "pyproject.toml"
+
+"area: frontend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "frontend/**"
+
+"area: extension":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "packages/extension/**"
+
+"area: cli":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "packages/cli/**"
+          - "src/extension_shield/cli/**"
+
+"area: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "README.md"
+          - "docs/**"
+          - "scripts/README.md"
+          - "packages/**/README.md"
+          - "supabase/README.md"
+
+"area: infra":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - "Dockerfile"
+          - "docker-compose.yml"
+          - "railway.toml"
+          - "deploy/**"
+          - "supabase/**"
+          - "Makefile"
+          - "package.json"
+          - "package-lock.json"
+          - "uv.lock"
+
+"area: tests":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+          - "frontend/tests/**"

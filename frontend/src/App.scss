@@ -150,10 +150,10 @@ body {
   width: 100%;
   max-width: var(--layout-max-width);
   height: var(--extensionshield-header-height);
-  padding: 0 clamp(0.75rem, 2.5vw, 1.75rem);
-  display: flex;
+  padding: 10px clamp(0.75rem, 2.5vw, 1.75rem) 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 1.5rem;
   /* Motion handles maxWidth, margin, background, border, shadow, borderRadius when solid */
 }
@@ -208,6 +208,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.125rem;
+  justify-content: center;
 }
 
 
@@ -729,6 +730,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 /* Get Extension – icon + text, site theme (green) */
@@ -1378,7 +1380,8 @@ body {
    ============================================================================ */
 @media (max-width: 1024px) {
   .header-container {
-    padding: 0 1.5rem;
+    padding: 10px 1rem 0;
+    gap: 0.75rem;
   }
 
   .header-nav-desktop {
@@ -1388,6 +1391,11 @@ body {
   .nav-item {
     padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
+  }
+
+  .action-signin {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .megamenu-dropdown {
@@ -1402,7 +1410,7 @@ body {
 /* Tablet: keep full nav but tighter layout; megamenu dropdown full width when open */
 @media (max-width: 768px) {
   .header-container {
-    padding: 0 1rem;
+    padding: 10px 1rem 0;
   }
 
   .megamenu-dropdown {
@@ -1419,7 +1427,9 @@ body {
   }
 
   .header-container {
-    padding: 0 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 1.25rem 0;
   }
 
   .header-nav-desktop,
@@ -1456,7 +1466,7 @@ body {
   }
 
   .header-container {
-    padding: 0 1rem;
+    padding: 4px 1rem 0;
   }
 
   .header-logo-img {
@@ -1479,6 +1489,36 @@ body {
 
   .page-container {
     padding: 48px 1rem 2rem !important;
+  }
+}
+
+/* Extra small devices (iPhone 12/13/14/15 Pro: 390px, SE: 375px) */
+@media (max-width: 400px) {
+  .header-container {
+    padding: 0px 0.75rem 0;
+    gap: 0.5rem;
+  }
+
+  .header-logo-shield {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-logo-img {
+    height: 32px;
+  }
+
+  .logo-text {
+    font-size: 0.875rem;
+  }
+
+  .header-mobile-toggle {
+    width: 32px;
+    height: 32px;
+    
+    .hamburger-bar {
+      width: 18px;
+    }
   }
 }
 
